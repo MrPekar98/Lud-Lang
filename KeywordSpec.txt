@@ -1,0 +1,33 @@
+static:
+    Used for static variables and static methods.
+
+public:
+    Methods and variables can be public.
+
+private:
+    Methods and variables can be private.
+
+internal:
+    Methods and variables can be internally shared in inheritance.
+
+class:
+    Used to declare a class. Class declarations can not make use of any modifier, and is therefore used alone in a declaration.
+    A class can inherit one class and implement several rules. For example, class SubClass : SuperClass using MyRules.
+
+rules:
+    Used as an interface to a class defining the rules (methods a class must have) of an implementing class.
+    A rules declaration can not make use of any modifier, but can implement super rules.
+
+
+_______________________________________________________DATA TYPES_______________________________________________
+int:
+    Data type for integers.
+
+unsigned:
+    Data type non-negative integers.
+
+float:
+    Data type for floating-point values.
+
+string:
+    Data types for string.
