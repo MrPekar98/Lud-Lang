@@ -25,4 +25,23 @@ ________________________________________________________________________________
 <Statements> -> <Statement> <Statements>
 	      | 'lambda'
 
-<Statement> ->
+<Statement> -> <VarDecl>
+	     | <MethodDecl>
+	     | <Assignment>
+	     | <Value>
+	     | 'lambda'
+	     
+<VarDecl> -> <Accessor> <Modifier> <DataType> <Assignemnt>
+
+<Modifier> -> static
+	    | 'lambda'
+
+<Accessor> -> public
+	    | private
+	    | internal
+	    | 'lambda'
+	    
+<Assignment> -> <Var> = <Value>
+	      | <Var>
+
+<Value> ->
