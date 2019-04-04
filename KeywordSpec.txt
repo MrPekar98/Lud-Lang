@@ -46,3 +46,6 @@ string:
 
 void:
     Data type for no type.
+
+bool:
+    Data type for boolean values 'true' and 'false'.
