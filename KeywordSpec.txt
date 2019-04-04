@@ -17,6 +17,9 @@ class:
 ruleset:
     Used as an interface to a class defining the rules (methods a class must have) of an implementing class.
     A rules declaration can not make use of any modifier, but can implement super rules.
+    
+return:
+    Keyword to return from method. Every method must use this keyword before terminating.
 
 
 _______________________________________________________DATA TYPES_______________________________________________
