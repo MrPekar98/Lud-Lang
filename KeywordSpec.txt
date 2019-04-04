@@ -31,3 +31,6 @@ float:
 
 string:
     Data types for string.
+
+void:
+    Data type for no type.
