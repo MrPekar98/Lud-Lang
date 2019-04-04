@@ -32,6 +32,9 @@ constructor:
      
 import:
     Used to import libaries.
+    
+create:
+    Used to create an instance of a class of an array.
 
 _______________________________________________________DATA TYPES_______________________________________________
 int:
