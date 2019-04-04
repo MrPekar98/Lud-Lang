@@ -1,1 +1,4 @@
-<Start> -> 
+<Start> -> <Imports>
+
+<Imports> -> import <path> <Imports>
+	         | 'lambda'
