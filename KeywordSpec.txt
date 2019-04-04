@@ -28,8 +28,10 @@ super:
     Instance keyword of the super class of the class within it is being used.
     
 constructor:
-     Constructor keyword used to declare a constructor of a class.
-
+    Constructor keyword used to declare a constructor of a class.
+     
+import:
+    Used to import libaries.
 
 _______________________________________________________DATA TYPES_______________________________________________
 int:
