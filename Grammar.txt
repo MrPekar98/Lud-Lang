@@ -1,4 +1,28 @@
-<Start> -> <Imports>
+\n: newline
+\t tab
+\bt reversed tab
+__________________________________________________________________________________________________________________________________________
 
-<Imports> -> import <path> <Imports>
-	         | 'lambda'
+<Start> -> <Imports> \n <Program>
+	 | <Program>
+	 
+<Var> -> variable
+
+<Imports> -> import <path> \n <Imports>
+	   | 'lambda'
+
+<Program> -> <RulesetDecl>
+	   | <ClassDecl>
+	   | <Statements>
+	   | 'lambda'
+	   
+<RulesetDecl> -> ruleset <Var> [using <Var> {, <Var>}]: \n \t <Statements> \n \bt <RulesetDecl>
+	       | 'lambda'
+
+<ClassDecl> -> class <Var> [+ <Var>] [using <Var> {, <Var>}]: \n \t <Statements> \n \bt <ClassDecl>
+	     | 'lambda'
+
+<Statements> -> <Statement> <Statements>
+	      | 'lambda'
+
+<Statement> ->
