@@ -20,6 +20,12 @@ ruleset:
     
 return:
     Keyword to return from method. Every method must use this keyword before terminating.
+    
+this:
+    Instance keyword of the class within it is being used.
+
+super:
+    Instance keyword of the super class of the class within it is being used.
 
 
 _______________________________________________________DATA TYPES_______________________________________________
