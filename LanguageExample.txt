@@ -1,0 +1,67 @@
+____________________________________________COMMENTS__________________________________________________________
+# This is a comment. #
+
+____________________________________________RULESET DECLARATION_______________________________________________
+
+ruleset Body using AnimalBody:
+    amountOfLegs() ? int
+    sumOfAges(Dog dog1, Dog dog2) ? int
+
+    # Static method in ruleset. #
+    public static sumOfLegs(int dogs) ? int:
+        return dogs * 4
+
+    # Returns an instance of an animal #
+    public static createAnimal(string name, int age) ? Animal:
+        return create Animal(name, age)
+
+____________________________________________CLASS DECLARATION_________________________________________________
+
+# Represent an animal #
+class Animal:
+    internal string animalName
+    internal unsigned age
+
+    constructor(string name, int age):
+        this.animalName = name
+        this.age = age
+
+    public getName() ? string:
+        return this.animalName
+
+    public getAge() ? int:
+        return this.age
+
+# Sub-class of Animal representing a dog. #
+class Dog + Animal using DogBody, Movement:
+    private bool adopted
+    private int[] arrayOfNumbers
+    private string[] arrayOfStrings
+    private string helloWorld
+    
+    constructor(string name, int age, bool isAdopted):
+        super.animalName = name
+        super.age = age
+        this.adopted = isAdopted
+        this.arrayOfNumbers = new int[5];
+        this.arrayOfString = {"Hello", "world"}
+        this.helloWord = arrayOfStrings[0] + " " + arrayOfStrings[1]
+
+    public setName(string name) ? void:
+        super.animalName = name
+        return;
+
+    public setAge(int age) ? void:
+        super.age = age
+        return;
+
+    public setIsAdopted(bool value) ? void:
+        this.adopted = value
+        return
+
+    public isAdopted() ? bool:
+        return this.adopted
+
+    # Calculates the sum of years of two dogs. #
+    public static sumOfAges(Dog dog1, Dog dog2) ? int:
+        return dog1.getAge() + dog2.getAge()
