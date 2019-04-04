@@ -12,7 +12,7 @@ internal:
 
 class:
     Used to declare a class. Class declarations can not make use of any modifier, and is therefore used alone in a declaration.
-    A class can inherit one class and implement several rules. For example, class SubClass : SuperClass using MyRules.
+    A class can inherit one class and implement several rules. For example, class SubClass + SuperClass using MyRules.
 
 rules:
     Used as an interface to a class defining the rules (methods a class must have) of an implementing class.
