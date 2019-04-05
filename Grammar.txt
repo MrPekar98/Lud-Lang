@@ -57,8 +57,6 @@ ________________________________________________________________________________
 	 | number
 	 | string
 	 
-	 p & q | (q | r)
-	 
 <BoolExpression> -> <BoolXor> | <BoolExpression>
 		  | <BoolXor>
 		  
