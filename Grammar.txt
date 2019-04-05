@@ -28,10 +28,10 @@ ________________________________________________________________________________
 <Statement> -> <VarDecl>
 	     | <MethodDecl>
 	     | <Assignment>
-	     | <Value>
+	     | <Expression>
 	     | 'lambda'
 	     
-<VarDecl> -> <Accessor> <Modifier> <DataType> <Assignemnt>
+<VarDecl> -> <Accessor> <Modifier> [const] <DataType> <Assignemnt>
 
 <Modifier> -> static
 	    | 'lambda'
@@ -41,7 +41,39 @@ ________________________________________________________________________________
 	    | internal
 	    | 'lambda'
 	    
-<Assignment> -> <Var> = <Value>
+<DataType> -> num
+	    | string
+	    | bool
+	    
+<Assignment> -> <Var> = <Expression>
 	      | <Var>
+	      
+<Expression> -> <BoolExpression>
+	      | <ArithExpression>
+	      | <StringExpression>
+	      | <Value>
 
-<Value> ->
+<Value> -> boolean
+	 | number
+	 | string
+	 
+	 p & q | (q | r)
+	 
+<BoolExpression> -> <BoolXor> | <BoolExpression>
+		  | <BoolXor>
+		  
+<BoolXor> -> <BoolAnd> ^ <BoolXor>
+	   | <BoolAnd>
+	   
+<BoolAnd> -> <BoolParan> & <BoolAnd>
+	   | <BoolParan>
+	   
+<BoolParan> -> (<BoolExpression)
+	     | <Var>
+	     | boolean
+
+<ArithExpression> ->
+
+<StringExpression> ->
+
+<MethodDecl> ->
