@@ -35,17 +35,14 @@ import:
     
 create:
     Used to create an instance of a class of an array.
+    
+const:
+    Used to declare a variable as a contant.
 
 _______________________________________________________DATA TYPES_______________________________________________
-int:
-    Data type for integers.
-
-unsigned:
-    Data type non-negative integers.
-
-float:
-    Data type for floating-point values.
-
+num:
+    Data type for numbers (integers and floating-point).
+    
 string:
     Data types for string.
 
