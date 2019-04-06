@@ -27,7 +27,7 @@ typedef struct
 // Prototypes
 token_line read_tokenline(FILE *file);
 static inline unsigned amountof_tokens(const char *str);
-token rec_token(const char *read);
+static inline token rec_token(const char *read);
 
 // Setter for indentation to determine scope leves.
 void setindent(token_line *stream, unsigned value)
@@ -96,7 +96,7 @@ static inline unsigned amountof_tokens(const char *str)
 }
 
 // Recognizes token and returns token struct from a string.
-token rec_token(const char *read)
+static inline token rec_token(const char *read)
 {
     return (token) {};
 }
