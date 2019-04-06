@@ -1,9 +1,9 @@
 ____________________________________________COMMENTS__________________________________________________________
 # This is a comment. #
 
-____________________________________________RULESET DECLARATION_______________________________________________
+____________________________________________PROTOCOL DECLARATION_______________________________________________
 
-ruleset Body using AnimalBody:
+protocol DogBody + AnimalBody:
     amountOfLegs() ? int
     sumOfAges(Dog dog1, Dog dog2) ? int
 
