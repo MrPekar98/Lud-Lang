@@ -70,8 +70,22 @@ ________________________________________________________________________________
 	     | <Var>
 	     | boolean
 
-<ArithExpression> ->
+<StringExpression> -> string + <StringExpressions>
+		    | string
 
-<StringExpression> ->
+<ArithExpression> -> <PlusMinus> % <ArithExpression>
+		   | <PlusMinus>
+
+<PlusMinus> -> <MultDiv> + <PlusMinus>
+	     | <MultDiv> - <PlusMinus>
+	     | <MultDiv>
+		   
+<MultDiv> -> <ArithParan> * <MultDiv>
+	   | <ArithParan> / <MultDiv>
+	   | <ArithParan>
+	   
+<ArithParan> -> (<ArithExpression>)
+	      | number
+	      | <Var>
 
 <MethodDecl> ->
