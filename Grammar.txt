@@ -11,13 +11,13 @@ ________________________________________________________________________________
 <Imports> -> import <path> \n <Imports>
 	   | 'lambda'
 
-<Program> -> <RulesetDecl>
+<Program> -> <ProtocolDecl>
 	   | <ClassDecl>
 	   | <Statements>
 	   | 'lambda'
 	   
-<RulesetDecl> -> ruleset <Var> [using <Var> {, <Var>}]: \n \t <Statements> \n \bt <RulesetDecl>
-	       | 'lambda'
+<ProtocolDecl> -> protocol <Var> [using <Var> {, <Var>}]: \n \t <Statements> \n \bt <ProtocolDecl>
+	        | 'lambda'
 
 <ClassDecl> -> class <Var> [+ <Var>] [using <Var> {, <Var>}]: \n \t <Statements> \n \bt <ClassDecl>
 	     | 'lambda'
