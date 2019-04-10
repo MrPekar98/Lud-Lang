@@ -61,7 +61,7 @@ token_line read_tokenline(FILE *file)
     line.tokens = amountof_tokens(read_str);
     unsigned i, old = 0, counter = 0, length = strlen(read_str);
     line.tokenstream = (token *) malloc(sizeof(token) * line.tokens);
-    char temp[TOKENLENGTH * 3];
+    char temp[TOKENLENGTH * 10];
 
     for (i = 0; i < length; i++)
     {
