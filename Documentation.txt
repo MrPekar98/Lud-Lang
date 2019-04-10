@@ -1,0 +1,12 @@
+########################################################### Lud-Lang Syntax ########################################################################
+As in Python, white-space is important. Therefore, Lud-Lang does not allow multiple statements on one line since there are no character to represent 'end-of-line', like ';'.
+
+Below are presented some of the most important rules for Lud-Lang:
+- No 'end-of-line' character.
+- Colon ':' is used to declare a block.
+- Identation indicates scope-level. For example, statement with zero indentation is in scope-level 0, statement with 4 (user specified) indentation is in scope-level 1, and so forth.
+- Every token in the language must have a exactly one space in between. For example, we write '2 + 2' and not '2+2'.
+- There are no main function. The program is written in the scope-level 0.
+- Strings are added using the plus operator.
+- Arrays have dynamic bindings and are therefore allocated in the heap.
+- Each line in the source file must at most contain 150 characters.
