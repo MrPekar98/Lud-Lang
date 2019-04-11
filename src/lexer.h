@@ -33,6 +33,7 @@ int isnumberlit(const char *str);
 int isboollit(const char *str);
 int isstringlit(const char *str);
 int isid(const char *str);
+int iswhite_space(const char* str);
 
 // Setter for indentation to determine scope leves.
 void setindent(token_line *stream, unsigned value)
@@ -57,7 +58,14 @@ token_line read_tokenline(FILE *file)
         exit(1);
     }
 
-    fscanf(file, " %[ A-Za-z_0-9]", read_str);
+    // Reads until a line containing other characters than spaces is found.
+   do
+   {
+       fscanf(file, "%[ A-Za-z_0-9]\n", read_str);
+   }
+   while (iswhite_space(read_str) && !feof(file));
+   
+
     line.tokens = amountof_tokens(read_str);
     unsigned i, old = 0, counter = 0, length = strlen(read_str);
     line.tokenstream = (token *) malloc(sizeof(token) * line.tokens);
@@ -239,4 +247,19 @@ int isid(const char *str)
         return 1;
 
     return 0;
+}
+
+// Checks string for being only white-space.
+int iswhite_space(const char* str)
+{
+    unsigned i;
+    size_t length = strlen(str);
+
+    for (i = 0; i < length; i++)
+    {
+        if (str[i] != ' ')
+            return 0;
+    }
+
+    return 1;
 }
