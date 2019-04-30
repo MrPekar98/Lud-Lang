@@ -5,7 +5,7 @@
 #define TOKENLENGTH 15
 
 // Table of tokens.
-enum token_t {CLASS, PROTOCOL, LPARAN, RPARAN, PLUS, MINUS, TIMES, DIVISOR, MODULUS, NUMBERLIT, BOOLLIT, STRINGLIT, ID};
+enum token_t {CLASS, PROTOCOL, LPARAN, RPARAN, ASSIGN, PLUS, MINUS, TIMES, DIVISOR, MODULUS, NUMBERLIT, BOOLLIT, STRINGLIT, ID};
 
 // Editor indentation.
 static unsigned indentation = 4;
@@ -29,6 +29,7 @@ typedef struct
 token_line read_tokenline(FILE *file);
 static inline unsigned amountof_tokens(const char *str);
 static inline token rec_token(const char *read);
+char *substring(unsigned from, unsigned to, const char *str);
 int isnumberlit(const char *str);
 int isboollit(const char *str);
 int isstringlit(const char *str);
@@ -51,20 +52,20 @@ token_line read_tokenline(FILE *file)
     char c, *read_str = (char *) malloc(sizeof(char) * TOKENLENGTH * 10);
 
     // Indentation error check.
-    if (strlen(space_str) % indentation != 0)
+    if (strlen(space_str) % indentation != 0 && strlen(space_str) > 1)
     {
         fscanf(file, "%s", read_str);
         printf("Indentation fault before: '%s'\n", read_str);
         exit(1);
     }
 
+    // TODO: Read other necessary characters.
     // Reads until a line containing other characters than spaces is found.
-   do
-   {
-       fscanf(file, "%[ A-Za-z_0-9]\n", read_str);
-   }
-   while (iswhite_space(read_str) && !feof(file));
-   
+    do
+    {
+        fscanf(file, "%[A-Za-z_=+-*/()\",. 0-9]\n", read_str);
+    }
+    while (iswhite_space(read_str) && !feof(file));
 
     line.tokens = amountof_tokens(read_str);
     unsigned i, old = 0, counter = 0, length = strlen(read_str);
@@ -84,10 +85,10 @@ token_line read_tokenline(FILE *file)
                     break;
             }
 
+            // TODO: Counter counts way to high.
             if (i = length - 1 || read_str[i + 1] == ' ')
             {
-                sprintf(temp, "%s", read_str + start);
-                temp[++i] = '\0';
+                strcpy(temp, substring(start, ++i, read_str));
                 line.tokenstream[counter++] = rec_token(temp);
                 old = ++i;
             }
@@ -103,23 +104,20 @@ token_line read_tokenline(FILE *file)
         
         else if (i == length - 1)
         {
-            sprintf(temp, "%s", read_str + old);
-            temp[length] = '\0';
+            strcpy(temp, substring(old, length - 1, read_str));
             line.tokenstream[counter] = rec_token(temp);
             break;
         }
 
         else if (read_str[i] == ' ')
         {
-            sprintf(temp, "%s", read_str + old);
-            temp[i] = '\0';
+            strcpy(temp, substring(old, i - 1, read_str));
             line.tokenstream[counter++] = rec_token(temp);
             old = i + 1;
         }
     }
 
     free(read_str);
-
     return line;
 }
 
@@ -168,6 +166,9 @@ static inline token rec_token(const char *read)
     else if (strcmp(read, ")") == 0)
         t.key = RPARAN;
 
+    else if (strcmp(read, "=") == 0)
+        t.key = ASSIGN;
+
     else if (strcmp(read, "+") == 0)
         t.key = PLUS;
 
@@ -196,6 +197,24 @@ static inline token rec_token(const char *read)
         t.key = ID;
 
     return t;
+}
+
+// Returns substring of string.
+char *substring(unsigned from, unsigned to, const char *str)
+{
+    if (to >= strlen(str))
+        return NULL;
+
+    const unsigned length = strlen(str);
+    unsigned i, counter = 0;
+    char *result = (char *) calloc(strlen(str), sizeof(char));
+
+    for (i = from; i <= to; i++, counter++)
+    {
+        result[counter] = str[i];
+    }
+
+    return result;
 }
 
 // Checks string for being a number literal.
