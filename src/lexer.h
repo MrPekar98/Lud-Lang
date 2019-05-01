@@ -77,29 +77,26 @@ token_line read_tokenline(FILE *file)
         // When token is a string.
         if (read_str[i] == '"')
         {
-            unsigned start = i++;
-            
-            for (; i < length; i++)
+            char *str = (char *) calloc(length, sizeof(char));
+            unsigned str_counter = 1;
+            i++;
+
+            while (read_str[i] != '"')
             {
-                if (read_str[i] == '"')
-                    break;
+                str[str_counter++] = read_str[i++];
             }
 
-            // TODO: Counter counts way to high.
-            if (i = length - 1 || read_str[i + 1] == ' ')
-            {
-                strcpy(temp, substring(start, ++i, read_str));
-                line.tokenstream[counter++] = rec_token(temp);
-                old = ++i;
-            }
+            str[0] = '"';
+            str[strlen(str)] = '"';
+            line.tokenstream[counter++] = rec_token(str);
 
-            // Error.
+            printf("Literal: %s\n", str);
+
+            if (read_str[i] != ' ')
+                old = i;
+
             else
-            {
-                printf("Missing space in following string:\n'%s'\n", read_str);
-                exit(1);
-            }
-            
+                old = i + 1;
         }
 
         // When paranthesis is met.
@@ -155,8 +152,6 @@ static inline unsigned amountof_tokens(const char *str)
                 if (str[i] == '"')
                     break;
             }
-
-            counter++;
         }
         
         else if (str[i] == ' ')
@@ -272,7 +267,7 @@ int isstringlit(const char *str)
     return 0;
 }
 
-// Checks string for being a string literal.
+// Checks string for being an identifier.
 int isid(const char *str)
 {
     unsigned i, length = strlen(str);
