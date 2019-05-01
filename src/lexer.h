@@ -101,6 +101,24 @@ token_line read_tokenline(FILE *file)
             }
             
         }
+
+        // When paranthesis is met.
+        else if (read_str[i] == '(' || read_str[i] == ')')
+        {
+            if (read_str[i] == ')' && read_str[i - 1] != ' ')
+            {
+                strcpy(temp, substring(old, i - 1, read_str));
+                line.tokenstream[counter++] = rec_token(temp);
+            }
+
+            line.tokenstream[counter++] = rec_token(substring(i, i, read_str));
+            
+            if (read_str[i + 1] == ' ')
+                old = i + 2;
+
+            else
+                old = i + 1;
+        }
         
         else if (i == length - 1)
         {
@@ -142,6 +160,9 @@ static inline unsigned amountof_tokens(const char *str)
         }
         
         else if (str[i] == ' ')
+            counter++;
+
+        else if (str[i] == '(' || str[i] == ')')
             counter++;
     }
 
