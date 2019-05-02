@@ -5,7 +5,7 @@
 #define TOKENLENGTH 15
 
 // Table of tokens.
-enum token_t {CLASS, PROTOCOL, LPARAN, RPARAN, ASSIGN, PLUS, MINUS, TIMES, DIVISOR, MODULUS, NUMBERLIT, BOOLLIT, STRINGLIT, ID};
+enum token_t {CLASS, PROTOCOL, LPARAN, RPARAN, ASSIGN, PLUS, MINUS, TIMES, DIVISOR, MODULUS, NUMBERLIT, BOOLLIT, STRINGLIT, ID, COLON};
 
 // Editor indentation.
 static unsigned indentation = 4;
@@ -20,13 +20,15 @@ typedef struct
 // Stream representing a whole read line of tokens.
 typedef struct
 {
-    unsigned short level;       // Scope level found by reading amount of spaces before the first character in a line.
+    unsigned level;       // Scope level found by reading amount of spaces before the first character in a line.
     token *tokenstream;         // Stream of tokens.
     size_t tokens;              // Amount of tokens in stream.
+    unsigned indent;            // Indentation of line to tell scope.
 } token_line;
 
 // Prototypes
 token_line read_tokenline(FILE *file);
+void repair(char *str);
 static inline unsigned amountof_tokens(const char *str);
 static inline token rec_token(const char *read);
 char *substring(unsigned from, unsigned to, const char *str);
@@ -48,7 +50,7 @@ token_line read_tokenline(FILE *file)
     char space_str[TOKENLENGTH * 4];
     fscanf(file, "%[ ]", space_str);
     
-    token_line line = {.level = strlen(space_str) / indentation};
+    token_line line = {.level = strlen(space_str) / indentation, .indent = strlen(space_str)};
     char c, *read_str = (char *) malloc(sizeof(char) * TOKENLENGTH * 10);
 
     // Indentation error check.
@@ -63,10 +65,11 @@ token_line read_tokenline(FILE *file)
     // Reads until a line containing other characters than spaces is found.
     do
     {
-        fscanf(file, "%[A-Za-z_=+-*/()\",. 0-9]\n", read_str);
+        fscanf(file, "%[A-Za-z_:=+-*/()\",. 0-9]\n", read_str);
     }
     while (iswhite_space(read_str) && !feof(file));
 
+    repair(read_str);
     line.tokens = amountof_tokens(read_str);
     unsigned i, old = 0, counter = 0, length = strlen(read_str);
     line.tokenstream = (token *) malloc(sizeof(token) * line.tokens);
@@ -90,8 +93,6 @@ token_line read_tokenline(FILE *file)
             str[strlen(str)] = '"';
             line.tokenstream[counter++] = rec_token(str);
 
-            printf("Literal: %s\n", str);
-
             if (read_str[i] != ' ')
                 old = i;
 
@@ -103,37 +104,50 @@ token_line read_tokenline(FILE *file)
         else if (read_str[i] == '(' || read_str[i] == ')')
         {
             if (read_str[i] == ')' && read_str[i - 1] != ' ')
-            {
-                strcpy(temp, substring(old, i - 1, read_str));
-                line.tokenstream[counter++] = rec_token(temp);
-            }
+                line.tokenstream[counter++] = rec_token(substring(old, i - 1, read_str));
 
             line.tokenstream[counter++] = rec_token(substring(i, i, read_str));
             
             if (read_str[i + 1] == ' ')
-                old = i + 2;
+                old = i++ + 2;
 
             else
                 old = i + 1;
         }
+
+        // When colon is met.
+        else if (read_str[i] == ':')
+        {
+            if (read_str[i - 1] != ' ')
+                line.tokenstream[counter++] = rec_token(substring(old, i - 1, read_str));
+
+            line.tokenstream[counter++] = rec_token(substring(i, i, read_str));
+        }
         
         else if (i == length - 1)
         {
-            strcpy(temp, substring(old, length - 1, read_str));
-            line.tokenstream[counter] = rec_token(temp);
+            line.tokenstream[counter++] = rec_token(substring(old, length - 1, read_str));
             break;
         }
 
         else if (read_str[i] == ' ')
         {
-            strcpy(temp, substring(old, i - 1, read_str));
-            line.tokenstream[counter++] = rec_token(temp);
+            line.tokenstream[counter++] = rec_token(substring(old, i - 1, read_str));
             old = i + 1;
         }
     }
 
     free(read_str);
     return line;
+}
+
+// Removes white-space after last character.
+void repair(char *str)
+{
+    unsigned end_index = strlen(str) - 1;
+
+    while (str[end_index--] == ' ');
+    strcpy(str, substring(0, end_index + 1, str));
 }
 
 // Returns amount of token in a line.
@@ -157,7 +171,13 @@ static inline unsigned amountof_tokens(const char *str)
         else if (str[i] == ' ')
             counter++;
 
+        else if (str[i] == '(' && str[i + 1] == ' ' || str[i] == ')' && str[i - 1] == ' ')
+            continue;
+
         else if (str[i] == '(' || str[i] == ')')
+            counter++;
+
+        else if (str[i] == ':' && str[i - 1] != ' ')
             counter++;
     }
 
@@ -208,6 +228,9 @@ static inline token rec_token(const char *read)
 
     else if (isstringlit(read))
         t.key = STRINGLIT;
+
+    else if (strcmp(read, ":") == 0)
+        t.key = COLON;
 
     else if (isid(read))
         t.key = ID;
