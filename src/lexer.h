@@ -52,7 +52,7 @@ token_line read_tokenline(FILE *file)
     char c, *read_str = (char *) malloc(sizeof(char) * TOKENLENGTH * 10);
 
     // Indentation error check.
-    if (strlen(space_str) % indentation != 0 && strlen(space_str) > 1)
+    if (strlen(space_str) % indentation != 0 && strlen(space_str) > 1 && read_str[0] == ' ')
     {
         fscanf(file, "%s", read_str);
         printf("Indentation fault before: '%s'\n", read_str);
