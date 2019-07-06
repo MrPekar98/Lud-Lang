@@ -1,25 +1,21 @@
-\n: newline
-\t: tab
-\bt: reversed tab
-__________________________________________________________________________________________________________________________________________
-
-<Start> -> <Imports> \n <Program>
+<Start> -> <Imports> <Program>
+	 | <Imports>
 	 | <Program>
+	 | 'lambda'
 	 
-<Var> -> variable
+<Var> -> 'variable'
 
-<Imports> -> import <path> \n <Imports>
+<Imports> -> import <path> <Imports>
 	   | 'lambda'
 
-<Program> -> <ProtocolDecl>
-	   | <ClassDecl>
-	   | <Statements>
+<Program> -> <ProtocolDecl> <Program>
+	   | <ClassDecl> <Program>
 	   | 'lambda'
 	   
-<ProtocolDecl> -> protocol <Var> [using <Var> {, <Var>}]: \n \t <Statements> \n \bt <ProtocolDecl>
+<ProtocolDecl> -> protocol <Var> [-> <Var>] { <Statements> } <ProtocolDecl>
 	        | 'lambda'
 
-<ClassDecl> -> class <Var> [+ <Var>] [using <Var> {, <Var>}]: \n \t <Statements> \n \bt <ClassDecl>
+<ClassDecl> -> class <Var> [-> <Var>] [using <Var> {, <Var>}] { <Statements> } <ClassDecl>
 	     | 'lambda'
 
 <Statements> -> <Statement> <Statements>
@@ -29,12 +25,13 @@ ________________________________________________________________________________
 	     | <MethodDecl>
 	     | <Assignment>
 	     | <Expression>
+	     | <IfStatement>
+	     | <ForEach>
+	     | <WhileLoop>
+	     | <ForLoop>
 	     | 'lambda'
 	     
-<VarDecl> -> <Accessor> <Modifier> [const] <DataType> <Assignemnt>
-
-<Modifier> -> static
-	    | 'lambda'
+<VarDecl> -> <Accessor> [static] [const] <Assignemnt> : <DataType>
 
 <Accessor> -> public
 	    | private
@@ -51,11 +48,6 @@ ________________________________________________________________________________
 <Expression> -> <BoolExpression>
 	      | <ArithExpression>
 	      | <StringExpression>
-	      | <Value>
-
-<Value> -> boolean
-	 | number
-	 | string
 	 
 <BoolExpression> -> <BoolXor> | <BoolExpression>
 		  | <BoolXor>
@@ -68,24 +60,44 @@ ________________________________________________________________________________
 	   
 <BoolParan> -> (<BoolExpression)
 	     | <Var>
-	     | boolean
+	     | 'boolean'
 
-<StringExpression> -> string + <StringExpressions>
-		    | string
+<StringExpression> -> <Var> + <StringExpression>
+		    | 'string' + <StringExpression>
+		    | <Var>
+		    | 'string'
+		    | <Var>++
 
 <ArithExpression> -> <PlusMinus> % <ArithExpression>
 		   | <PlusMinus>
+		   | <Var>++
+		   | <Var>--
 
 <PlusMinus> -> <MultDiv> + <PlusMinus>
 	     | <MultDiv> - <PlusMinus>
 	     | <MultDiv>
-		   
-<MultDiv> -> <ArithParan> * <MultDiv>
-	   | <ArithParan> / <MultDiv>
-	   | <ArithParan>
-	   
+
+<MultDiv> -> <ArithPow> * <MultDiv>
+	   | <ArithPow> / <MultDiv>
+	   | <ArithPow>
+
+<ArithPow> -> <ArithParan>^<ArithExpression>
+
 <ArithParan> -> (<ArithExpression>)
-	      | number
+	      | 'number'
 	      | <Var>
+
+<IfStatement> -> if ( <BoolExpression> ) { <Statements> } <Else>
+
+<Else> -> else if ( <BoolExpression> ) { <Statements> } <Else>
+	| else { <Statements> }
+	| 'lambda'
+
+<ForEach> -> foreach (<Var> : <DataType> in <Var>) { <Statements> }
+
+<WhileLoop> -> while ( <BoolExpression> ) { <Statements> }
+
+<ForLoop> -> for (<Var> = <Expression>; <BoolExpression>; <Expression>) { <Statements> }
+	   | for (<Var> = <Expression> : <DataType>; <BoolExpression>; <Expression>) { <Statements> }
 
 <MethodDecl> ->
