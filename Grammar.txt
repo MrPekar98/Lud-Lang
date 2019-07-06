@@ -100,4 +100,4 @@
 <ForLoop> -> for (<Var> = <Expression>; <BoolExpression>; <Expression>) { <Statements> }
 	   | for (<Var> = <Expression> : <DataType>; <BoolExpression>; <Expression>) { <Statements> }
 
-<MethodDecl> ->
+<MethodDecl> -> <Accessor> [static] <Var> ( [<Var> : <DataType> {, <Var> : <DataType>}] ) { <Statements> }
