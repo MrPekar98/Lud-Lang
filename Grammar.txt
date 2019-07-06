@@ -23,6 +23,7 @@
 
 <Statement> -> <VarDecl>
 	     | <MethodDecl>
+	     | <Constructor>
 	     | <Assignment>
 	     | <Expression>
 	     | <IfStatement>
@@ -50,7 +51,7 @@
 	      | <Var>
 
 <Expression> -> <ArithExpression>
-	      | create <Var>
+	      | create <Var>([<Expression> {, <Expression>}])
 
 <ArithExpression> -> <BoolXor> | <ArithExpression>
 		   | <ArithExpression>
@@ -83,10 +84,13 @@
 	      | <Var>
 	      | this.<Var>
 	      | super.<Var>
+	      | this.<Var>(<Expression> {, <Expression>})
+	      | super.<Var>(<Expression> {, <Expression>})
+	      | <Var>(<Expression> {, <Expression>})
 
-<IfStatement> -> if ( <BoolExpression> ) { <Statements> } <Else>
+<IfStatement> -> if (<BoolExpression>) { <Statements> } <Else>
 
-<Else> -> else if ( <BoolExpression> ) { <Statements> } <Else>
+<Else> -> else if (<BoolExpression>) { <Statements> } <Else>
 	| else { <Statements> }
 	| 'lambda'
 
@@ -97,5 +101,7 @@
 <ForLoop> -> for (<Var> = <Expression>; <BoolExpression>; <Expression>) { <Statements> }
 	   | for (<Var> = <Expression> : <DataType>; <BoolExpression>; <Expression>) { <Statements> }
 
-<MethodDecl> -> <Accessor> [static] <Var> ( [<Var> : <DataType> {, <Var> : <DataType>}] ) : void { <Statements> }
-	      | <Accessor> [static] <Var> ( [<Var> : <DataType> {, <Var> : <DataType>}] ) : <DataType> { <Statements> return <Expression> }
+<MethodDecl> -> <Accessor> [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : void { <Statements> }
+	      | <Accessor> [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
+
+<Constructor> -> <Accessor> constructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
