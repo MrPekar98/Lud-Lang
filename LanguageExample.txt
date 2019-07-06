@@ -4,64 +4,86 @@ ____________________________________________COMMENTS____________________________
 ____________________________________________PROTOCOL DECLARATION_______________________________________________
 
 protocol DogBody + AnimalBody:
-    amountOfLegs() ? int
-    sumOfAges(Dog dog1, Dog dog2) ? int
+    amountOfLegs() : num
+    sumOfAges(Dog dog1, Dog dog2) : num
 
-    # Static method in ruleset. #
-    public static sumOfLegs(int dogs) ? int:
+    # Static method in protocol. #
+    public static sumOfLegs(num dogs) : num
+    {
         return dogs * 4
+    }
 
     # Returns an instance of an animal #
-    public static createAnimal(string name, int age) ? Animal:
+    public static createAnimal(string name, num age) : Animal
+    {
         return create Animal(name, age)
+    }
 
 ____________________________________________CLASS DECLARATION_________________________________________________
 
 # Represent an animal #
-class Animal:
+class Animal
+{
     internal string animalName
-    internal unsigned age
+    internal num age
 
-    constructor(string name, int age):
+    internal constructor(string name, num age)
+    {
         this.animalName = name
         this.age = age
+    }
 
-    public getName() ? string:
+    public getName() : string
+    {
         return this.animalName
+    }
 
-    public getAge() ? int:
+    public getAge() : num
+    {
         return this.age
+    }
+}
 
 # Sub-class of Animal representing a dog. #
-class Dog + Animal using DogBody, Movement:
+class Dog -> Animal using DogBody, Movement
+{
     private bool adopted
-    private int[] arrayOfNumbers
+    private num[] arrayOfNumbers
     private string[] arrayOfStrings
     private string helloWorld
     
-    constructor(string name, int age, bool isAdopted):
+    public constructor(string name, num age, bool isAdopted)
+    {
         super.animalName = name
         super.age = age
         this.adopted = isAdopted
         this.arrayOfNumbers = new int[5];
         this.arrayOfString = {"Hello", "world"}
         this.helloWord = arrayOfStrings[0] + " " + arrayOfStrings[1]
+    }
 
-    public setName(string name) ? void:
+    public setName(string name) : void
+    {
         super.animalName = name
-        return;
+    }
 
-    public setAge(int age) ? void:
+    public setAge(num age) : void
+    {
         super.age = age
-        return;
+    }
 
-    public setIsAdopted(bool value) ? void:
+    public setIsAdopted(bool value) : void{
         this.adopted = value
-        return
+    }
 
-    public isAdopted() ? bool:
+    public isAdopted() : bool
+    {
         return this.adopted
+    }
 
     # Calculates the sum of years of two dogs. #
-    public static sumOfAges(Dog dog1, Dog dog2) ? int:
+    public static sumOfAges(Dog dog1, Dog dog2) : num
+    {
         return dog1.getAge() + dog2.getAge()
+    }
+}
