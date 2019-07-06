@@ -41,37 +41,26 @@
 <DataType> -> num
 	    | string
 	    | bool
-	    
+
 <Assignment> -> <Var> = <Expression>
 	      | <Var>
-	      
-<Expression> -> <BoolExpression>
-	      | <ArithExpression>
-	      | <StringExpression>
-	 
-<BoolExpression> -> <BoolXor> | <BoolExpression>
-		  | <BoolXor>
-		  
-<BoolXor> -> <BoolAnd> ^ <BoolXor>
-	   | <BoolAnd>
-	   
-<BoolAnd> -> <BoolParan> & <BoolAnd>
-	   | <BoolParan>
-	   
-<BoolParan> -> (<BoolExpression)
-	     | <Var>
-	     | 'boolean'
 
-<StringExpression> -> <Var> + <StringExpression>
-		    | 'string' + <StringExpression>
-		    | <Var>
-		    | 'string'
-		    | <Var>++
+<Expression> -> <ArithExpression>
+	      | create <Var>
 
-<ArithExpression> -> <PlusMinus> % <ArithExpression>
-		   | <PlusMinus>
+<ArithExpression> -> <BoolXor> | <ArithExpression>
+		   | <ArithExpression>
 		   | <Var>++
 		   | <Var>--
+
+<BoolXor> -> <BoolAnd> ^ <BoolXor>
+	   | <BoolAnd>
+
+<BoolAnd> -> <ArithNumberString> & <BoolAnd>
+	   | <ArithNumberString>
+
+<ArithNumberString> -> <PlusMinus> % <ArithExpression>
+	      	     | <PlusMinus>
 
 <PlusMinus> -> <MultDiv> + <PlusMinus>
 	     | <MultDiv> - <PlusMinus>
@@ -85,6 +74,8 @@
 
 <ArithParan> -> (<ArithExpression>)
 	      | 'number'
+	      | 'string'
+	      | 'boolean'
 	      | <Var>
 
 <IfStatement> -> if ( <BoolExpression> ) { <Statements> } <Else>
@@ -100,4 +91,5 @@
 <ForLoop> -> for (<Var> = <Expression>; <BoolExpression>; <Expression>) { <Statements> }
 	   | for (<Var> = <Expression> : <DataType>; <BoolExpression>; <Expression>) { <Statements> }
 
-<MethodDecl> -> <Accessor> [static] <Var> ( [<Var> : <DataType> {, <Var> : <DataType>}] ) { <Statements> }
+<MethodDecl> -> <Accessor> [static] <Var> ( [<Var> : <DataType> {, <Var> : <DataType>}] ) : void { <Statements> }
+	      | <Accessor> [static] <Var> ( [<Var> : <DataType> {, <Var> : <DataType>}] ) : <DataType> { <Statements> return <Expression> }
