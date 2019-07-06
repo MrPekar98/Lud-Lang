@@ -34,7 +34,7 @@ import:
     Used to import libaries.
     
 create:
-    Used to create an instance of a class of an array.
+    Used to create an instance of a class or an array.
     
 const:
     Used to declare a variable as a contant.
