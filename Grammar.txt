@@ -43,6 +43,10 @@
 	    | bool
 
 <Assignment> -> <Var> = <Expression>
+	      | this.<Var> = <Expression>
+	      | super.<Var> = <Expression>
+	      | this.<Var>
+	      | super.<Var>
 	      | <Var>
 
 <Expression> -> <ArithExpression>
@@ -77,6 +81,8 @@
 	      | 'string'
 	      | 'boolean'
 	      | <Var>
+	      | this.<Var>
+	      | super.<Var>
 
 <IfStatement> -> if ( <BoolExpression> ) { <Statements> } <Else>
 
