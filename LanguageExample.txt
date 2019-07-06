@@ -24,8 +24,8 @@ ____________________________________________CLASS DECLARATION___________________
 # Represent an animal #
 class Animal
 {
-    internal string animalName
-    internal num age
+    internal animalName : string
+    internal age : num
 
     internal constructor(string name, num age)
     {
@@ -47,10 +47,10 @@ class Animal
 # Sub-class of Animal representing a dog. #
 class Dog -> Animal using DogBody, Movement
 {
-    private bool adopted
-    private num[] arrayOfNumbers
-    private string[] arrayOfStrings
-    private string helloWorld
+    private adopted = false : bool
+    private arrayOfNumbers : num[]
+    private arrayOfStrings : string[]
+    private helloWorld : string
     
     public constructor(string name, num age, bool isAdopted)
     {
