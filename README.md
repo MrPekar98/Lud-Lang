@@ -2,7 +2,7 @@
 Python and Java inspired object-oriented programming language.
 
 ## Compiler
-The compiler makes use of an LL(*) parser. Therefore, a whole line is scanned and passed to the parser.
+The compiler makes use of an LL(*) parser for better error messaging.
 
 ## Compiler rules
-- Indentation size must be given as input.
+The keyword 'lud' is used to start the compiler.
