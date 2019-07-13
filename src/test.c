@@ -17,7 +17,7 @@ int main()
     return 0;
 }
 
-// Test of error messaging.
+// Test of error messaging. 
 void test_error()
 {
     table_error("Error test.");
@@ -36,7 +36,7 @@ void test_table_element()
 // Tests insertion of element into symbol table.
 void test_table_insert()
 {
-    symbol_table table = get_table();
+    symbol_table table = gettable();
     struct variable var1 = {.name = "Variable1", .data_type = STRING};
     struct variable var2 = {.name = "Variable2", .data_type = BOOL};
     struct table_element element1 = {.type = VARIABLE, .element = &var1};
