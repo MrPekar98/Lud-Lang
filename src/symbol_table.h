@@ -49,9 +49,9 @@ struct class
 // Prototypes.
 int element_name_exists(struct table_element *elements, unsigned length, char *name);
 char *getname(struct table_element element);
-symbol_table get_table();
+symbol_table gettable();
 void table_insert(symbol_table *table, struct table_element element, size_t element_size);
-struct function get_function(enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
+struct function getfunction(enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -116,7 +116,7 @@ char *getname(struct table_element element)
 }
 
 // Gets instance of symbol table.
-symbol_table get_table()
+symbol_table gettable()
 {
     symbol_table table = {.open = 1};
     return table;
