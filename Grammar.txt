@@ -42,6 +42,7 @@
 <DataType> -> num
 	    | string
 	    | bool
+	    | char
 
 <Assignment> -> <Var> = <Expression>
 	      | this.<Var> = <Expression>
@@ -81,6 +82,7 @@
 	      | 'number'
 	      | 'string'
 	      | 'boolean'
+	      | 'char'
 	      | <Var>
 	      | this.<Var>
 	      | super.<Var>
