@@ -17,7 +17,7 @@ struct table_element
 typedef struct
 {
     short open;
-    struct table_element* elements;
+    struct table_element *elements;
     unsigned count;
 } symbol_table;
 
@@ -26,7 +26,6 @@ struct variable
 {
     char *name;
     enum type_t data_type;
-    enum element_type type;
 };
 
 // Function element.
@@ -36,7 +35,6 @@ struct function
     char *name;
     struct variable *parameters;
     symbol_table table;
-    enum element_type type;
 };
 
 // Class element.
@@ -45,7 +43,6 @@ struct class
     char *name;
     struct variable *variables;
     struct function *functions;
-    enum element_type type;
     short open;
 };
 
@@ -89,7 +86,7 @@ int element_name_exists(struct table_element *elements, unsigned length, char *n
     return 0;
 }
 
-// Gets name crom table_element if it has a name. Caller is responsible of freeing this heap pointer.
+// Gets name from table_element if it has a name. Caller is responsible of freeing this heap pointer.
 char *getname(struct table_element element)
 {
     char *name;
@@ -132,7 +129,13 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
 
     if (name != NULL && element_name_exists(table->elements, table->count, name))
     {
-        sprintf(name, "%s is already declared.", name);
+        sprintf(name, "'%s' is already declared.", name);
+        table_error(name);
+    }
+
+    else if (element.element == NULL)
+    {
+        sprintf(name, "Element '%s' is unspecified.", name);
         table_error(name);
     }
 
@@ -153,7 +156,6 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
 struct function get_function(enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount)
 {
     struct function func = {.name = (char *) malloc(sizeof(char) * strlen(name)), .parameters = (struct variable *) malloc(sizeof(struct variable) * parameter_amount)};
-    func.type = FUNCTION;
     func.return_type = return_type;
     func.table.open = 1;
     sprintf(func.name, "%s", name);
