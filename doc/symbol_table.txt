@@ -1,0 +1,36 @@
+---- Functions
+
+--- table_error
+-- Syntax
+void table_error(char *msg)
+
+-- Notes 
+Prints error message and exits program.
+
+--- element_name_exists
+-- Syntax
+int element_name_exists(struct table_element *elements, unsigned length, char *name)
+
+-- Notes
+Boolean function checking if a name exists in an array of table_elements.
+
+--- getname
+-- Syntax
+char *getname(struct table_element element)
+
+-- Notes
+Returns name of table_element.
+
+--- get_table
+-- Syntax
+symbol_table get_table()
+
+-- Notes
+Returns instance of an open symbol table.
+
+--- table_insert
+-- Syntax
+void table_insert(symbol_table *table, struct table_element element, size_t element_size)
+
+-- Notes
+Inserts table_element into symbol table.
