@@ -34,6 +34,7 @@ struct function
     enum type_t return_type;
     char *name;
     struct variable *parameters;
+    unsigned paramater_count;
     symbol_table table;
 };
 
@@ -50,7 +51,7 @@ struct class
 int element_name_exists(struct table_element *elements, unsigned length, char *name);
 char *getname(struct table_element element);
 symbol_table gettable();
-void table_insert(symbol_table *table, struct table_element element, size_t element_size);
+void table_insert(symbol_table *table, struct table_element element, size_t element_size, unsigned line_number);
 struct function getfunction(enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
 
 // Terminates program and prints error.
@@ -123,19 +124,19 @@ symbol_table gettable()
 }
 
 // Inserts element into table.
-void table_insert(symbol_table *table, struct table_element element, size_t element_size)
+void table_insert(symbol_table *table, struct table_element element, size_t element_size, unsigned line_number)
 {
     char *name = getname(element);
 
     if (name != NULL && element_name_exists(table->elements, table->count, name))
     {
-        sprintf(name, "'%s' is already declared.", name);
+        sprintf(name, "Line %d: '%s' is already declared.", line_number, name);
         table_error(name);
     }
 
     else if (element.element == NULL)
     {
-        sprintf(name, "Element '%s' is unspecified.", name);
+        sprintf(name, "Line %d: Element '%s' is unspecified.", line_number, name);
         table_error(name);
     }
 
@@ -157,8 +158,16 @@ struct function get_function(enum type_t return_type, char *name, struct variabl
 {
     struct function func = {.name = (char *) malloc(sizeof(char) * strlen(name)), .parameters = (struct variable *) malloc(sizeof(struct variable) * parameter_amount)};
     func.return_type = return_type;
+    func.paramater_count = parameter_amount;
     func.table.open = 1;
     sprintf(func.name, "%s", name);
+    unsigned i;
+
+    // Copying parameters.
+    for (i = 0; i < parameter_amount; i++)
+    {
+        func.parameters[i] = parameters[i];
+    }
 
     return func;
 }
