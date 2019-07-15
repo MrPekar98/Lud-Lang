@@ -5,6 +5,7 @@
 // Data types and symbol table element types.
 enum type_t {NUM, STRING, VOID, BOOL};
 enum element_type {FUNCTION, VARIABLE, CLASS, PROTOCOL, SCOPE};
+enum accessor_t {PRIVATE, INTERNAL, PUBLIC, NONE};
 
 // General symbol table element.
 struct table_element
@@ -25,12 +26,17 @@ typedef struct
 struct variable
 {
     char *name;
+    enum accessor_t accesor;
+    int is_static;
+    int is_const;
     enum type_t data_type;
 };
 
 // Function element.
 struct function
 {
+    enum accessor_t accessor;
+    int is_static;
     enum type_t return_type;
     char *name;
     struct variable *parameters;
@@ -44,6 +50,7 @@ struct class
     char *name;
     struct variable *variables;
     struct function *functions;
+    unsigned variable_amount, function_amount;
     short open;
 };
 
@@ -52,7 +59,9 @@ int element_name_exists(struct table_element *elements, unsigned length, char *n
 char *getname(struct table_element element);
 symbol_table gettable();
 void table_insert(symbol_table *table, struct table_element element, size_t element_size, unsigned line_number);
-struct function getfunction(enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
+struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
+struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount);
+int exists(const char *name, int is_class);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -154,10 +163,12 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
 }
 
 // Gets instance of function.
-struct function get_function(enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount)
+struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount)
 {
     struct function func = {.name = (char *) malloc(sizeof(char) * strlen(name)), .parameters = (struct variable *) malloc(sizeof(struct variable) * parameter_amount)};
     func.return_type = return_type;
+    func.is_static = is_static;
+    func.accessor = accessor;
     func.paramater_count = parameter_amount;
     func.table.open = 1;
     sprintf(func.name, "%s", name);
@@ -170,4 +181,32 @@ struct function get_function(enum type_t return_type, char *name, struct variabl
     }
 
     return func;
+}
+
+// Returns instance of class.
+struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount)
+{
+    unsigned i;
+    struct class result = {.open = 1, .variable_amount = var_amount, .function_amount = func_amount, .name = (char *) malloc(sizeof(char) * strlen(name))};
+    result.variables = (struct variable *) malloc(sizeof(struct variable) * var_amount);
+    result.functions = (struct function *) malloc(sizeof(struct function) * func_amount);
+    strcpy(result.name, name);
+
+    for (i = 0; i < var_amount; i++)
+    {
+        result.variables[i] = variables[i];
+    }
+
+    for (i = 0; i < func_amount; i++)
+    {
+        result.functions[i] = functions[i];
+    }
+
+    return result;
+}
+
+// Checks whether a table element is declared.
+int exists(const char *name, int is_class)
+{
+    return 0;
 }
