@@ -3,7 +3,7 @@
 	 | <Program>
 	 | 'lambda'
 	 
-<Var> -> 'variable'
+<Var> -> 'identifier'
 
 <Imports> -> import <path> <Imports>
 	   | 'lambda'
@@ -31,6 +31,7 @@
 	     | <WhileLoop>
 	     | <ForLoop>
 	     | 'lambda'
+	     | <Call>
 	     
 <VarDecl> -> <Accessor> [static] [const] <Assignemnt> : <DataType>
 
@@ -45,11 +46,8 @@
 	    | char
 
 <Assignment> -> <Var> = <Expression>
-	      | this.<Var> = <Expression>
-	      | super.<Var> = <Expression>
-	      | this.<Var>
-	      | super.<Var>
-	      | <Var>
+	      | this.<Reference> = <Expression>
+	      | super.<Reference> = <Expression>
 
 <Expression> -> <ArithExpression>
 	      | create <Var>([<Expression> {, <Expression>}])
@@ -83,12 +81,15 @@
 	      | 'string'
 	      | 'boolean'
 	      | 'char'
-	      | <Var>
-	      | this.<Var>
-	      | super.<Var>
-	      | this.<Var>(<Expression> {, <Expression>})
-	      | super.<Var>(<Expression> {, <Expression>})
-	      | <Var>(<Expression> {, <Expression>})
+	      | this.<Reference>
+	      | super.<Reference>
+	      | <Reference>
+	      | <Call>
+
+<Reference> -> <Var>.<Reference>
+	     | <Var>([<Expression> {, <Expression>}]).<Reference>
+	     | <Var>
+	     | <Var>([<Expression> {, <Expression>}])
 
 <IfStatement> -> if (<BoolExpression>) { <Statements> } <Else>
 
@@ -107,3 +108,7 @@
 	      | <Accessor> [static] meth <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
 
 <Constructor> -> <Accessor> constructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
+
+<Call> -> <Var>([<Expression> {, <Expression>}]).<Call>
+	| <Var>.<Call>
+	| <Var>([<Expression> {, <Expression>}])
