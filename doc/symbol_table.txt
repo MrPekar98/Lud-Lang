@@ -37,7 +37,7 @@ Inserts table_element into symbol table.
 
 --- exists
 -- Syntax
-int exists(const char *name)
+int exists(const char *name, int is_class)
 
 -- Notes
 Checks whether an element given that name exists in an open scope starting from inner most open scope.
