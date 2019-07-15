@@ -26,7 +26,7 @@ typedef struct
 struct variable
 {
     char *name;
-    enum accessor_t accesor;
+    enum accessor_t accessor;
     int is_static;
     int is_const;
     enum type_t data_type;
@@ -61,6 +61,7 @@ int element_name_exists(struct table_element *elements, unsigned length, char *n
 char *getname(struct table_element element);
 symbol_table gettable();
 void table_insert(symbol_table *table, struct table_element element, size_t element_size, unsigned line_number);
+struct variable get_variable(enum accessor_t accessor, int is_static, int is_const, enum type_t data_type, const char *name, int class_instance, const char *class_name);
 struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
 struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount);
 int exists(const char *name, int is_class);
@@ -163,6 +164,19 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
     }
 
     table->elements[table->count++] = element;
+}
+
+// Gets instance of variable.
+struct variable get_variable(enum accessor_t accessor, int is_static, int is_const, enum type_t data_type, const char *name, int class_instance, const char *class_name)
+{
+    struct variable var = {.name = (char *) malloc(sizeof(char) * strlen(name)), .accessor = accessor, .is_static = is_static, .is_const = is_const};
+    var.data_type = data_type;
+    strcpy(var.name, name);
+
+    if (class_instance)
+        strcpy(var.class_name, class_name);
+
+    return var;
 }
 
 // Gets instance of function.
