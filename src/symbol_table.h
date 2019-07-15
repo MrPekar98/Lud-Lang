@@ -30,6 +30,8 @@ struct variable
     int is_static;
     int is_const;
     enum type_t data_type;
+    int is_class_intance;
+    char *class_name;
 };
 
 // Function element.
@@ -62,6 +64,7 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
 struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
 struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount);
 int exists(const char *name, int is_class);
+struct table_element get(const char *name, int is_class_instance);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -209,4 +212,10 @@ struct class get_class(char *name, struct variable *variables, unsigned var_amou
 int exists(const char *name, int is_class)
 {
     return 0;
+}
+
+// Returns table_element of element.
+struct table_element get(const char *name, int is_class_instance)
+{
+    
 }
