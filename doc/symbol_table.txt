@@ -34,3 +34,10 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
 
 -- Notes
 Inserts table_element into symbol table.
+
+--- exists
+-- Syntax
+int exists(const char *name)
+
+-- Notes
+Checks whether an element given that name exists in an open scope starting from inner most open scope.
