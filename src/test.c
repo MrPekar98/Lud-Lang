@@ -11,6 +11,8 @@ void test_table_insert();
 void test_get_function();
 void test_function_scope();
 void test_get_class();
+void test_exists();
+void test_get();
 
 // Main function.
 int main()
@@ -22,6 +24,8 @@ int main()
     test_get_function();
     test_function_scope();
     test_get_class();
+    test_exists();
+    test_get();
 
     return 0;
 }
@@ -45,7 +49,7 @@ void test_table_element()
 // Tests insertion of element into symbol table.
 void test_table_insert()
 {
-    symbol_table table = gettable();
+    symbol_table table = get_table();
     struct variable var1 = {.name = "Variable1", .data_type = STRING};
     struct variable var2 = {.name = "Variable2", .data_type = BOOL};
     struct table_element element1 = {.type = VARIABLE, .element = &var1};
@@ -54,12 +58,12 @@ void test_table_insert()
     table_insert(&table, element1, sizeof(element1), ++line);
 
     assert(table.open);
-    assert(table.count == 1);
+    assert(table.element_count == 1);
     assert(strcmp(getname(table.elements[0]), "Variable1") == 0);
 
     table_insert(&table, element2, sizeof(element2), ++line);
 
-    assert(table.count == 2);
+    assert(table.element_count == 2);
     assert(strcmp(getname(table.elements[0]), "Variable2") == 0);
 }
 
@@ -89,7 +93,7 @@ void test_function_scope()
 
     assert(sizeof(func.parameters) == sizeof(struct variable *));
     assert(!func.table.open);
-    assert(func.table.count == 1);
+    assert(func.table.element_count == 1);
     assert(sizeof(func.table.elements[0]) == sizeof(te));
 }
 
@@ -110,4 +114,16 @@ void test_get_class()
     assert(cl.function_amount == 2);
     assert(strcmp(cl.variables[1].name, var2.name) == 0);
     assert(strcmp(cl.functions[0].name, fun1.name) == 0);
+}
+
+// Tests existence of elements.
+void test_exists()
+{
+
+}
+
+// Tests getting elements from inner most scope.
+void test_get()
+{
+
 }
