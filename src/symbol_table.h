@@ -19,7 +19,9 @@ typedef struct
 {
     short open;
     struct table_element *elements;
-    unsigned count;
+    unsigned element_count;
+    struct class *classes;
+    unsigned class_count;
 } symbol_table;
 
 // Variable element.
@@ -57,15 +59,16 @@ struct class
 };
 
 // Prototypes.
-int element_name_exists(struct table_element *elements, unsigned length, char *name);
+int element_name_exists(struct table_element *elements, unsigned length, const char *name);
 char *getname(struct table_element element);
 symbol_table gettable();
 void table_insert(symbol_table *table, struct table_element element, size_t element_size, unsigned line_number);
+void insert_class(struct class class, symbol_table *table, unsigned line_numer);
 struct variable get_variable(enum accessor_t accessor, int is_static, int is_const, enum type_t data_type, const char *name, int class_instance, const char *class_name);
 struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount);
 struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount);
-int exists(const char *name, int is_class);
-struct table_element get(const char *name, int is_class_instance);
+int exists(symbol_table table, const char *name, int is_class);
+struct table_element get(symbol_table table, const char *name);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -75,7 +78,7 @@ void table_error(char *msg)
 }
 
 // Checks that a name exists in array.
-int element_name_exists(struct table_element *elements, unsigned length, char *name)
+int element_name_exists(struct table_element *elements, unsigned length, const char *name)
 {
     unsigned i;
 
@@ -130,7 +133,7 @@ char *getname(struct table_element element)
 }
 
 // Gets instance of symbol table.
-symbol_table gettable()
+symbol_table get_table()
 {
     symbol_table table = {.open = 1};
     return table;
@@ -141,7 +144,7 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
 {
     char *name = getname(element);
 
-    if (name != NULL && element_name_exists(table->elements, table->count, name))
+    if (name != NULL && element_name_exists(table->elements, table->element_count, name) && get(*table, name).type == element.type)
     {
         sprintf(name, "Line %d: '%s' is already declared.", line_number, name);
         table_error(name);
@@ -158,12 +161,33 @@ void table_insert(symbol_table *table, struct table_element element, size_t elem
     table->elements = (struct table_element *) malloc(sizeof(elmts) + element_size);
     
     unsigned i;
-    for (i = 0; i < table->count; i++)
+    for (i = 0; i < table->element_count; i++)
     {
         table->elements[i] = elmts[i];
     }
 
-    table->elements[table->count++] = element;
+    table->elements[table->element_count++] = element;
+}
+
+// Inserts class or protocol declaration into symbol table.
+void insert_class(struct class class, symbol_table *table, unsigned line_number)
+{
+    // TODO: Check for previous declaration.
+    unsigned i;
+
+    for (i = 0; i < table->class_count; i++)
+    {
+        if (strcmp(table->classes[i].name, class.name) == 0)
+        {
+            char message[40];
+            sprintf(message, "Line %d: '%s' has already been declared.", line_number, class.name);
+            table_error(message);
+        }
+    }
+
+    struct class *classes = table->classes;
+    table->classes = (struct class *) malloc(sizeof(classes) + sizeof(class));
+    table->classes[table->class_count++] = class;
 }
 
 // Gets instance of variable.
@@ -223,13 +247,69 @@ struct class get_class(char *name, struct variable *variables, unsigned var_amou
 }
 
 // Checks whether a table element is declared.
-int exists(const char *name, int is_class)
+int exists(symbol_table table, const char *name, int is_class)
 {
     return 0;
 }
 
 // Returns table_element of element.
-struct table_element get(const char *name, int is_class_instance)
+struct table_element get(symbol_table table, const char *name)
 {
+    if (!table.open)
+        table_error("Can not check for declaration in closed scope. This is a bug.");
+
+    symbol_table scope = table;
+    struct table_element element;
+   symbol_table open;
+    int new_scope = 0;
     
+    unsigned i;
+
+    for (i = 0; i < scope.element_count; i++)
+    {
+        if (strcmp(getname(scope.elements[i]), name) == 0)
+            element = scope.elements[i];
+        
+        switch (scope.elements[i].type)
+        {            
+            case VARIABLE:
+                if (strcmp(((struct variable *) scope.elements[i].element)->name, name) == 0)
+                    element = scope.elements[i];
+
+                break;
+            
+            case FUNCTION:
+                if (((struct function *) scope.elements[i].element)->table.open)
+                {
+                    open = ((struct function *) scope.elements[i].element)->table;
+                    new_scope = 1;
+
+                    if (strcmp(((struct function *) scope.elements[i].element)->name, name) == 0)
+                        element = scope.elements[i];
+                }
+
+                else if (strcmp(((struct function *) scope.elements[i].element)->name, name) == 0)
+                    element = scope.elements[i];
+
+                break;
+
+            case SCOPE:
+                if (((symbol_table *) scope.elements[i].element)->open)
+                {
+                    open = *((symbol_table *) scope.elements[i].element);
+                    new_scope = 1;
+                }
+
+                break;
+        }
+
+        if (i == scope.element_count - 1 && new_scope)
+        {
+            scope = open;
+            i = 0;
+            new_scope = 0;
+        }
+    }
+
+    return element;
 }
