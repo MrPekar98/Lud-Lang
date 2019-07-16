@@ -37,7 +37,42 @@ Inserts table_element into symbol table.
 
 --- exists
 -- Syntax
-int exists(const char *name, int is_class)
+int exists(symbol_table table, const char *name, int is_class)
 
 -- Notes
 Checks whether an element given that name exists in an open scope starting from inner most open scope.
+
+--- get
+-- Syntax
+struct table_element get(symbol_table table, const char *name)
+
+-- Notes
+Returns table_element found from given name.
+
+--- get_class
+-- Syntax
+struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount)
+
+-- Notes
+Returns class struct instance.
+
+--- get_function
+-- Syntax
+struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount)
+
+-- Notes
+Returns instance of struct function.
+
+--- get_variable
+-- Syntax
+struct variable get_variable(enum accessor_t accessor, int is_static, int is_const, enum type_t data_type, const char *name, int class_instance, const char *class_name)
+
+-- Notes
+Returns instance of struct variable.
+
+--- insert_class
+-- Syntax
+void insert_class(struct class class, symbol_table *table, unsigned line_number)
+
+-- Notes
+Inserts class declaration into symbol table.
