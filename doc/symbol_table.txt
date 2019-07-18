@@ -76,3 +76,10 @@ void insert_class(struct class class, symbol_table *table, unsigned line_number)
 
 -- Notes
 Inserts class declaration into symbol table.
+
+--- outermost_scope
+-- Syntax
+symbol_table outermost_scope(symbol_table table)
+
+-- Notes
+Returns inner most open scope given a table.
