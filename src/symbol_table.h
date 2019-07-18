@@ -39,6 +39,7 @@ struct variable
 // Function element.
 struct function
 {
+    int open;
     enum accessor_t accessor;
     int is_static;
     enum type_t return_type;
@@ -60,7 +61,7 @@ struct class
 
 // Prototypes.
 int element_name_exists(struct table_element *elements, unsigned length, const char *name);
-char *getname(struct table_element element);
+static inline char *getname(struct table_element element);
 symbol_table gettable();
 void table_insert(symbol_table *table, struct table_element element, size_t element_size, unsigned line_number);
 void insert_class(struct class class, symbol_table *table, unsigned line_numer);
@@ -69,6 +70,7 @@ struct function get_function(enum accessor_t accessor, int is_static, enum type_
 struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount);
 int exists(symbol_table table, const char *name, int is_class);
 struct table_element get(symbol_table table, const char *name);
+symbol_table outermost_scope(symbol_table table);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -104,7 +106,7 @@ int element_name_exists(struct table_element *elements, unsigned length, const c
 }
 
 // Gets name from table_element if it has a name. Caller is responsible of freeing this heap pointer.
-char *getname(struct table_element element)
+static inline char *getname(struct table_element element)
 {
     char *name;
     
@@ -207,6 +209,7 @@ struct variable get_variable(enum accessor_t accessor, int is_static, int is_con
 struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount)
 {
     struct function func = {.name = (char *) malloc(sizeof(char) * strlen(name)), .parameters = (struct variable *) malloc(sizeof(struct variable) * parameter_amount)};
+    func.open = 1;
     func.return_type = return_type;
     func.is_static = is_static;
     func.accessor = accessor;
@@ -260,7 +263,7 @@ struct table_element get(symbol_table table, const char *name)
 
     symbol_table scope = table;
     struct table_element element;
-   symbol_table open;
+    symbol_table open;
     int new_scope = 0;
     
     unsigned i;
@@ -312,4 +315,45 @@ struct table_element get(symbol_table table, const char *name)
     }
 
     return element;
+}
+
+// Returns outer most open scope.
+symbol_table outermost_scope(symbol_table table)
+{
+    unsigned i;
+    int found;
+    symbol_table next = table;
+
+    for (i = 0; i < next.element_count; i++)
+    {
+        found = 0;
+        
+        switch (table.elements[i].type)
+        {
+            case SCOPE:
+                if (((symbol_table *) table.elements[i].element)->open)
+                {
+                    next = *((symbol_table *) table.elements[i].element);
+                    i = -1;
+                    found = 1;
+                }
+
+                break;
+
+            case FUNCTION:
+                if (((struct function *) table.elements[i].element)->open)
+                {
+                    next = ((struct function *) table.elements[i].element)->table;
+                    i = -1;
+                    found = 1;
+                }
+
+                break;
+        }
+
+        if (!found)
+            break;
+    }
+
+    return next;
 }
