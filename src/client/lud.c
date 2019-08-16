@@ -5,17 +5,24 @@
 
 // Prototypes.
 package parse_args(int argc, char **argv);
+char *getos();
 
 // Main function.
 int main(int argc, char **argv)
-{
+{    
     if (argc == 1)
     {
         printf("Input file not specified.\n");
         return 1;
     }
     
-    const package data = parse_args(argc, argv);
+    package data = parse_args(argc, argv);
+
+    if (strcmp(getos(), "Windows") == 0 && !data.is_offline)
+    {
+        data.is_offline = 1;
+        printf("'-off' is automatically set.\nCompiled offline.\n");
+    }
     
     return 0;
 }
@@ -66,4 +73,19 @@ package parse_args(int argc, char **argv)
     }
 
     return p;
+}
+
+// Returns name of operating system.
+char *getos()
+{
+    FILE *prog = popen("clear", "r");
+    char name[10];
+
+    fscanf(prog, "%s", name);
+    fclose(prog);
+
+    if (strlen(name) == 0)
+        return "Linux";
+
+    return "Windows";
 }
