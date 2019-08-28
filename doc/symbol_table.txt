@@ -9,7 +9,7 @@ Prints error message and exits program.
 
 --- element_name_exists
 -- Syntax
-int element_name_exists(struct table_element *elements, unsigned length, char *name)
+int element_name_exists(struct table_element *elements, unsigned length, const char *name)
 
 -- Notes
 Boolean function checking if a name exists in an array of table_elements.
@@ -21,65 +21,72 @@ char *getname(struct table_element element)
 -- Notes
 Returns name of table_element.
 
---- get_table
+--- table_init
 -- Syntax
-symbol_table get_table()
+symbol_table table_init()
 
 -- Notes
 Returns instance of an open symbol table.
 
+--- class_init
+-- Syntax
+struct class class_init(const char *name)
+
+-- Notes
+Returns intance of an open class.
+
+--- variable_init
+-- Syntax
+struct variable variable_init(const char *name, enum type_t type, int is_class_instance, const char *class_name)
+
+-- Notes
+Returns instance of variable.
+
+--- function_init
+-- Syntax
+struct function function_init(const char *name, enum type_t return_type)
+
+-- Notes
+Returns instance of open function.
+
+--- add_parameter
+-- Syntax
+void add_parameter(struct function *func, struct variable var, unsigned line_number)
+
+-- Notes
+Adds a single parameter to function. To add 3 parameters; call the function 3 times.
+
 --- table_insert
 -- Syntax
-void table_insert(symbol_table *table, struct table_element element, size_t element_size)
+void table_insert(symbol_table *table, struct table_element element, unsigned line_number)
 
 -- Notes
 Inserts table_element into symbol table.
 
---- exists
+--- is_declared
 -- Syntax
-int exists(symbol_table table, const char *name, int is_class)
+int is_declared(symbol_table table, const char *name)
 
 -- Notes
-Checks whether an element given that name exists in an open scope starting from inner most open scope.
+Checks for declaration of anything with the given name.
+
+--- insert_field
+-- Syntax
+void insert_field(struct class *c, struct variable var, unsigned line_number)
+
+-- Notes
+Inserts field into declared class.
+
+--- insert_method
+-- Syntax
+void insert_method(struct class *c, struct function func, unsigned line_number)
+
+-- Notes
+Inserts method into declared class.
 
 --- get
 -- Syntax
 struct table_element get(symbol_table table, const char *name)
 
 -- Notes
-Returns table_element found from given name.
-
---- get_class
--- Syntax
-struct class get_class(char *name, struct variable *variables, unsigned var_amount, struct function *functions, unsigned func_amount)
-
--- Notes
-Returns class struct instance.
-
---- get_function
--- Syntax
-struct function get_function(enum accessor_t accessor, int is_static, enum type_t return_type, char *name, struct variable *parameters, unsigned parameter_amount)
-
--- Notes
-Returns instance of struct function.
-
---- get_variable
--- Syntax
-struct variable get_variable(enum accessor_t accessor, int is_static, int is_const, enum type_t data_type, const char *name, int class_instance, const char *class_name)
-
--- Notes
-Returns instance of struct variable.
-
---- insert_class
--- Syntax
-void insert_class(struct class class, symbol_table *table, unsigned line_number)
-
--- Notes
-Inserts class declaration into symbol table.
-
---- outermost_scope
--- Syntax
-symbol_table outermost_scope(symbol_table table)
-
--- Notes
-Returns inner most open scope given a table.
+Returns first found table_element in open scope by given name.
