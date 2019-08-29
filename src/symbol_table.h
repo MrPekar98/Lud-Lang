@@ -67,8 +67,8 @@ struct function function_init(const char *name, enum type_t return_type);
 void add_parameter(struct function *func, struct variable var, unsigned line_number);
 void table_insert(symbol_table *table, struct table_element element, unsigned line_number);
 int is_declared(symbol_table table, const char *name);
-int variable_exists(struct variable *variables, size_t length, const char *name);
-int function_exists(struct function *functions, size_t length, const char *name);
+int variable_exists(struct variable *variables, unsigned length, const char *name);
+int function_exists(struct function *functions, unsigned length, const char *name);
 void insert_field(struct class *c, struct variable var, unsigned line_number);
 void insert_method(struct class *c, struct function func, unsigned line_number);
 struct table_element get(symbol_table table, const char *name, unsigned line_number);
@@ -254,6 +254,14 @@ int is_declared(symbol_table table, const char *name)
                         return 1;
 
                     // TODO: Check for open function scopes.
+                    for (i = 0; i < ((struct class *) current.elements[i].element)->function_amount; i++)
+                    {
+                        if (((struct class *) current.elements[i].element)->functions[i].open)
+                        {
+                            current = ((struct class *) current.elements[i].element)->functions[i].table;
+                            break;
+                        }
+                    }
 
                     i = -1;
                     continue;
@@ -263,7 +271,7 @@ int is_declared(symbol_table table, const char *name)
 }
 
 // Checks whether variable exists in array of variables.
-int variable_exists(struct variable *variables, size_t length, const char *name)
+int variable_exists(struct variable *variables, unsigned length, const char *name)
 {
     unsigned i;
 
@@ -277,7 +285,7 @@ int variable_exists(struct variable *variables, size_t length, const char *name)
 }
 
 // Checks whether function exists in array of functions.
-int function_exists(struct function *functions, size_t length, const char *name)
+int function_exists(struct function *functions, unsigned length, const char *name)
 {
     unsigned i;
 
@@ -293,16 +301,11 @@ int function_exists(struct function *functions, size_t length, const char *name)
 // Inserts field into class.
 void insert_field(struct class *c, struct variable var, unsigned line_number)
 {
-    unsigned i;
-
-    for (i = 0; i < c->variable_amount; i++)
+    if (variable_exists(c->variables, c->variable_amount, var.name))
     {
-        if (strcmp(c->variables[i].name, var.name) == 0)
-        {
-            char msg[100];
-            sprintf(msg, "Line %d: Field '%s' was already declared in '%s'\n", line_number, var.name, c->name);
-            table_error(msg);
-        }
+        char msg[100];
+        sprintf(msg, "Line %d: Field '%s' was already declared in '%s'\n", line_number, var.name, c->name);
+        table_error(msg);
     }
 
     c->variables = (struct variable *) realloc(c->variables, sizeof(struct variable) * c->variable_amount + sizeof(struct variable));
@@ -312,16 +315,11 @@ void insert_field(struct class *c, struct variable var, unsigned line_number)
 // Inserts method into class.
 void insert_method(struct class *c, struct function func, unsigned line_number)
 {
-    unsigned i;
-
-    for (i = 0; i < c->function_amount; i++)
+    if (function_exists(c->functions, c->function_amount, func.name))
     {
-        if (strcmp(c->functions[i].name, func.name) == 0)
-        {
-            char msg[100];
-            sprintf(msg, "Line %d: Method '%s' was already declared in '%s'\n", line_number, func.name, c->name);
-            table_error(msg);
-        }
+        char msg[100];
+        sprintf(msg, "Line %d: Method '%s' was already declared in '%s'\n", line_number, func.name, c->name);
+        table_error(msg);
     }
 
     c->functions = (struct function *) realloc(c->functions, sizeof(struct function) * c->function_amount + sizeof(struct function));
@@ -331,7 +329,12 @@ void insert_method(struct class *c, struct function func, unsigned line_number)
 // Returns table_element of element.
 struct table_element get(symbol_table table, const char *name, unsigned line_number)
 {
-    
+    if (!is_declared(table, name))
+    {
+        char msg[100];
+        sprintf(msg, "Line %d: '%s' has not been declared.\n", line_number, name);
+        table_error(msg);
+    }
 }
 
 // Returns class.
