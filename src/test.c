@@ -2,31 +2,39 @@
 #include <assert.h>
 
 // Line number.
-unsigned long line;
+unsigned line;
 
 // Prototypes
 void test_error();
-void test_table_element();
-void test_table_insert();
-void test_get_function();
-void test_function_scope();
-void test_get_class();
-void test_exists();
-void test_get();
+void test_getname();
+void test_name_existence();
+void test_field_add();
+void test_field_add_error();
+void test_method_add();
+void test_method_add_error();
+void test_parameter_declaration();
+void test_table_insertion();
+void test_declared1();
+void test_declared2();
 
 // Main function.
 int main()
 {
-    // Running tests.
+    // Unit tests.
     //test_error();
-    test_table_element();
-    test_table_insert();
-    test_get_function();
-    test_function_scope();
-    test_get_class();
-    test_exists();
-    test_get();
+    test_getname();
+    test_name_existence();
+    test_field_add();
+    //test_field_add_error();
+    test_method_add();
+    //test_method_add_error();
+    test_parameter_declaration();
+    //test_table_insertion();
 
+    // System tests.
+    //test_declared1();
+    //test_declared2();
+    
     return 0;
 }
 
@@ -36,94 +44,124 @@ void test_error()
     table_error("Error test.");
 }
 
-// Test getting name from table_element.
-void test_table_element()
+// Test getting name of table_element.
+void test_getname()
 {
-    struct variable var = {.name = "Variable", .data_type = STRING};
-    struct table_element element = {.type = VARIABLE, .element = &var};
+    struct function func = {.open = 1, .accessor = INTERNAL, .name = "testFunc", .return_type = NUM, .table = table_init()};
+    struct table_element element = {.type = FUNCTION, .element = &func};
 
-    assert(strcmp(getname(element), "Variable") == 0);
-    assert(element.type == VARIABLE);
+    assert(strcmp(getname(element), func.name) == 0);
 }
 
-// Tests insertion of element into symbol table.
-void test_table_insert()
+// Test existence of name in array of table_elements.
+void test_name_existence()
 {
-    symbol_table table = get_table();
-    struct variable var1 = {.name = "Variable1", .data_type = STRING};
-    struct variable var2 = {.name = "Variable2", .data_type = BOOL};
-    struct table_element element1 = {.type = VARIABLE, .element = &var1};
-    struct table_element element2 = {.type = VARIABLE, .element = &var2};
+    struct variable var1 = {.name = (char *) malloc(11), .data_type = NUM}, var2 = {.name = (char *) malloc(11), .data_type = BOOL};
+    struct function func = {.name = (char *) malloc(9), .open = 1, .return_type = NUM};
+    struct table_element element1 = {.type = VARIABLE, .element = &var1}, element2 = {.type = VARIABLE, .element = &var2}, element3 = {.type = FUNCTION, .element = &func};
+    struct table_element elements[3] = {element1, element2, element3};
 
-    table_insert(&table, element1, sizeof(element1), ++line);
+    sprintf(var1.name, "%s", "variable 1");
+    sprintf(var2.name, "%s", "variable 2");
+    sprintf(func.name, "%s", "function");
 
-    assert(table.open);
-    assert(table.element_count == 1);
-    assert(strcmp(getname(table.elements[0]), "Variable1") == 0);
-
-    table_insert(&table, element2, sizeof(element2), ++line);
-
-    assert(table.element_count == 2);
-    assert(strcmp(getname(table.elements[0]), "Variable2") == 0);
+    assert(element_name_exists(elements, 3, func.name));
+    assert(element_name_exists(elements, 3, var1.name));
+    assert(element_name_exists(elements, 3, var2.name));
 }
 
-// Tests information of get_function.
-void test_get_function()
+// Tests addition of class field.
+void test_field_add()
 {
-    struct variable var1 = {.name = "arg1", .data_type = NUM}, var2 = {.name = "arg2", .data_type = STRING};
-    struct variable params[] = {var1, var2};
-    struct function func = get_function(NONE, 0, VOID, "test_function", params, 2);
+    struct class c = class_init("Test class");
+    struct variable var1 = variable_init("Test variable 1", NUM, 0, NULL), var2 = variable_init("Test Variable 2", BOOL, 0, NULL);
 
-    assert(strcmp(func.name, "test_function") == 0);
-    assert(func.return_type == VOID);
-    assert(func.table.open);
-    assert(func.paramater_count == 2);
-    assert(sizeof(func.parameters[1]) == sizeof(var2));
+    insert_field(&c, var1, 0);
+    insert_field(&c, var2, 0);
+
+    assert(strcmp(c.variables[0].name, var1.name) == 0);
+    assert(strcmp(c.variables[1].name, var2.name) == 0);
 }
 
-// Tests elements in scope of function.
-void test_function_scope()
+// Tests insertion of already existing field.
+void test_field_add_error()
 {
-    struct variable element = {.name = "Some element", .data_type = BOOL};
-    struct function func = get_function(NONE, 0, VOID, "test_function", NULL, 0);
-    struct table_element te = {.type = VARIABLE, .element = &element};
+    struct class c = class_init("Test class");
+    struct variable var1 = variable_init("Test variable", NUM, 0, NULL), var2 = variable_init("Test variable", BOOL, 0, NULL);
 
-    table_insert(&func.table, te, sizeof(te), ++line);
-    func.table.open = 0;
-
-    assert(sizeof(func.parameters) == sizeof(struct variable *));
-    assert(!func.table.open);
-    assert(func.table.element_count == 1);
-    assert(sizeof(func.table.elements[0]) == sizeof(te));
+    insert_field(&c, var1, 0);
+    insert_field(&c, var2, 0);
 }
 
-// Test information of get_class.
-void test_get_class()
+// Tests addition of class method.
+void test_method_add()
 {
-    struct variable var1 = get_variable(NONE, 0, 0, NUM, "var1", 0, NULL);
-    struct variable var2 = get_variable(NONE, 0, 0, NUM, "var2", 0, NULL);
-    struct variable vars[] = {var1, var2};
-    struct function fun1 = get_function(NONE, 0, BOOL, "fun1", vars, 2);
-    struct function fun2 = get_function(NONE, 0, NUM, "fun2", NULL, 0);
-    struct function functions[] = {fun1, fun2};
-    struct class cl = get_class("MyClass", vars, 2, functions, 2);
+    struct class c = class_init("Test class");
+    struct function func = function_init("Test function", BOOL);
 
-    assert(cl.open);
-    assert(strcmp(cl.name, "MyClass") == 0);
-    assert(cl.variable_amount == 2);
-    assert(cl.function_amount == 2);
-    assert(strcmp(cl.variables[1].name, var2.name) == 0);
-    assert(strcmp(cl.functions[0].name, fun1.name) == 0);
+    insert_method(&c, func, 0);
+    assert(strcmp(c.functions[0].name, func.name) == 0);
 }
 
-// Tests existence of elements.
-void test_exists()
+// Tests insertion of already existing method.
+void test_method_add_error()
 {
+    struct class c = class_init("Test class");
+    struct function func1 = function_init("Test function", BOOL), func2 = function_init("Test function", NUM);
 
+    insert_method(&c, func1, 0);
+    insert_method(&c, func2, 0);
 }
 
-// Tests getting elements from inner most scope.
-void test_get()
+// Tests declaration of function parameters.
+void test_parameter_declaration()
+{
+    struct function func = function_init("Test function", BOOL);
+    struct variable var1 = variable_init("Test variable 1", STRING, 0, NULL), var2 = variable_init("Test variable 2", NUM, 0, NULL);
+
+    add_parameter(&func, var1, 0);
+    add_parameter(&func, var2, 0);
+    
+    assert(strcmp(var1.name, func.parameters[0].name) == 0);
+    assert(strcmp(var2.name, func.parameters[1].name) == 0);
+}
+
+// Test insertion of element into symbol table.
+void test_table_insertion()
+{
+    symbol_table table = table_init();
+    struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL), 
+        var3 = variable_init("Variable 3", STRING, 0, NULL);
+    struct table_element element1 = {.type = VARIABLE, .element = &var1}, element2 = {.type = VARIABLE, .element = &var2}, 
+        element3 = {.type = VARIABLE, .element = &var3};
+
+    table_insert(&table, element1, 0);
+    table_insert(&table, element2, 0);
+    table_insert(&table, element3, 0);
+
+    assert(strcmp(((struct variable *) table.elements[0].element)->name, var1.name) == 0);
+    assert(strcmp(((struct variable *) table.elements[1].element)->name, var2.name) == 0);
+    assert(strcmp(((struct variable *) table.elements[2].element)->name, var3.name) == 0);
+}
+
+// TODO: table_insert() is still not finished.
+// Tests that a name is already declared in first scope.
+void test_declared1()
+{
+    symbol_table table = table_init();
+    struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL), 
+        var3 = variable_init("Variable 1", STRING, 0, NULL);
+    struct table_element element1 = {.type = VARIABLE, .element = &var1}, element2 = {.type = VARIABLE, .element = &var2}, 
+        element3 = {.type = VARIABLE, .element = &var3};
+
+    table_insert(&table, element1, 0);
+    table_insert(&table, element2, 0);
+    table_insert(&table, element3, 0);
+}
+
+// TODO: Use a function.
+// Tests that a name is already declared in second scope of 3.
+void test_declared2()
 {
 
 }
