@@ -90,3 +90,24 @@ struct table_element get(symbol_table table, const char *name)
 
 -- Notes
 Returns first found table_element in open scope by given name.
+
+--- get_class
+-- Syntax
+struct class get_class(symbol_table table, const char *name, unsigned line_number)
+
+-- Notes
+Returns instance of class with given name.
+
+--- table_scope
+Syntax
+symbol_table table_scope(symbol_table table, unsigned scope)
+
+-- Notes
+Returns symbol_table instance in specific open scope level.
+
+--- innermost_scope_level
+-- Syntax
+unsigned innermost_scope_level(symbol_table table)
+
+-- Notes
+Returns amount of open scope levels.
