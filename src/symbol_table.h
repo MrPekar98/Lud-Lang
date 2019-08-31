@@ -123,6 +123,10 @@ static inline char *getname(struct table_element element)
             result = (char *) malloc(strlen(((struct class *) element.element)->name));
             sprintf(result, "%s", ((struct class *) element.element)->name);
             break;
+
+        case SCOPE:
+            result = (char *) malloc(1);
+            sprintf(result, "");
     }
 
     return result;
@@ -191,15 +195,10 @@ void add_parameter(struct function *func, struct variable var, unsigned line_num
     func->parameters[func->paramater_count++] = var;
 }
 
-// TODO: Finish this!
+// TODO: Fix random segmentation fault.
 // Inserts element into table in given scope.
 void table_insert(symbol_table *table, struct table_element element, unsigned line_number)
 {
-    const size_t size = element.type == (FUNCTION ? sizeof(struct function) : 
-                        element.type == VARIABLE ? sizeof(struct variable) : 
-                        element.type == CLASS || element.type == PROTOCOL ? sizeof(struct class) : 
-                        sizeof(symbol_table)) + sizeof(int);
-
     if (element_name_exists(table->elements, table->element_count, getname(element)))
     {
         char msg[100];
@@ -207,30 +206,38 @@ void table_insert(symbol_table *table, struct table_element element, unsigned li
         table_error(msg);
     }
 
-    // TODO: Dalej...
+    table->elements = (struct table_element *) realloc(table->elements, sizeof(struct table_element) + sizeof(struct table_element) * table->element_count);
+    table->elements[table->element_count++] = element;
 }
 
+// TODO: Segmentation fault happens. Seems like the formal table parameter is not the same as its actual table parameter.
 // Checks for declaration of symbol table element in all open scopes, where lowest scope is the given scope 'table'.
 int is_declared(symbol_table table, const char *name)
-{
-    if (!table.open)
-        return 0;
-    
+{    
     unsigned i, j, scopes = innermost_scope_level(table);
 
-    for (i = 0; i < scopes; i++)
+    //printf("Element type scope = %d\n", table_scope(table, 2).elements[1].type);
+
+    for (i = 0; i <= scopes; i++)
     {
         symbol_table table = table_scope(table, i);
 
-        for (j = 0; j < table.element_count; j++)
-        {
-            switch (table.elements[j].type)
-            {
-                case VARIABLE:
-                    if (strcmp(name, ((struct variable *) table.elements[j].element)->name) == 0)
-                        return 1;
-            }
-        }
+        // for (j = 0; j < table.element_count; j++)
+        // {
+        //     if (strcmp(name, getname(table.elements[j])) == 0)
+        //         return 1;
+        // }
+
+        // for (j = 0; j < table.element_count; j++)
+        // {
+        //     printf("Name: %s\n", getname(table.elements[j]));
+        // }
+
+        // getname(table.elements[j]);
+        // printf("Elements: %d\n\n", table.element_count);
+        //printf("Type: %d\n", table.elements[0].type);
+        //printf("Type: %d\n", table.elements[1].type);
+        //printf("Elements: %d\n\n", table.element_count);
     }
 
     return 0;
@@ -292,6 +299,7 @@ void insert_method(struct class *c, struct function func, unsigned line_number)
     c->functions[c->function_amount++] = func;
 }
 
+// TODO: Finish this!
 // Returns table_element of element.
 struct table_element get(symbol_table table, const char *name, unsigned line_number)
 {
