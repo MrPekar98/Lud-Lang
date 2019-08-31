@@ -95,8 +95,7 @@ int element_name_exists(struct table_element *elements, unsigned length, const c
         if (element_name != NULL && strcmp(element_name, name) == 0)
             return 1;
 
-        if (element_name != NULL)
-            free(element_name);
+        free(element_name);
     }
 
     return 0;
@@ -135,7 +134,7 @@ static inline char *getname(struct table_element element)
 // Gets instance of symbol table.
 symbol_table table_init()
 {
-    symbol_table table = {.open = 1};
+    symbol_table table = {.open = 1, .element_count = 0};
     return table;
 }
 
@@ -191,11 +190,10 @@ void add_parameter(struct function *func, struct variable var, unsigned line_num
         }
     }
 
-    func->parameters = (struct variable *) realloc(func->parameters, sizeof(struct variable) * func->paramater_count + sizeof(struct variable));
+    func->parameters = (struct variable *) realloc(func->parameters, sizeof(struct variable) * (func->paramater_count + 1));
     func->parameters[func->paramater_count++] = var;
 }
 
-// TODO: Fix random segmentation fault.
 // Inserts element into table in given scope.
 void table_insert(symbol_table *table, struct table_element element, unsigned line_number)
 {
@@ -206,7 +204,7 @@ void table_insert(symbol_table *table, struct table_element element, unsigned li
         table_error(msg);
     }
 
-    table->elements = (struct table_element *) realloc(table->elements, sizeof(struct table_element) + sizeof(struct table_element) * table->element_count);
+    table->elements = (struct table_element *) realloc(table->elements, sizeof(struct table_element) * (table->element_count + 1));
     table->elements[table->element_count++] = element;
 }
 
@@ -216,28 +214,15 @@ int is_declared(symbol_table table, const char *name)
 {    
     unsigned i, j, scopes = innermost_scope_level(table);
 
-    //printf("Element type scope = %d\n", table_scope(table, 2).elements[1].type);
-
     for (i = 0; i <= scopes; i++)
     {
-        symbol_table table = table_scope(table, i);
+        symbol_table current = table_scope(table, i);
 
-        // for (j = 0; j < table.element_count; j++)
-        // {
-        //     if (strcmp(name, getname(table.elements[j])) == 0)
-        //         return 1;
-        // }
-
-        // for (j = 0; j < table.element_count; j++)
-        // {
-        //     printf("Name: %s\n", getname(table.elements[j]));
-        // }
-
-        // getname(table.elements[j]);
-        // printf("Elements: %d\n\n", table.element_count);
-        //printf("Type: %d\n", table.elements[0].type);
-        //printf("Type: %d\n", table.elements[1].type);
-        //printf("Elements: %d\n\n", table.element_count);
+        for (j = 0; j < current.element_count; j++)
+        {
+            if (strcmp(name, getname(current.elements[j])) == 0)
+                return 1;
+        }
     }
 
     return 0;
