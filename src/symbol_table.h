@@ -336,16 +336,18 @@ symbol_table table_scope(symbol_table table, unsigned scope)
                 {
                     current = *((symbol_table *) current.elements[i].element);
                     found = 1;
-                    break;
                 }
+
+                break;
 
             case FUNCTION:  
                 if (((struct function *) current.elements[i].element)->table.open)
                 {
                     current = ((struct function *) current.elements[i].element)->table;
                     found = 1;
-                    break;
                 }
+
+                break;
 
             case CLASS: case PROTOCOL:
                 if (((struct class *) current.elements[i].element)->open)
@@ -413,16 +415,18 @@ unsigned innermost_scope_level(symbol_table table)
                 {
                     current = *((symbol_table *) current.elements[i].element);
                     found = 1;
-                    break;
                 }
+
+                break;
 
             case FUNCTION:  
                 if (((struct function *) current.elements[i].element)->table.open)
                 {
                     current = ((struct function *) current.elements[i].element)->table;
                     found = 1;
-                    break;
                 }
+
+                break;
 
             case CLASS: case PROTOCOL:
                 if (((struct class *) current.elements[i].element)->open)
