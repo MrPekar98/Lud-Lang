@@ -16,6 +16,8 @@ void test_parameter_declaration();
 void test_table_insertion();
 void test_declared1();
 void test_declared2();
+void test_scopes();
+void test_get_scope();
 
 // Main function.
 int main()
@@ -30,6 +32,8 @@ int main()
     //test_method_add_error();
     test_parameter_declaration();
     //test_table_insertion();
+    test_scopes();
+    test_get_scope();
 
     // System tests.
     //test_declared1();
@@ -47,7 +51,7 @@ void test_error()
 // Test getting name of table_element.
 void test_getname()
 {
-    struct function func = {.open = 1, .accessor = INTERNAL, .name = "testFunc", .return_type = NUM, .table = table_init()};
+    struct function func = {.accessor = INTERNAL, .name = "testFunc", .return_type = NUM, .table = table_init()};
     struct table_element element = {.type = FUNCTION, .element = &func};
 
     assert(strcmp(getname(element), func.name) == 0);
@@ -57,7 +61,7 @@ void test_getname()
 void test_name_existence()
 {
     struct variable var1 = {.name = (char *) malloc(11), .data_type = NUM}, var2 = {.name = (char *) malloc(11), .data_type = BOOL};
-    struct function func = {.name = (char *) malloc(9), .open = 1, .return_type = NUM};
+    struct function func = {.name = (char *) malloc(9), .return_type = NUM, .table = table_init()};
     struct table_element element1 = {.type = VARIABLE, .element = &var1}, element2 = {.type = VARIABLE, .element = &var2}, element3 = {.type = FUNCTION, .element = &func};
     struct table_element elements[3] = {element1, element2, element3};
 
@@ -164,4 +168,56 @@ void test_declared1()
 void test_declared2()
 {
 
+}
+
+// Tests amount of open scopes.
+void test_scopes()
+{
+    symbol_table table = table_init();
+    table.element_count = 2;
+    table.elements = (struct table_element *) malloc(sizeof(struct table_element) * 2);
+    
+    struct variable var1 = variable_init("Variable 1", BOOL, 0, NULL), var2 = variable_init("Variable 2", NUM, 0, NULL), var3 = variable_init("Variable 3", BOOL, 0, NULL);
+    struct function func = function_init("Function", NUM);
+    struct class c = class_init("Some class");
+
+    table.elements[0] = (struct table_element) {.type = VARIABLE, .element = &var1};
+    table.elements[1] = (struct table_element) {.type = CLASS, .element = &c};
+    insert_field(&c, var2, 0);
+    insert_method(&c, func, 0);
+
+    c.functions[0].table.open = 1;
+    c.functions[0].table.element_count = 1;
+    c.functions[0].table.elements = (struct table_element *) malloc(sizeof(struct table_element));
+    c.functions[0].table.elements[0] = (struct table_element) {.type = VARIABLE, .element = &var3};
+
+    assert(innermost_scope_level(table) == 2);
+    c.functions[0].table.open = 0;
+    assert(innermost_scope_level(table) == 1);
+}
+
+// Test retrieval of specific scope level.
+void test_get_scope()
+{
+    symbol_table table = table_init();
+    table.element_count = 2;
+    table.elements = (struct table_element *) malloc(sizeof(struct table_element) * 2);
+    
+    struct variable var1 = variable_init("Variable 1", BOOL, 0, NULL), var2 = variable_init("Variable 2", NUM, 0, NULL), var3 = variable_init("Variable 3", BOOL, 0, NULL);
+    struct function func = function_init("Function", NUM);
+    struct class c = class_init("Some class");
+
+    table.elements[0] = (struct table_element) {.type = VARIABLE, .element = &var1};
+    table.elements[1] = (struct table_element) {.type = CLASS, .element = &c};
+    insert_field(&c, var2, 0);
+    insert_method(&c, func, 0);
+
+    c.functions[0].table.open = 1;
+    c.functions[0].table.element_count = 1;
+    c.functions[0].table.elements = (struct table_element *) malloc(sizeof(struct table_element));
+    c.functions[0].table.elements[0] = (struct table_element) {.type = VARIABLE, .element = &var3};
+
+    assert(table_scope(table, 0).element_count == 2);
+    //assert(table_scope(table, 1).element_count == 2);     Wait for table_insert() to be done.
+    assert(table_scope(table, 2).element_count == 1);
 }
