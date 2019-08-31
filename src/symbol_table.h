@@ -37,7 +37,6 @@ struct variable
 // Function element.
 struct function
 {
-    int open;
     enum accessor_t accessor;
     int is_static;
     enum type_t return_type;
@@ -73,8 +72,9 @@ void insert_field(struct class *c, struct variable var, unsigned line_number);
 void insert_method(struct class *c, struct function func, unsigned line_number);
 struct table_element get(symbol_table table, const char *name, unsigned line_number);
 struct class get_class(symbol_table table, const char *name, unsigned line_number);
-symbol_table get_table_level(symbol_table table);
-unsigned innermost_level(symbol_table table);
+symbol_table table_scope(symbol_table table, unsigned scope);
+symbol_table class_to_table(struct class c);
+unsigned innermost_scope_level(symbol_table table);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -164,7 +164,7 @@ struct variable variable_init(const char *name, enum type_t type, int is_class_i
 // Gets instance of function.
 struct function function_init(const char *name, enum type_t return_type)
 {
-    struct function func = {.open = 1, .name = (char *) malloc(strlen(name)), .return_type = return_type};
+    struct function func = {.name = (char *) malloc(strlen(name)), .return_type = return_type};
     func.parameters = (struct variable *) malloc(sizeof(struct variable));
     func.table.open = 1;
     sprintf(func.name, "%s", name);
@@ -216,58 +216,24 @@ int is_declared(symbol_table table, const char *name)
     if (!table.open)
         return 0;
     
-    unsigned i;
-    symbol_table current = table;
+    unsigned i, j, scopes = innermost_scope_level(table);
 
-    for (i = 0; i < current.element_count; i++)
+    for (i = 0; i < scopes; i++)
     {
-        if (i == 0 && element_name_exists(table.elements, table.element_count, name))
-            return 1;
+        symbol_table table = table_scope(table, i);
 
-        
-        switch (current.elements[i].type)
+        for (j = 0; j < table.element_count; j++)
         {
-            case SCOPE:                
-                if (((symbol_table *) current.elements[i].element)->open)
-                {
-                    current = *((symbol_table *) current.elements[i].element);
-                    i = -1;
-                    continue;
-                }
-
-            case FUNCTION:
-                if (strcmp(((struct function *) current.elements[i].element)->name, name) == 0)
-                    return 1;
-                
-                else if (((struct function *) current.elements[i].element)->table.open)
-                {
-                    current = ((struct function *) current.elements[i].element)->table;
-                    i = -1;
-                    continue;
-                }
-
-            case CLASS: case PROTOCOL:
-                if (((struct class *) current.elements[i].element)->open)
-                {
-                    if (variable_exists(((struct class *) current.elements[i].element)->variables, ((struct class *) current.elements[i].element)->variable_amount, name) ||
-                        function_exists(((struct class *) current.elements[i].element)->functions, ((struct class *) current.elements[i].element)->function_amount, name))
+            switch (table.elements[j].type)
+            {
+                case VARIABLE:
+                    if (strcmp(name, ((struct variable *) table.elements[j].element)->name) == 0)
                         return 1;
-
-                    // TODO: Check for open function scopes.
-                    for (i = 0; i < ((struct class *) current.elements[i].element)->function_amount; i++)
-                    {
-                        if (((struct class *) current.elements[i].element)->functions[i].open)
-                        {
-                            current = ((struct class *) current.elements[i].element)->functions[i].table;
-                            break;
-                        }
-                    }
-
-                    i = -1;
-                    continue;
-                }
+            }
         }
     }
+
+    return 0;
 }
 
 // Checks whether variable exists in array of variables.
@@ -344,13 +310,136 @@ struct class get_class(symbol_table table, const char *name, unsigned line_numbe
 }
 
 // Returns table in argument specified level.
-symbol_table get_table_level(symbol_table table)
+symbol_table table_scope(symbol_table table, unsigned scope)
 {
+    unsigned level = 0, i, j;
+    int found = 0;
+    symbol_table current = table;
 
+    for (i = 0; i < current.element_count; i++)
+    {        
+        if (level == scope)
+            break;
+        
+        switch (current.elements[i].type)
+        {
+            case SCOPE:                
+                if (((symbol_table *) current.elements[i].element)->open)
+                {
+                    current = *((symbol_table *) current.elements[i].element);
+                    found = 1;
+                    break;
+                }
+
+            case FUNCTION:  
+                if (((struct function *) current.elements[i].element)->table.open)
+                {
+                    current = ((struct function *) current.elements[i].element)->table;
+                    found = 1;
+                    break;
+                }
+
+            case CLASS: case PROTOCOL:
+                if (((struct class *) current.elements[i].element)->open)
+                {
+                    level++;
+
+                    if (level == scope)
+                        return class_to_table(*((struct class *) current.elements[i].element));
+                    
+                    for (j = 0; j < ((struct class *) current.elements[i].element)->function_amount; j++)
+                    {
+                        if (((struct class *) current.elements[i].element)->functions[j].table.open)
+                        {
+                            current = ((struct class *) current.elements[i].element)->functions[j].table;
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+        }
+
+        if (found)
+        {
+            i = -1;
+            level++;
+            found = 0;
+        }
+    }
+
+    return current;
+}
+
+// Converts class into symbol_table.
+symbol_table class_to_table(struct class c)
+{
+    symbol_table table = table_init();
+    unsigned i;
+
+    for (i = 0; i < c.variable_amount; i++)
+    {
+        table_insert(&table, (struct table_element) {.type = VARIABLE, .element = &c.variables[i]}, 0);
+    }
+
+    for (i = 0; i < c.function_amount; i++)
+    {
+        table_insert(&table, (struct table_element) {.type = FUNCTION, .element = &c.functions[i]}, 0);
+    }
+
+    return table;
 }
 
 // Returns level of the inner most open scope.
-unsigned innermost_level(symbol_table table)
+unsigned innermost_scope_level(symbol_table table)
 {
-    return 0;
+    unsigned level = 0, i, j;
+    int found = 0;
+    symbol_table current = table;
+
+    for (i = 0; i < current.element_count; i++)
+    {        
+        switch (current.elements[i].type)
+        {
+            case SCOPE:                
+                if (((symbol_table *) current.elements[i].element)->open)
+                {
+                    current = *((symbol_table *) current.elements[i].element);
+                    found = 1;
+                    break;
+                }
+
+            case FUNCTION:  
+                if (((struct function *) current.elements[i].element)->table.open)
+                {
+                    current = ((struct function *) current.elements[i].element)->table;
+                    found = 1;
+                    break;
+                }
+
+            case CLASS: case PROTOCOL:
+                if (((struct class *) current.elements[i].element)->open)
+                {
+                    level++;
+                    
+                    for (j = 0; j < ((struct class *) current.elements[i].element)->function_amount; j++)
+                    {
+                        if (((struct class *) current.elements[i].element)->functions[j].table.open)
+                        {
+                            current = ((struct class *) current.elements[i].element)->functions[j].table;
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+        }
+
+        if (found)
+        {
+            i = -1;
+            level++;
+            found = 0;
+        }
+    }
+
+    return level;
 }
