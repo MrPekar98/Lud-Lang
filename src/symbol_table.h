@@ -208,7 +208,6 @@ void table_insert(symbol_table *table, struct table_element element, unsigned li
     table->elements[table->element_count++] = element;
 }
 
-// TODO: Segmentation fault happens. Seems like the formal table parameter is not the same as its actual table parameter.
 // Checks for declaration of symbol table element in all open scopes, where lowest scope is the given scope 'table'.
 int is_declared(symbol_table table, const char *name)
 {    
