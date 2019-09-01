@@ -19,6 +19,10 @@ void test_declared1();
 void test_declared2();
 void test_scopes();
 void test_get_scope();
+void test_get();
+void test_get_classes();
+void test_get_error();
+void test_get_class_error();
 
 // Main function.
 int main()
@@ -33,12 +37,16 @@ int main()
     test_declaration();
     test_scopes();
     test_get_scope();
+    test_get();
+    test_get_classes();
 
     // System tests.
     //test_declared1();
     //test_declared2();
     //test_method_add_error();
     //test_error();
+    //test_get_error();
+    //test_get_class_error();
     
     return 0;
 }
@@ -171,7 +179,6 @@ void test_declaration()
     assert(!is_declared(table, "Some variable"));
 }
 
-// TODO: table_insert() is still not finished.
 // Tests that a name is already declared in first scope.
 void test_declared1()
 {
@@ -186,11 +193,19 @@ void test_declared1()
     table_insert(&table, element3, 0);
 }
 
-// TODO: Use a function.
 // Tests that a name is already declared in second scope of 3.
 void test_declared2()
 {
+    symbol_table table = table_init();
+    struct function func1 = function_init("Function", BOOL), func2 = function_init("Function", STRING);
+    struct variable var = variable_init("Variable", NUM, 0, NULL);
+    struct table_element element1 = {.type = FUNCTION, .element = &func1}, element2 = {.type = FUNCTION, .element = &func2},
+        element3 = {.type = VARIABLE, .element = &var};
 
+    table_insert(&table, element1, 0);
+    table_insert(&func1.table, element3, 2);
+    func1.table.open = 0;
+    table_insert(&table, element2, 5);
 }
 
 // Tests amount of open scopes.
@@ -229,4 +244,92 @@ void test_get_scope()
     assert(table_scope(table, 0).element_count == 2);
     assert(table_scope(table, 1).element_count == 2);
     assert(table_scope(table, 2).element_count == 1);
+}
+
+// Tests getting declarations.
+void test_get()
+{
+    symbol_table table = table_init();
+    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
+        var3 = variable_init("Function variable", BOOL, 0, NULL);
+    struct function func = function_init("Function", BOOL);
+    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2}, element3 = {.type = VARIABLE, .element = &var3};
+
+    table_insert(&table, element1, 0);
+    insert_field(&c1, var1, 3);
+    c1.open = 0;
+    table_insert(&table, element2, 10);
+    insert_field(&c2, var2, 4);
+    table_insert(&func.table, element3, 14);
+    insert_method(&c2, func, 11);
+
+    assert(strcmp(getname(get(table, c1.name, 15)), c1.name) == 0);
+    assert(get(table, c1.name, 15).type == CLASS);
+    assert(strcmp(getname(get(table, c2.name, 15)), c2.name) == 0);
+    assert(get(table, c2.name, 15).type == CLASS);
+
+    struct variable found_var = ((struct class *) get(table, c1.name, 15).element)->variables[0];
+    assert(strcmp(found_var.name, var1.name) == 0);
+    assert(strcmp(getname(get(table, var3.name, 18)), var3.name) == 0);
+    assert(strcmp(getname(get(table, var2.name, 23)), var2.name) == 0);
+}
+
+// ests getting inserted classes.
+void test_get_classes()
+{
+    symbol_table table = table_init();
+    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct variable var1 = variable_init("Variable 1", NUM, 0, NULL);
+    struct function func = function_init("Function", BOOL);
+    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2};
+
+    table_insert(&table, element1, 0);
+    insert_field(&c1, var1, 3);
+    c1.open = 0;
+    table_insert(&table, element2, 10);
+    insert_method(&c2, func, 11);
+
+    assert(strcmp(get_class(table, c1.name, 16).name, c1.name) == 0);
+    assert(strcmp(get_class(table, c2.name, 16).name, c2.name) == 0);
+}
+
+// Throws an error because nothing has been declared with given name.
+void test_get_error()
+{
+    symbol_table table = table_init();
+    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
+        var3 = variable_init("Function variable", BOOL, 0, NULL);
+    struct function func = function_init("Function", BOOL);
+    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2}, element3 = {.type = VARIABLE, .element = &var3};
+
+    table_insert(&table, element1, 0);
+    insert_field(&c1, var1, 3);
+    c1.open = 0;
+    table_insert(&table, element2, 10);
+    insert_method(&c2, func, 11);
+    table_insert(&func.table, element3, 14);
+
+    get(table, "Test", 10);
+}
+
+// Throws an error because no class hss been declared with given name.
+void test_get_class_error()
+{
+    symbol_table table = table_init();
+    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
+        var3 = variable_init("Function variable", BOOL, 0, NULL);
+    struct function func = function_init("Function", BOOL);
+    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2}, element3 = {.type = VARIABLE, .element = &var3};
+
+    table_insert(&table, element1, 0);
+    insert_field(&c1, var1, 3);
+    c1.open = 0;
+    table_insert(&table, element2, 10);
+    insert_method(&c2, func, 11);
+    table_insert(&func.table, element3, 14);
+
+    get_class(table, "Some class", 10);
 }
