@@ -283,7 +283,6 @@ void insert_method(struct class *c, struct function func, unsigned line_number)
     c->functions[c->function_amount++] = func;
 }
 
-// TODO: Finish this!
 // Returns table_element of element.
 struct table_element get(symbol_table table, const char *name, unsigned line_number)
 {
@@ -293,12 +292,44 @@ struct table_element get(symbol_table table, const char *name, unsigned line_num
         sprintf(msg, "Line %d: '%s' has not been declared.\n", line_number, name);
         table_error(msg);
     }
+
+    int level = (int) innermost_scope_level(table);
+    unsigned i;
+
+    for (; level >= 0; level--)
+    {
+        symbol_table current = table_scope(table, level);
+        
+        for (i = 0; i < current.element_count; i++)
+        {
+            if (strcmp(getname(current.elements[i]), name) == 0)
+                return current.elements[i];
+        }
+    }
+
+    // Dummy.
+    return (struct table_element) {.type = VARIABLE, .element = NULL};
 }
 
-// Returns class.
+// Returns class. Lowest level symbol_table must be given, since class declarations are at second lowest level.
 struct class get_class(symbol_table table, const char *name, unsigned line_number)
 {
+    if (!element_name_exists(table.elements, table.element_count, name))
+    {
+        char msg[10];
+        sprintf(msg, "Line %d: '%s' has not been declared.\n", line_number, name);
+        table_error(msg);
+    }
 
+    unsigned i;
+
+    for (i = 0; i < table.element_count; i++)
+    {
+        if (strcmp(getname(table.elements[i]), name) == 0)
+            return *((struct class *) table.elements[i].element);
+    }
+
+    return class_init("Dummy class");
 }
 
 // Returns table in argument specified level.
