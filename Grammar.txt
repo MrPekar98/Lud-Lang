@@ -30,8 +30,11 @@
 	     | <ForEach>
 	     | <WhileLoop>
 	     | <ForLoop>
-	     | 'lambda'
 	     | <Call>
+	     | <SystemCall>
+	     | 'lambda'
+
+<SystemCall> -> system(<Literal>)
 	     
 <VarDecl> -> <Accessor> [static] [const] <Assignemnt> : <DataType>
 
@@ -44,6 +47,11 @@
 	    | string
 	    | bool
 	    | char
+
+<Literal> -> 'number'
+	   | 'string'
+	   | 'boolean'
+	   | 'char'
 
 <Assignment> -> <Var> = <Expression>
 	      | this.<Reference> = <Expression>
@@ -77,10 +85,7 @@
 <ArithPow> -> <ArithParan>^<ArithExpression>
 
 <ArithParan> -> (<ArithExpression>)
-	      | 'number'
-	      | 'string'
-	      | 'boolean'
-	      | 'char'
+	      | <Literal>
 	      | this.<Reference>
 	      | super.<Reference>
 	      | <Reference>
