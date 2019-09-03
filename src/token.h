@@ -6,7 +6,9 @@ enum token_t {LPARAN, RPARAN, LBRACE, RBRACE, IMPORT, ID, LITERAL, PROTOCOL, CLA
                 METHOD, CONSTRUCTOR, RETURN, NOT, BREAK, CONTINUE};
 
 // Specifies a node type.
-enum node_type {};
+enum node_type {START, VAR, IMPORTS, PROGRAM, PROTOCOLDECL, CLASSDECL, STATEMENTS, STATEMENT, SYSTEMCALL, VARDECL, ACCESSOR, DATATYPES, LITERAL, ASSIGNMENT, 
+                EXPRESSION, EQUALS, ARITHEXPRESSION, BOOLXOR, BOOLAND, ARITHNUMBERSTRING, PLUSMINUS, MULTDIV, ARITHPOW, ARITHPARAN, ARRAYLITERAL, REFERENCE, 
+                IFSTATEMENT, ELSE, FOREACH, WHILELOOP, FORLOOP, METHODDECL, CONSTRUCTOR, CALL};
 
 // Token structure. An error occured when token is -1.
 typedef struct
@@ -21,4 +23,6 @@ typedef struct
 {
     enum node_type type;
     void **children;
+    unsigned children_count;
+    char *data;
 } node;
