@@ -3,7 +3,7 @@
 // Enum for all tokens.
 enum token_t {LPARAN, RPARAN, LBRACE, RBRACE, IMPORT, ID, LITERAL, PROTOCOL, CLASS, ARROW, RBRACKET, LBRACKET, USING, COLON, SEMICOLON, SYSTEM, ACCESSOR,
                 STATIC, CONST, DATATYPE, VOID, EQUALS, DOT, COMMA, THIS, SUPER, CREATE, OR, AND, XOR, OPERATOR, MODULUS, IF, ELSE, FOR, WHILE, FOREACH,
-                METHOD, CONSTRUCTOR, RETURN};
+                METHOD, CONSTRUCTOR, RETURN, NOT};
 
 // Token structure. An error occured when token is -1.
 typedef struct
