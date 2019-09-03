@@ -5,6 +5,9 @@ enum token_t {LPARAN, RPARAN, LBRACE, RBRACE, IMPORT, ID, LITERAL, PROTOCOL, CLA
                 STATIC, CONST, DATATYPE, VOID, EQUALS, DOT, COMMA, THIS, SUPER, CREATE, OR, AND, XOR, OPERATOR, MODULUS, IF, ELSE, FOR, WHILE, FOREACH,
                 METHOD, CONSTRUCTOR, RETURN, NOT, BREAK, CONTINUE};
 
+// Specifies a node type.
+enum node_type {};
+
 // Token structure. An error occured when token is -1.
 typedef struct
 {
@@ -12,3 +15,10 @@ typedef struct
     enum token_t token;
     int error;
 } lex_t;
+
+// AST node.
+typedef struct 
+{
+    enum node_type type;
+    void **children;
+} node;
