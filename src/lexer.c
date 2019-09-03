@@ -2,8 +2,6 @@
 #include <string.h>
 #include "token.h"
 
-extern unsigned long line;
-
 // Prototypes.
 static int recognise(const char *buffer, unsigned length);
 static int recognise_accessor(const char *buffer);
@@ -27,6 +25,9 @@ lex_t read_token()
 
     while ((c = fgetc(prog)) != -1)
     {
+        if (c == ' ')
+            continue;
+        
         buffer[counter++] = c;
         rec = recognise(buffer, counter);
 
@@ -41,6 +42,12 @@ lex_t read_token()
         t.error = 1;
 
     return t;
+}
+
+// Reverses toke reading by one.
+void reverse_token(lex_t last_read)
+{
+    fseek(prog, ftell(prog) - strlen(last_read.lexeme), SEEK_SET);
 }
 
 // Determines token recognised.
@@ -87,7 +94,7 @@ static int recognise(const char *buffer, unsigned length)
                 return SEMICOLON;
 
             case '=':
-                return EQUALS;
+                return EQ;
 
             case '|':
                 return OR;
@@ -143,7 +150,7 @@ static int recognise(const char *buffer, unsigned length)
         return IF;
 
     else if (strcmp("else", buffer) == 0)
-        return ELSE;
+        return ELS;
 
     else if (strcmp("break", buffer) == 0)
         return BREAK;
