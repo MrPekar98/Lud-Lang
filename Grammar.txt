@@ -67,8 +67,12 @@
 		   | <BoolXor>
 		   | <Var>++
 		   | <Var>--
+		   | <Var>**
+		   | <Var>//
 		   | ++<Var>
 		   |--<Var>
+		   | **<Var>
+		   | //<Var>
 
 <BoolXor> -> <BoolAnd> ^ <BoolXor>
 	   | <BoolAnd>
