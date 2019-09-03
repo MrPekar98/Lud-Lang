@@ -1,13 +1,10 @@
 <Start> -> <Imports> <Program>
-	 | <Imports>
-	 | <Program>
-	 | 'lambda'
 	 
 <Var> -> 'identifier'
        | 'identifier'[]
        | 'identifier'[<Expression>]
 
-<Imports> -> import <path> <Imports>
+<Imports> -> import 'path' <Imports>
 	   | 'lambda'
 
 <Program> -> <ProtocolDecl> <Program>
