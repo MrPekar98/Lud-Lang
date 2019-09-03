@@ -99,6 +99,9 @@
 	      | super.<Reference>
 	      | <Reference>
 	      | <Call>
+	      | <ArrayLiteral>
+
+<ArrayLiteral> -> '{'[<Expression> {, <Expression>}]'}'
 
 <Reference> -> <Var>.<Reference>
 	     | <Var>([<Expression> {, <Expression>}]).<Reference>
