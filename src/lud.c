@@ -1,16 +1,20 @@
 #include <stdio.h>
 #include "token.h"
 
+// Line number of compilation.
+unsigned long line;
+
 // .lud program file.
 FILE *prog;
 
-// External prototypes
-extern lex_t read_token();
+// External prototypes.
 
-// Internal prototypes
 
-// Main function
-int main(int argc, char **argv)
+// Internal prototypes.
+void gen_target();
+
+// Main function.
+int main()
 {
     char input[200];
     
@@ -20,7 +24,17 @@ int main(int argc, char **argv)
     prog = fopen(input, "r");
 
     // Compile here.
+    gen_target();
 
     fclose(prog);
     return 0;
+}
+
+// Generates target code.
+void gen_target()
+{
+    // Get output AST from parser.
+    // Run type checker on AST.
+    // Optimise AST.
+    // Run code generation on AST.
 }
