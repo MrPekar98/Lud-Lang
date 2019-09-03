@@ -60,7 +60,7 @@
 	      | this.<Reference> = <Expression>
 	      | super.<Reference> = <Expression>
 
-<Expression> -> <Equals>
+<Expression> -> [!]<Equals>
 	      | create <Var>([<Expression> {, <Expression>}])
 
 <Equals> -> <ArithExpression> == <ArithExpression>
