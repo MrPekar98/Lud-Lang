@@ -4,6 +4,8 @@
 	 | 'lambda'
 	 
 <Var> -> 'identifier'
+       | 'identifier'[]
+       | 'identifier'[<Expression>]
 
 <Imports> -> import <path> <Imports>
 	   | 'lambda'
@@ -53,7 +55,8 @@
 	   | 'boolean'
 	   | 'char'
 
-<Assignment> -> <Var> = <Expression>
+<Assignment> -> <Var>
+	      | <Var> = <Expression>
 	      | this.<Reference> = <Expression>
 	      | super.<Reference> = <Expression>
 
@@ -61,9 +64,11 @@
 	      | create <Var>([<Expression> {, <Expression>}])
 
 <ArithExpression> -> <BoolXor> | <ArithExpression>
-		   | <ArithExpression>
+		   | <BoolXor>
 		   | <Var>++
 		   | <Var>--
+		   | ++<Var>
+		   |--<Var>
 
 <BoolXor> -> <BoolAnd> ^ <BoolXor>
 	   | <BoolAnd>
@@ -82,7 +87,7 @@
 	   | <ArithPow> / <MultDiv>
 	   | <ArithPow>
 
-<ArithPow> -> <ArithParan>^<ArithExpression>
+<ArithPow> -> <ArithParan>^^<ArithExpression>
 
 <ArithParan> -> (<ArithExpression>)
 	      | <Literal>
