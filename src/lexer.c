@@ -3,6 +3,7 @@
 #include "token.h"
 
 // Prototypes.
+static int is_single_character_token(char c);
 static int recognise(const char *buffer, unsigned length);
 static int recognise_accessor(const char *buffer);
 static int recognise_datatype(const char *buffer);
@@ -25,16 +26,22 @@ lex_t read_token()
 
     while ((c = fgetc(prog)) != -1)
     {
-        if (c == ' ')
+        if (counter == 0 && (c == ' ' || c == '\n'))
             continue;
         
-        buffer[counter++] = c;
-        rec = recognise(buffer, counter);
-
-        if (rec != -1)
+        else if (c == ' ' || c == '\n')
             break;
+
+        else if (is_single_character_token(c))
+        {
+            fseek(prog, ftell(prog) - 1, SEEK_SET);
+            break;
+        }
+        
+        buffer[counter++] = c;
     }
     
+    rec = recognise(buffer, counter);
     sprintf(t.lexeme, "%s", buffer);
     t.token = rec;
 
@@ -47,7 +54,20 @@ lex_t read_token()
 // Reverses toke reading by one.
 void reverse_token(lex_t last_read)
 {
-    fseek(prog, ftell(prog) - strlen(last_read.lexeme), SEEK_SET);
+    fseek(prog, ftell(prog) - strlen(last_read.lexeme) - 1, SEEK_SET);
+}
+
+// Determines whether a token can be next to another lexeme without a space.
+static int is_single_character_token(char c)
+{
+    switch (c)
+    {
+        case '.': case ',': case '(': case ')': case '{': case '}': case '[': case ']': case ':': case ';': case '=': case '|': case '&': case '^':
+            return 1;
+
+        default:
+            return 0;
+    }
 }
 
 // Determines token recognised.
