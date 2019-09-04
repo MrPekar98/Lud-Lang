@@ -19,9 +19,7 @@ static void check_import(const char *path);
 node parse()
 {
     node start = {.type = START};
-    lex_t first = read_token();
-
-    reverse_token(first);
+    
     make_import(&start);
     make_program(&start);
 
@@ -32,7 +30,7 @@ node parse()
 static void make_import(node *parent)
 {
     lex_t t = read_token();
-
+    
     if (t.error)
         printf("Line %d: Illegal use of '%s' at this point.\n", line, t.lexeme);
 
@@ -54,10 +52,7 @@ static void make_import(node *parent)
     t = read_token();
     reverse_token(t);
 
-    if (t.error)
-        printf("Line %d: Unexpected error occured.\n", line);
-
-    else if (t.token == IMPORT)
+    if (!t.error && t.token == IMPORT)
         make_import(parent);
 }
 
