@@ -24,6 +24,6 @@ typedef struct
     enum node_type type;
     void **children;
     unsigned children_count;
-    char *data;
-    char *modification;
+    char data[200];
+    char modification[200];
 } node;
