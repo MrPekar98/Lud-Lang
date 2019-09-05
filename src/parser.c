@@ -11,9 +11,12 @@ extern void reverse_token(lex_t last_read);
 extern unsigned long line;
 
 // Prototypes.
+static void add_child(node *parent, node child);
 static void make_import(node *parent);
 static void make_program(node *parent);
 static void check_import(const char *path);
+static void make_protocoldecl(node *parent);
+static void make_classdecl(node *parent);
 
 // Main parsing function.
 node parse()
@@ -24,6 +27,13 @@ node parse()
     make_program(&start);
 
     return start;
+}
+
+// Adds child to node.
+static void add_child(node *parent, node child)
+{
+    parent->children = (void **) realloc(parent->children, sizeof(void *) * ++parent->children_count);
+    parent->children[parent->children_count - 1] = &child;
 }
 
 // Makes node for IMPORT.
@@ -44,8 +54,7 @@ static void make_import(node *parent)
         check_import(path.lexeme);
         node n = {.type = IMPORTS};
         sprintf(n.data, "%s", path.lexeme);
-        parent->children = (void **) realloc(parent->children, sizeof(void *) * ++parent->children_count);
-        parent->children[parent->children_count - 1] = &n;
+        add_child(parent, n);
     }
     
     t = read_token();
@@ -76,5 +85,39 @@ static void check_import(const char *path)
 // Makes node for PROGRAM.
 static void make_program(node *parent)
 {
-    
+    lex_t next = read_token();
+    node n = {.type = PROGRAM};
+    add_child(parent, n);
+
+    if (!next.error && next.token == PROTOCOL)
+    {
+        reverse_token(next);
+        make_protocoldecl(&n);
+    }
+
+    else if (!next.error && next.token == CLASS)
+    {
+        reverse_token(next);
+        make_classdecl(&n);
+    }
+
+    next = read_token();
+
+    if (!next.error && (next.token == PROTOCOL || next.token == CLASS))
+    {
+        reverse_token(next);
+        make_program(parent);
+    }
+}
+
+// Makes node for PROTOCOLDECL.
+static void make_protocoldecl(node *parent)
+{
+
+}
+
+// Makes node for CLASSDECL
+static void make_classdecl(node *parent)
+{
+
 }
