@@ -82,44 +82,38 @@ static void check_import(const char *path)
         printf("Line %d: Path must be a string literal.\n", line);
 }
 
+// TODO: Reading tokens is not properly reversed.
 // Makes node for PROGRAM.
 static void make_program(node *parent)
 {
     lex_t next = read_token();
     node n = {.type = PROGRAM};
     add_child(parent, n);
-    
+    reverse_token(next);
+
     if (!next.error && next.token == PROTOCOL)
-    {
-        reverse_token(next);
         make_protocoldecl(&n);
-    }
 
     else if (!next.error && next.token == CLASS)
-    {
-        reverse_token(next);
         make_classdecl(&n);
-    }
 
     next = read_token();
+    reverse_token(next);
 
     if (!next.error && (next.token == PROTOCOL || next.token == CLASS))
-    {
-        reverse_token(next);
         make_program(parent);
-    }
 
     else if (!next.error && next.token != PROTOCOL && next.token != CLASS)
-        printf("Line %d: Expected class or protocol declaration here.\n", line)
+        printf("Line %d: Expected class or protocol declaration here.\n", line);
 }
 
 // Makes node for PROTOCOLDECL.
 static void make_protocoldecl(node *parent)
 {
-
+    
 }
 
-// Makes node for CLASSDECL
+// Makes node for CLASSDECL.
 static void make_classdecl(node *parent)
 {
 
