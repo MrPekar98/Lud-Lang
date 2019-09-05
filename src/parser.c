@@ -40,6 +40,7 @@ static void add_child(node *parent, node child)
 static void make_import(node *parent)
 {
     lex_t t = read_token();
+    printf("Import: %d\n", t.token);
     
     if (t.error)
         printf("Line %d: Illegal use of '%s' at this point.\n", line, t.lexeme);
@@ -88,6 +89,7 @@ static void make_program(node *parent)
     lex_t next = read_token();
     node n = {.type = PROGRAM};
     add_child(parent, n);
+    printf("Program: %d\n", next.token);
 
     if (!next.error && next.token == PROTOCOL)
     {
@@ -108,6 +110,9 @@ static void make_program(node *parent)
         reverse_token(next);
         make_program(parent);
     }
+
+    else if (!next.error && next.token != PROTOCOL && next.token != CLASS)
+        printf("Line %d: Expected class or protocol declaration here.\n", line)
 }
 
 // Makes node for PROTOCOLDECL.
