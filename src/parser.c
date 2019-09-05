@@ -48,12 +48,14 @@ static void make_import(node *parent)
         parent->children[parent->children_count - 1] = &n;
     }
     
-    line++;
     t = read_token();
     reverse_token(t);
 
     if (!t.error && t.token == IMPORT)
+    {
+        line++;
         make_import(parent);
+    }
 }
 
 // Checks format of import path.
@@ -74,5 +76,5 @@ static void check_import(const char *path)
 // Makes node for PROGRAM.
 static void make_program(node *parent)
 {
-
+    
 }
