@@ -56,6 +56,12 @@ static void make_import(node *parent)
         sprintf(n.data, "%s", path.lexeme);
         add_child(parent, n);
     }
+
+    else
+    {
+        reverse_token(t);
+        return;
+    }
     
     t = read_token();
     reverse_token(t);
@@ -75,7 +81,7 @@ static void check_import(const char *path)
     for (i = 1; i < limit - 1; i++)
     {
         if ((path[i] < '0' || (path[i] > '9' && path[i] < 'A') || (path[i] > 'Z' && path[i] < 'a') || path[i] > 'z') && path[i] != '.')
-            printf("Line %d: Path may only contain letters, numbers, and dot.\n", line);
+            printf("Line %d: Path may only contain letters, numbers, and dots.\n", line);
     }
 
     if (path[0] != '\"' || path[limit - 1] != '\"')
@@ -102,19 +108,18 @@ static void make_program(node *parent)
 
     if (!next.error && (next.token == PROTOCOL || next.token == CLASS))
         make_program(parent);
-
-    else if (!next.error && next.token != PROTOCOL && next.token != CLASS)
-        printf("Line %d: Expected class or protocol declaration here.\n", line);
 }
 
 // Makes node for PROTOCOLDECL.
 static void make_protocoldecl(node *parent)
 {
-    
+    printf("Lexeme: %s\n", read_token().lexeme);
+    printf("Lexeme: %s\n\n", read_token());
 }
 
 // Makes node for CLASSDECL.
 static void make_classdecl(node *parent)
 {
-
+    printf("Lexeme: %s\n", read_token().lexeme);
+    printf("Lexeme: %s\n\n", read_token());
 }
