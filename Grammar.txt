@@ -11,10 +11,10 @@
 	   | <ClassDecl> <Program>
 	   | 'lambda'
 	   
-<ProtocolDecl> -> protocol <Var> [-> <Var>] { <Statements> } <ProtocolDecl>
+<ProtocolDecl> -> protocol 'identifier' [-> <Var>] { <Statements> } <ProtocolDecl>
 	        | 'lambda'
 
-<ClassDecl> -> class <Var> [-> <Var>] [using <Var> {, <Var>}] { <Statements> } <ClassDecl>
+<ClassDecl> -> class 'identifier' [-> <Var>] [using <Var> {, <Var>}] { <Statements> } <ClassDecl>
 	     | 'lambda'
 
 <Statements> -> <Statement> <Statements>
