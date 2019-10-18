@@ -17,6 +17,7 @@ static void make_program(node *parent);
 static void check_import(const char *path);
 static void make_protocoldecl(node *parent);
 static void make_classdecl(node *parent);
+static void make_statements(node *parent);
 
 // Main parsing function.
 node parse()
@@ -88,20 +89,17 @@ static void check_import(const char *path)
         printf("Line %d: Path must be a string literal.\n", line);
 }
 
-// TODO: Reading tokens is not properly reversed.
 // Makes node for PROGRAM.
 static void make_program(node *parent)
 {
     lex_t next = read_token();
-    node n = {.type = PROGRAM};
-    add_child(parent, n);
     reverse_token(next);
 
     if (!next.error && next.token == PROTOCOL)
-        make_protocoldecl(&n);
+        make_protocoldecl(parent);
 
     else if (!next.error && next.token == CLASS)
-        make_classdecl(&n);
+        make_classdecl(parent);
 
     next = read_token();
     reverse_token(next);
@@ -113,13 +111,67 @@ static void make_program(node *parent)
 // Makes node for PROTOCOLDECL.
 static void make_protocoldecl(node *parent)
 {
-    printf("Lexeme: %s\n", read_token().lexeme);
-    printf("Lexeme: %s\n\n", read_token());
+    lex_t t = read_token();
+    node child = {.type = PROTOCOLDECL};
+    
+    if (strcmp(t.lexeme, "protocol") != 0)
+        printf("Line %d: Expected 'protocol' here.\n", line);
+
+    else if (t.token != PROTOCOL)
+        printf("Line %d: Expected protocol declaration here.\n", line);
+
+    t = read_token();
+
+    if (t.token != ID)
+        printf("Line %d: Expected identifier to protocol.\n", line);
+
+    else
+        sprintf(child.data, "%s", t.lexeme);
+
+    t = read_token();
+
+    if (t.token == ARROW)
+    {
+        if ((t = read_token()).token != ID)
+            printf("Line %d: Identifer must follow arrow operator.\n", line);
+
+        else
+        {
+            char super[100];
+            sprintf(super, "->%s", t.lexeme);
+            strcat(child.data, super);
+        }
+    }
+
+    else
+        reverse_token(t);
+
+    add_child(parent, child);
+
+    if (read_token().token != LBRACE)
+        printf("Line %d: Missing left curly brace.\n", line);
+
+    make_statements(&child);
+
+    if (read_token().token != RBRACE)
+        printf("Line %d: Missing right curly brace.\n", line);
+
+    make_program(parent);
 }
 
 // Makes node for CLASSDECL.
 static void make_classdecl(node *parent)
 {
-    printf("Lexeme: %s\n", read_token().lexeme);
-    printf("Lexeme: %s\n\n", read_token());
+    // TODO: TO protocol implementations.
+    /*if (t.token == USING)
+    {
+        while ((t = read_token()) == ID);
+        reverse_token(t);
+    }*/
+}
+
+// Makes node for STATEMENTS.
+static void make_statements(node *parent)
+{
+
 }
