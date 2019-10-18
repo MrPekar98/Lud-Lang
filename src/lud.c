@@ -2,16 +2,18 @@
 #include "token.h"
 
 // Line number of compilation.
-unsigned long line;
+unsigned long line = 1;
 
 // .lud program file.
 FILE *prog;
 
 // External prototypes.
-
+extern lex_t read_token();
+extern node parse();
 
 // Internal prototypes.
 void gen_target();
+void print_tokens();
 
 // Main function.
 int main()
@@ -24,7 +26,10 @@ int main()
     prog = fopen(input, "r");
 
     // Compile here.
-    gen_target();
+    //gen_target();
+
+    // Testing.
+    print_tokens();
 
     fclose(prog);
     return 0;
@@ -33,8 +38,22 @@ int main()
 // Generates target code.
 void gen_target()
 {
-    // Get output AST from parser.
-    // Run type checker on AST.
-    // Optimise AST.
-    // Run code generation on AST.
+    // 1. Get output AST from parser.
+    // 2. Run type checker on AST.
+    // 3. Optimise AST.
+    // 4. Run code generation on AST.
+
+    node ast = parse();
+}
+
+// Printf all tokens and lexemes.
+// For testing purposes only!
+void print_tokens()
+{
+    lex_t lex;
+    
+    while ((lex = read_token()).token != -1)
+    {
+        printf("Token: %d\nLexeme: %s\n\n", lex.token, lex.lexeme);
+    }
 }
