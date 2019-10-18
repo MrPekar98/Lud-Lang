@@ -19,7 +19,7 @@ extern FILE *prog;
 // Reads next token.
 lex_t read_token()
 {
-    int c, rec;
+    int c;
     char buffer[100];
     unsigned counter = 0;
     lex_t t = {.error = 0};
@@ -41,7 +41,7 @@ lex_t read_token()
         buffer[counter++] = c;
     }
     
-    rec = recognise(buffer, counter);
+    int rec = recognise(buffer, counter);
     sprintf(t.lexeme, "%s", buffer);
     t.token = rec;
 
