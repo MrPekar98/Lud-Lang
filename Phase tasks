@@ -1,7 +1,7 @@
 ## Tasks ##
 - Symbol table - Done
 - Lexer - Done
-- Parser
+- Parser - Ungoing
 - Type checker
 - Optimiser
 - Garbage collection
