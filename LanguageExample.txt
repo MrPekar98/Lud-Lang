@@ -3,7 +3,7 @@ ____________________________________________COMMENTS____________________________
 
 ____________________________________________PROTOCOL DECLARATION_______________________________________________
 
-protocol DogBody + AnimalBody:
+protocol DogBody -> AnimalBody:
     amountOfLegs() : num
     sumOfAges(Dog dog1, Dog dog2) : num
 
