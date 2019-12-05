@@ -1,3 +1,5 @@
+// TODO: Ignore comments. When '#' has been read, ignore everything until '#' has been met again.
+
 #include <stdio.h>
 #include <string.h>
 #include "token.h"
