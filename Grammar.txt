@@ -48,11 +48,13 @@
 	    | string
 	    | bool
 	    | char
+	    | address
 
 <Literal> -> 'number'
 	   | 'string'
 	   | 'boolean'
 	   | 'char'
+	   | 'address'
 
 <Assignment> -> <Var>
 	      | <Var> = <Expression>
