@@ -10,6 +10,7 @@ FILE *prog;
 // External prototypes.
 extern lex_t read_token();
 extern node parse();
+extern void type_check(node *root);
 
 // Internal prototypes.
 void gen_target();
@@ -19,9 +20,9 @@ void print_tokens();
 int main()
 {
     char input[200];
-    
+
     printf(": ");
-    scanf("%[A_Za-z. 0-9´'\"]", input);
+    scanf("%[A_Za-z. 0-9´'\"/]", input);
 
     prog = fopen(input, "r");
 
@@ -44,6 +45,7 @@ void gen_target()
     // 4. Run code generation on AST.
 
     node ast = parse();
+	type_check(&ast);
 }
 
 // Printf all tokens and lexemes.
@@ -51,7 +53,7 @@ void gen_target()
 void print_tokens()
 {
     lex_t lex;
-    
+
     while ((lex = read_token()).token != -1)
     {
         printf("Token: %d\nLexeme: %s\n\n", lex.token, lex.lexeme);
