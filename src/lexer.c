@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "token.h"
 
 // Prototypes.
@@ -14,6 +15,7 @@ static int is_string(const char *buffer, unsigned length);
 static int is_char(const char *buffer, unsigned length);
 static int is_bool(const char *buffer);
 static int is_number(const char *buffer, unsigned length);
+static int is_address(const char *buffer, unsigned length);
 
 // External .lud program file.
 extern FILE *prog;
@@ -30,7 +32,7 @@ lex_t read_token()
     {
         if (counter == 0 && (c == ' ' || c == '\n'))
             continue;
-        
+
         else if (c == ' ' || c == '\n')
             break;
 
@@ -39,10 +41,10 @@ lex_t read_token()
             fseek(prog, ftell(prog) - 1, SEEK_SET);
             break;
         }
-        
+
         buffer[counter++] = c;
     }
-    
+
     int rec = recognise(buffer, counter);
     sprintf(t.lexeme, "%s", buffer);
     t.token = rec;
@@ -75,14 +77,14 @@ static int is_single_character_token(char c)
 // Determines token recognised.
 static int recognise(const char *buffer, unsigned length)
 {
-    if (is_string(buffer, length) || is_char(buffer, length) || is_bool(buffer) || is_number(buffer, length))
+    if (is_string(buffer, length) || is_char(buffer, length) || is_bool(buffer) || is_number(buffer, length) || is_address(buffer, length))
         return LITERAL;
-    
+
     else if (length == 1)
     {
         if (recognise_operator(buffer) != -1)
             return recognise_operator(buffer);
-        
+
         switch (buffer[0])
         {
             case '.':
@@ -216,7 +218,7 @@ static int recognise_accessor(const char *buffer)
 // Recognises data types.
 static int recognise_datatype(const char *buffer)
 {
-    if (strcmp("void", buffer) == 0 || strcmp("num", buffer) == 0 || strcmp("string", buffer) == 0 || strcmp("bool", buffer) == 0 || strcmp("char", buffer) == 0)
+    if (strcmp("address", buffer) == 0 || strcmp("void", buffer) == 0 || strcmp("num", buffer) == 0 || strcmp("string", buffer) == 0 || strcmp("bool", buffer) == 0 || strcmp("char", buffer) == 0)
         return DATATYPE;
 
     return -1;
@@ -274,10 +276,24 @@ static int is_number(const char *buffer, unsigned length)
     {
         if ((buffer[i] == '.' && dot_exists) || (buffer[i] < 48 || buffer[i] > 57))
             return 0;
-        
+
         else if (buffer[i] == '.')
             dot_exists = 1;
     }
 
     return buffer[0] != '.' && buffer[length - 1] != '.' && buffer[0] > 47 && buffer[length - 1] < 58;
+}
+
+// Checks whether input is an address.
+static int is_address(const char *buffer, unsigned length)
+{
+	unsigned i;
+
+	for (i = 2; i < length; i++)
+	{
+		if (!isdigit(buffer[i]))
+			return 0;
+	}
+
+	return buffer[0] == '0' && (buffer[1] == 'x' || buffer[1] == 'X');
 }
