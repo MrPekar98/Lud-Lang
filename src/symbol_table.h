@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 // Data types and symbol table element types.
-enum type_t {NUM, STRING, VOID, BOOL};
-enum element_type {FUNCTION, VARIABLE, CLASS, PROTOCOL, SCOPE};
+enum type_t {NUM_T, STRING_T, VOID_T, BOOL_T, ADDRESS_T};
+enum element_type {FUNC, VAR, CL, PROT, SCOPE};
 enum accessor_t {PRIVATE, INTERNAL, PUBLIC, NONE};
 
 // General symbol table element.
@@ -108,17 +108,17 @@ static inline char *getname(struct table_element element)
     
     switch (element.type)
     {
-        case FUNCTION:
+        case FUNC:
             result = (char *) malloc(strlen(((struct function *) element.element)->name));
             sprintf(result, "%s", ((struct function *) element.element)->name);
             break;
 
-        case VARIABLE:
+        case VAR:
             result = (char *) malloc(strlen(((struct variable *) element.element)->name));
             sprintf(result, "%s", ((struct variable *) element.element)->name);
             break;
 
-        case CLASS: case PROTOCOL:
+        case CL: case PROT:
             result = (char *) malloc(strlen(((struct class *) element.element)->name));
             sprintf(result, "%s", ((struct class *) element.element)->name);
             break;
@@ -210,7 +210,7 @@ void table_insert(symbol_table *table, struct table_element element, unsigned li
 
 // Checks for declaration of symbol table element in all open scopes, where lowest scope is the given scope 'table'.
 int is_declared(symbol_table table, const char *name)
-{    
+{
     unsigned i, j, scopes = innermost_scope_level(table);
 
     for (i = 0; i <= scopes; i++)
@@ -299,7 +299,7 @@ struct table_element get(symbol_table table, const char *name, unsigned line_num
     for (; level >= 0; level--)
     {
         symbol_table current = table_scope(table, level);
-        
+
         for (i = 0; i < current.element_count; i++)
         {
             if (strcmp(getname(current.elements[i]), name) == 0)
@@ -308,7 +308,7 @@ struct table_element get(symbol_table table, const char *name, unsigned line_num
     }
 
     // Dummy.
-    return (struct table_element) {.type = VARIABLE, .element = NULL};
+    return (struct table_element) {.type = VAR, .element = NULL};
 }
 
 // Returns class. Lowest level symbol_table must be given, since class declarations are at second lowest level.
@@ -340,13 +340,13 @@ symbol_table table_scope(symbol_table table, unsigned scope)
     symbol_table current = table;
 
     for (i = 0; i < current.element_count; i++)
-    {        
+    {
         if (level == scope)
             break;
-        
+
         switch (current.elements[i].type)
         {
-            case SCOPE:                
+            case SCOPE:
                 if (((symbol_table *) current.elements[i].element)->open)
                 {
                     current = *((symbol_table *) current.elements[i].element);
@@ -355,7 +355,7 @@ symbol_table table_scope(symbol_table table, unsigned scope)
 
                 break;
 
-            case FUNCTION:  
+            case FUNC:
                 if (((struct function *) current.elements[i].element)->table.open)
                 {
                     current = ((struct function *) current.elements[i].element)->table;
@@ -364,14 +364,14 @@ symbol_table table_scope(symbol_table table, unsigned scope)
 
                 break;
 
-            case CLASS: case PROTOCOL:
+            case CL: case PROT:
                 if (((struct class *) current.elements[i].element)->open)
                 {
                     level++;
 
                     if (level == scope)
                         return class_to_table(*((struct class *) current.elements[i].element));
-                    
+
                     for (j = 0; j < ((struct class *) current.elements[i].element)->function_amount; j++)
                     {
                         if (((struct class *) current.elements[i].element)->functions[j].table.open)
@@ -403,12 +403,12 @@ symbol_table class_to_table(struct class c)
 
     for (i = 0; i < c.variable_amount; i++)
     {
-        table_insert(&table, (struct table_element) {.type = VARIABLE, .element = &c.variables[i]}, 0);
+        table_insert(&table, (struct table_element) {.type = VAR, .element = &c.variables[i]}, 0);
     }
 
     for (i = 0; i < c.function_amount; i++)
     {
-        table_insert(&table, (struct table_element) {.type = FUNCTION, .element = &c.functions[i]}, 0);
+        table_insert(&table, (struct table_element) {.type = FUNC, .element = &c.functions[i]}, 0);
     }
 
     return table;
@@ -422,10 +422,10 @@ unsigned innermost_scope_level(symbol_table table)
     symbol_table current = table;
 
     for (i = 0; i < current.element_count; i++)
-    {        
+    {
         switch (current.elements[i].type)
         {
-            case SCOPE:                
+            case SCOPE:
                 if (((symbol_table *) current.elements[i].element)->open)
                 {
                     current = *((symbol_table *) current.elements[i].element);
@@ -434,7 +434,7 @@ unsigned innermost_scope_level(symbol_table table)
 
                 break;
 
-            case FUNCTION:  
+            case FUNC:
                 if (((struct function *) current.elements[i].element)->table.open)
                 {
                     current = ((struct function *) current.elements[i].element)->table;
@@ -443,11 +443,11 @@ unsigned innermost_scope_level(symbol_table table)
 
                 break;
 
-            case CLASS: case PROTOCOL:
+            case CL: case PROT:
                 if (((struct class *) current.elements[i].element)->open)
                 {
                     level++;
-                    
+
                     for (j = 0; j < ((struct class *) current.elements[i].element)->function_amount; j++)
                     {
                         if (((struct class *) current.elements[i].element)->functions[j].table.open)
