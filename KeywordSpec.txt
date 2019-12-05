@@ -39,6 +39,12 @@ create:
 const:
     Used to declare a variable as a contant.
 
+using:
+    Indicates that a class implements a protocol.
+
+->:
+    Indicates inheritance.
+
 _______________________________________________________DATA TYPES_______________________________________________
 num:
     Data type for numbers (integers and floating-point).
@@ -51,3 +57,6 @@ void:
 
 bool:
     Data type for boolean values 'true' and 'false'.
+
+address
+    Data type for hexadecimal values to access address locations.
