@@ -1,4 +1,11 @@
 #include "symbol_table.h"
+#include "token.h"
 
 // Global symbol table.
-const symbol_table table = table_init();
+symbol_table table;
+
+// Starting type checking function.
+void type_check(node *root)
+{
+	table = table_init();
+}
