@@ -15,6 +15,11 @@ int main(int argc, char **argv)
         printf("Input file not specified.\n");
         return 1;
     }
+
+    else if (strcmp(argv[1], "-update") == 0)
+    {
+        // TODO: Send update request.
+    }
     
     package data = parse_args(argc, argv);
 
@@ -23,11 +28,13 @@ int main(int argc, char **argv)
         data.is_offline = 1;
         printf("'-off' is automatically set.\nCompiled offline.\n");
     }
+
+    // TODO: Handle arguments.
     
     return 0;
 }
 
-// Parses input parameters and return package.
+// Parses input parameters and returns package.
 package parse_args(int argc, char **argv)
 {
     package p = {.is_renamed = 0, .is_offline = 0, .url_specified = 0};
