@@ -1,3 +1,5 @@
+#pragma once
+
 // Communication package struct for sending file to compiler server.
 typedef struct 
 {
