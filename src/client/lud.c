@@ -59,6 +59,9 @@ package parse_args(int argc, char **argv)
         else if (strcmp(argv[i], "-off") == 0)
             p.is_offline = 1;
 
+        else if (strcmp(argv[i], "-c") == 0)
+            p.just_compile = 1;
+
         else if (strlen(argv[i]) > 0)
         {
             p.url_specified = 1;
