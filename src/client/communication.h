@@ -8,4 +8,5 @@ typedef struct
     int is_renamed;         // Tells whether option '-o' has been used to set name of file.
     char *name;             // Name of output file.
     int is_offline;         // Tells whether compilation happens offline.
+    int just_compile;       // Tells whether to return target code or executable.
 } package;
