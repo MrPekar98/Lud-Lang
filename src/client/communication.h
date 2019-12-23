@@ -26,17 +26,17 @@ void *tobuffer(package p)
     if (!p.url_specified)
         return NULL;
 
-    void *buffer = malloc(strlen(p.url) + strlen(p.name) + 2);
-    char renamed = p.is_renamed ? (char) 1 : (char) 0, just_compile = p.just_compile ? (char) 1 : (char) 0, update = p.update;
     long buffer_size = strlen(p.name) + strlen(p.source) + 15;
     int name_size = strlen(p.name);
+    void *buffer = malloc(buffer_size);
+    char renamed = p.is_renamed, just_compile = p.just_compile, update = p.update;
 
     memcpy(buffer, &buffer_size, 8);
     memcpy(buffer + 8, &name_size, 4);
     memcpy(buffer + 12, &update, 1);
     memcpy(buffer + 13, &renamed, 1);
-    memcpy(buffer + 14, p.name, strlen(p.name));
-    memcpy(buffer + strlen(p.name) + 14, &just_compile, 1);
+    memcpy(buffer + 14, &just_compile, 1);
+    memcpy(buffer + 15, p.name, strlen(p.name));
     memcpy(buffer + strlen(p.name) + 15, p.source, strlen(p.source));
 
     return buffer;
@@ -45,22 +45,23 @@ void *tobuffer(package p)
 // Converts buffer from package into package.
 package topackage(void *buffer)
 {
-    package p;
+    package p = {.is_renamed = 0};
     long buffer_size = *((long *) buffer);
-    int name_size = *((int *) buffer + 8);
-    char renamed = *((char *) buffer + 13);
+    int name_size = *((int *) (buffer + 8));
+    char renamed = *((char *) (buffer + 13));
 
     if ((int) renamed)
     {
         p.is_renamed = 1;
         p.name = (char *) malloc(name_size);
-        memcpy(p.name, buffer + 12, name_size);
+        memcpy(p.name, buffer + 15, name_size);
+        p.name[name_size] = '\0';
     }
 
-    p.update = *((char *) buffer + 12);
-    p.just_compile = *((char *) buffer + 14 + name_size);
+    p.update = (int) *((char *) buffer + 12);
+    p.just_compile = (int) *((char *) buffer + 14);
     p.source = (char *) malloc(buffer_size - name_size - 15);
-    sprintf(p.source, "%s", (char *) (buffer + 15 + name_size));
+    memcpy(p.source, buffer + 15 + name_size, buffer_size - name_size - 15);
 
     return p;
 }
