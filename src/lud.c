@@ -16,6 +16,7 @@ extern void type_check(node *root);
 void gen_target();
 void print_tokens();
 
+// TODO: Make use of main parameters instead.
 // Main function.
 int main()
 {
