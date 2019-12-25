@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // Data types and symbol table element types.
-enum type_t {NUM_T, STRING_T, VOID_T, BOOL_T, ADDRESS_T};
+enum datatype {NUM, STRING, VOID, BOOL, ADDRESS};
 enum element_type {FUNC, VAR, CL, PROT, SCOPE};
 enum accessor_t {PRIVATE, INTERNAL, PUBLIC, NONE};
 
@@ -29,7 +29,7 @@ struct variable
     enum accessor_t accessor;
     int is_static;
     int is_const;
-    enum type_t data_type;
+    enum datatype data_type;
     int is_class_intance;
     char *class_name;
 };
@@ -39,7 +39,7 @@ struct function
 {
     enum accessor_t accessor;
     int is_static;
-    enum type_t return_type;
+    enum datatype return_type;
     char *name;
     struct variable *parameters;
     unsigned paramater_count;
@@ -61,8 +61,8 @@ int element_name_exists(struct table_element *elements, unsigned length, const c
 static inline char *getname(struct table_element element);
 symbol_table table_init();
 struct class class_init(const char *name);
-struct variable variable_init(const char *name, enum type_t type, int is_class_instance, const char *class_name);
-struct function function_init(const char *name, enum type_t return_type);
+struct variable variable_init(const char *name, enum datatype type, int is_class_instance, const char *class_name);
+struct function function_init(const char *name, enum datatype return_type);
 void add_parameter(struct function *func, struct variable var, unsigned line_number);
 void table_insert(symbol_table *table, struct table_element element, unsigned line_number);
 int is_declared(symbol_table table, const char *name);
@@ -150,7 +150,7 @@ struct class class_init(const char *name)
 }
 
 // Gets instance of variable.
-struct variable variable_init(const char *name, enum type_t type, int is_class_instance, const char *class_name)
+struct variable variable_init(const char *name, enum datatype type, int is_class_instance, const char *class_name)
 {
     struct variable var = {.name = (char *) malloc(strlen(name)), .data_type = type};
     sprintf(var.name, "%s", name);
@@ -165,7 +165,7 @@ struct variable variable_init(const char *name, enum type_t type, int is_class_i
 }
 
 // Gets instance of function.
-struct function function_init(const char *name, enum type_t return_type)
+struct function function_init(const char *name, enum datatype return_type)
 {
     struct function func = {.name = (char *) malloc(strlen(name)), .return_type = return_type};
     func.parameters = (struct variable *) malloc(sizeof(struct variable));
