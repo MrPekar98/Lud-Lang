@@ -45,11 +45,11 @@ static void make_import(node *parent)
     if (t.error)
         printf("Line %d: Illegal use of '%s' at this point.\n", line, t.lexeme);
 
-    else if (t.token == IMPORT)
+    else if (t.token == IMPORT_T)
     {
         lex_t path = read_token();
         
-        if (path.token != LITERAL)
+        if (path.token != LITERAL_T)
             printf("Line %d: Following an import must come a string literal specifying path.\n", line);
 
         check_import(path.lexeme);
@@ -67,7 +67,7 @@ static void make_import(node *parent)
     t = read_token();
     reverse_token(t);
 
-    if (!t.error && t.token == IMPORT)
+    if (!t.error && t.token == IMPORT_T)
     {
         line++;
         make_import(parent);
@@ -95,16 +95,16 @@ static void make_program(node *parent)
     lex_t next = read_token();
     reverse_token(next);
 
-    if (!next.error && next.token == PROTOCOL)
+    if (!next.error && next.token == PROTOCOL_T)
         make_protocoldecl(parent);
 
-    else if (!next.error && next.token == CLASS)
+    else if (!next.error && next.token == CLASS_T)
         make_classdecl(parent);
 
     next = read_token();
     reverse_token(next);
 
-    if (!next.error && (next.token == PROTOCOL || next.token == CLASS))
+    if (!next.error && (next.token == PROTOCOL_T || next.token == CLASS_T))
         make_program(parent);
 }
 
@@ -117,12 +117,12 @@ static void make_protocoldecl(node *parent)
     if (strcmp(t.lexeme, "protocol") != 0)
         printf("Line %d: Expected 'protocol' here.\n", line);
 
-    else if (t.token != PROTOCOL)
+    else if (t.token != PROTOCOL_T)
         printf("Line %d: Expected protocol declaration here.\n", line);
 
     t = read_token();
 
-    if (t.token != ID)
+    if (t.token != ID_T)
         printf("Line %d: Expected identifier to protocol.\n", line);
 
     else
@@ -130,9 +130,9 @@ static void make_protocoldecl(node *parent)
 
     t = read_token();
 
-    if (t.token == ARROW)
+    if (t.token == ARROW_T)
     {
-        if ((t = read_token()).token != ID)
+        if ((t = read_token()).token != ID_T)
             printf("Line %d: Identifer must follow arrow operator.\n", line);
 
         else
@@ -148,12 +148,12 @@ static void make_protocoldecl(node *parent)
 
     add_child(parent, child);
 
-    if (read_token().token != LBRACE)
+    if (read_token().token != LBRACE_T)
         printf("Line %d: Missing left curly brace.\n", line);
 
     make_statements(&child);
 
-    if (read_token().token != RBRACE)
+    if (read_token().token != RBRACE_T)
         printf("Line %d: Missing right curly brace.\n", line);
 
     make_program(parent);

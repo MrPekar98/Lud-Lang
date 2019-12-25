@@ -78,139 +78,139 @@ static int is_single_character_token(char c)
 static int recognise(const char *buffer, unsigned length)
 {
     if (is_string(buffer, length) || is_char(buffer, length) || is_bool(buffer) || is_number(buffer, length) || is_address(buffer, length))
-        return LITERAL;
+        return LITERAL_T;
 
     else if (length == 1)
     {
         if (recognise_operator(buffer) != -1)
-            return recognise_operator(buffer);
+            return OPERATOR_T;
 
         switch (buffer[0])
         {
             case '.':
-                return DOT;
+                return DOT_T;
 
             case ',':
-                return COMMA;
+                return COMMA_T;
 
             case '(':
-                return LPARAN;
+                return LPARAN_T;
 
             case ')':
-                return RPARAN;
+                return RPARAN_T;
 
             case '{':
-                return LBRACE;
+                return LBRACE_T;
 
             case '}':
-                return RBRACE;
+                return RBRACE_T;
 
             case '[':
-                return LBRACKET;
+                return LBRACKET_T;
 
             case ']':
-                return RBRACKET;
+                return RBRACKET_T;
 
             case ':':
-                return COLON;
+                return COLON_T;
 
             case ';':
-                return SEMICOLON;
+                return SEMICOLON_T;
 
             case '=':
-                return EQ;
+                return EQ_T;
 
             case '|':
-                return OR;
+                return OR_T;
 
             case '&':
-                return AND;
+                return AND_T;
 
             case '^':
-                return XOR;
+                return XOR_T;
 
             default:
-                return ID;
+                return ID_T;
         }
     }
 
     else if (strcmp("method", buffer) == 0)
-        return METHOD;
+        return METHOD_T;
 
     else if (strcmp("import", buffer) == 0)
-        return IMPORT;
+        return IMPORT_T;
 
     else if (strcmp("protocol", buffer) == 0)
-        return PROTOCOL;
+        return PROTOCOL_T;
 
     else if (strcmp("class", buffer) == 0)
-        return CLASS;
+        return CLASS_T;
 
     else if (strcmp("->", buffer) == 0)
-        return ARROW;
+        return ARROW_T;
 
     else if (strcmp("using", buffer) == 0)
-        return USING;
+        return USING_T;
 
     else if (strcmp("system", buffer) == 0)
-        return SYSTEM;
+        return SYSTEM_T;
 
     else if (strcmp("static", buffer) == 0)
-        return STATIC;
+        return STATIC_T;
 
     else if (strcmp("const", buffer) == 0)
-        return CONST;
+        return CONST_T;
 
     else if (strcmp("this", buffer) == 0)
-        return THIS;
+        return THIS_T;
 
     else if (strcmp("super", buffer) == 0)
-        return SUPER;
+        return SUPER_T;
 
     else if (strcmp("create", buffer) == 0)
-        return CREATE;
+        return CREATE_T;
 
     else if (strcmp("if", buffer) == 0)
-        return IF;
+        return IF_T;
 
     else if (strcmp("else", buffer) == 0)
-        return ELS;
+        return ELSE_T;
 
     else if (strcmp("break", buffer) == 0)
-        return BREAK;
+        return BREAK_T;
 
     else if (strcmp("continue", buffer) == 0)
-        return CONTINUE;
+        return CONTINUE_T;
 
     else if (strcmp("for", buffer) == 0)
-        return FOR;
+        return FOR_T;
 
     else if (strcmp("while", buffer) == 0)
-        return WHILE;
+        return WHILE_T;
 
     else if (strcmp("foreach", buffer) == 0)
-        return FOREACH;
+        return FOREACH_T;
 
     else if (strcmp("constructor", buffer) == 0)
-        return CONSTRUCTOR;
+        return CONSTRUCTOR_T;
 
     else if (strcmp("return", buffer) == 0)
-        return RETURN;
+        return RETURN_T;
 
     else if (recognise_accessor(buffer) != -1)
-        return recognise_accessor(buffer);
+        return ACCESSOR_T;
 
     else if (recognise_datatype(buffer) != -1)
-        return recognise_datatype(buffer);
+        return DATATYPE_T;
 
-    return length > 0 ? ID : -1;
+    return length > 0 ? ID_T : -1;
 }
 
 // Recognises accessors.
 static int recognise_accessor(const char *buffer)
 {
     if (strcmp("public", buffer) == 0 || strcmp("internal", buffer) == 0 || strcmp("private", buffer) == 0)
-        return ACCESSOR;
+        return ACCESSOR_T;
 
     return -1;
 }
@@ -219,7 +219,7 @@ static int recognise_accessor(const char *buffer)
 static int recognise_datatype(const char *buffer)
 {
     if (strcmp("address", buffer) == 0 || strcmp("void", buffer) == 0 || strcmp("num", buffer) == 0 || strcmp("string", buffer) == 0 || strcmp("bool", buffer) == 0 || strcmp("char", buffer) == 0)
-        return DATATYPE;
+        return DATATYPE_T;
 
     return -1;
 }
@@ -230,10 +230,10 @@ static int recognise_operator(const char *buffer)
     switch (buffer[0])
     {
         case '%':
-            return MODULUS;
+            return MODULUS_T;
 
         case '+': case '-': case '*': case '/':
-            return OPERATOR;
+            return OPERATOR_T;
 
         default:
             return -1;
