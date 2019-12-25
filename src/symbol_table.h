@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // Data types and symbol table element types.
-enum datatype {NUM, STRING, VOID, BOOL, ADDRESS};
+enum datatype {NUM, STRING, VOID, BOOL, ADDRESS, CHAR};
 enum element_type {FUNC, VAR, CL, PROT, SCOPE};
 enum accessor_t {PRIVATE, INTERNAL, PUBLIC, NONE};
 
