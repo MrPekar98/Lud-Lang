@@ -36,20 +36,26 @@ lex_t read_token()
         else if (c == ' ' || c == '\n')
             break;
 
-        else if (is_single_character_token(c))
+        else if (is_single_character_token(c) && counter > 0)
         {
             fseek(prog, ftell(prog) - 1, SEEK_SET);
+            break;
+        }
+
+        else if (is_single_character_token(c) && counter == 0)
+        {
+            buffer[counter++] = c;
             break;
         }
 
         buffer[counter++] = c;
     }
 
-    int rec = recognise(buffer, counter);
     sprintf(t.lexeme, "%s", buffer);
-    t.token = rec;
+    t.lexeme[counter] = '\0';
+    t.token = recognise(buffer, counter);
 
-    if (rec == -1)
+    if (t.token == -1)
         t.error = 1;
 
     return t;
@@ -201,7 +207,7 @@ static int recognise(const char *buffer, unsigned length)
         return ACCESSOR_T;
 
     else if (recognise_datatype(buffer) != -1)
-        return DATATYPE_T;
+        return recognise_datatype(buffer);
 
     return length > 0 ? ID_T : -1;
 }
