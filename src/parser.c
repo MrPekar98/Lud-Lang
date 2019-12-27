@@ -113,11 +113,8 @@ static void make_protocoldecl(node *parent)
 {
     lex_t t = read_token();
     node child = {.type = PROTOCOLDECL};
-    
-    if (strcmp(t.lexeme, "protocol") != 0)
-        printf("Line %d: Expected 'protocol' here.\n", line);
 
-    else if (t.token != PROTOCOL_T)
+    if (t.token != PROTOCOL_T)
         printf("Line %d: Expected protocol declaration here.\n", line);
 
     t = read_token();
@@ -133,14 +130,10 @@ static void make_protocoldecl(node *parent)
     if (t.token == ARROW_T)
     {
         if ((t = read_token()).token != ID_T)
-            printf("Line %d: Identifer must follow arrow operator.\n", line);
+            printf("Line %d: Identifer must follow arrow operator for protocol '%s'.\n", line, child.data);
 
         else
-        {
-            char super[100];
-            sprintf(super, "->%s", t.lexeme);
-            strcat(child.data, super);
-        }
+            sprintf(child.data, "%s->%s", child.data, t.lexeme);
     }
 
     else
@@ -149,12 +142,12 @@ static void make_protocoldecl(node *parent)
     add_child(parent, child);
 
     if (read_token().token != LBRACE_T)
-        printf("Line %d: Missing left curly brace.\n", line);
+        printf("Line %d: Missing left curly brace for protocol '%s'.\n", ++line, child.data);
 
     make_statements(&child);
 
     if (read_token().token != RBRACE_T)
-        printf("Line %d: Missing right curly brace.\n", line);
+        printf("Line %d: Missing right curly brace for protocol '%s'.\n", line++, child.data);
 
     make_program(parent);
 }
@@ -162,12 +155,63 @@ static void make_protocoldecl(node *parent)
 // Makes node for CLASSDECL.
 static void make_classdecl(node *parent)
 {
-    // TODO: TO protocol implementations.
-    /*if (t.token == USING)
+    lex_t t = read_token();
+    node child = {.type = CLASSDECL};
+
+    if (t.token != CLASS_T)
+        printf("Line %d: Expected class declaration here.\n", line);
+
+    t = read_token();
+
+    if (t.token != ID_T)
+        printf("Line %d: Expected identifier to protocol.\n", line);
+
+    else
+        sprintf(child.data, "%s", t.lexeme);
+
+    t = read_token();
+
+    if (t.token == ARROW_T)
     {
-        while ((t = read_token()) == ID);
-        reverse_token(t);
-    }*/
+        if ((t = read_token()).token != ID_T)
+            printf("Line %d: Identifer must follow arrow operator for class '%s'.\n", line, child.data);
+
+        else
+        {
+            sprintf(child.data, "%s->%s", child.data, t.lexeme);
+            t = read_token();
+        }
+    }
+
+    if (t.token == USING_T)
+    {
+        if ((t = read_token()).token != ID_T)
+            printf("Line %d: Identifer must follow 'using' operator for class '%s'.\n", line, child.data);
+
+        else
+            sprintf(child.data, "%s using %s", child.data, t.lexeme);
+        
+        while ((t = read_token()).token == COMMA_T)
+        {
+            if ((t = read_token()).token != ID_T)
+                printf("Line %d: Identifer must follow ',' for class '%s'.\n", line, child.data);
+
+            else
+                sprintf(child.data, "%s, %s", child.data, t.lexeme);
+        }
+    }
+
+    add_child(parent, child);
+    
+    if (t.token != LBRACE_T)
+        printf("Line %d: Missing left curly brace for class '%s'.\n", ++line, child.data);
+
+    make_statements(&child);
+
+    if (read_token().token != RBRACE_T)
+        printf("Line %d: Missing right curly brace for class '%s'.\n", line++, child.data);
+
+    make_program(parent);
 }
 
 // Makes node for STATEMENTS.
