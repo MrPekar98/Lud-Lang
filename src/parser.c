@@ -113,11 +113,8 @@ static void make_protocoldecl(node *parent)
 {
     lex_t t = read_token();
     node child = {.type = PROTOCOLDECL};
-    
-    if (strcmp(t.lexeme, "protocol") != 0)
-        printf("Line %d: Expected 'protocol' here.\n", line);
 
-    else if (t.token != PROTOCOL_T)
+    if (t.token != PROTOCOL_T)
         printf("Line %d: Expected protocol declaration here.\n", line);
 
     t = read_token();
@@ -136,11 +133,7 @@ static void make_protocoldecl(node *parent)
             printf("Line %d: Identifer must follow arrow operator.\n", line);
 
         else
-        {
-            char super[100];
-            sprintf(super, "->%s", t.lexeme);
-            strcat(child.data, super);
-        }
+            sprintf(child.data, "%s->%s", child.data, t.lexeme);
     }
 
     else
@@ -149,12 +142,12 @@ static void make_protocoldecl(node *parent)
     add_child(parent, child);
 
     if (read_token().token != LBRACE_T)
-        printf("Line %d: Missing left curly brace.\n", line);
+        printf("Line %d: Missing left curly brace for protocol '%s'.\n", line, child.data);
 
     make_statements(&child);
 
     if (read_token().token != RBRACE_T)
-        printf("Line %d: Missing right curly brace.\n", line);
+        printf("Line %d: Missing right curly brace for protocol '%s'.\n", line, child.data);
 
     make_program(parent);
 }
@@ -162,12 +155,12 @@ static void make_protocoldecl(node *parent)
 // Makes node for CLASSDECL.
 static void make_classdecl(node *parent)
 {
-    // TODO: TO protocol implementations.
-    /*if (t.token == USING)
+    // TODO: To protocol implementations.
+    if (t.token == USING)
     {
         while ((t = read_token()) == ID);
         reverse_token(t);
-    }*/
+    }
 }
 
 // Makes node for STATEMENTS.
