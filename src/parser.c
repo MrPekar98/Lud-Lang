@@ -11,7 +11,7 @@ extern void reverse_token(lex_t last_read);
 extern unsigned long line;
 
 // Prototypes.
-static void add_child(node *parent, node child);
+static inline void add_child(node *parent, node child);
 static void make_import(node *parent);
 static void make_program(node *parent);
 static void check_import(const char *path);
@@ -32,9 +32,17 @@ node parse()
 }
 
 // Adds child to node.
-static void add_child(node *parent, node child)
+static inline void add_child(node *parent, node child)
 {
-    parent->children = (void **) realloc(parent->children, sizeof(void *) * ++parent->children_count);
+    if (parent->children == 0)
+    {
+        parent->children = (void **) malloc(sizeof(node));
+        parent->children_count++;
+    }
+
+    else
+        parent->children = (void **) realloc(parent->children, sizeof(node) * ++parent->children_count);
+    
     parent->children[parent->children_count - 1] = &child;
 }
 
@@ -217,5 +225,9 @@ static void make_classdecl(node *parent)
 // Makes node for STATEMENTS.
 static void make_statements(node *parent)
 {
-
+    read_token();
+    read_token();
+    read_token();
+    read_token();
+    read_token();
 }
