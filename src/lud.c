@@ -32,8 +32,8 @@ int main()
     //gen_target();
 
     // Testing.
-    print_tokens();
-    //print_ast();
+    //print_tokens();
+    print_ast(parse());
 
     fclose(prog);
     return 0;
@@ -65,7 +65,17 @@ void print_tokens()
 }
 
 // Prints AST from parser.
-void print_ast()
+void print_ast(node root)
 {
+    /*unsigned i;
 
+    for (i = 0; i < root.children_count; i++)
+    {
+        printf("Type: %d\nData: %s\n\n", root.type, ((node *) root.children[i])->data);
+        print_ast(*((node *) root.children[i]));
+    }*/
+
+    printf("Root children count: %d\n", root.children_count);
+    printf("\nImport type: %d\nImport data: %s\n", ((node *) root.children[0])->type, ((node *) root.children[0])->data);
+    printf("\nProtocol type: %d\nProtocol data: %s\n", ((node *) ((node *) root.children[1])->children[0])->type, ((node *) ((node *) root.children[1])->children[0])->data);
 }
