@@ -1,5 +1,3 @@
-// TODO: Ignore comments. When '#' has been read, ignore everything until '#' has been met again.
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -53,7 +51,7 @@ lex_t read_token()
 
     sprintf(t.lexeme, "%s", buffer);
     t.lexeme[counter] = '\0';
-    t.token = recognise(buffer, counter);
+    t.token = recognise(t.lexeme, counter);
 
     if (t.token == -1)
         t.error = 1;
