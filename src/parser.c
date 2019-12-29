@@ -26,6 +26,7 @@ node parse()
     
     make_import(&start);
     make_program(&start);
+    line = 0;
 
     return start;
 }
@@ -82,11 +83,11 @@ static void check_import(const char *path)
     for (i = 1; i < limit - 1; i++)
     {
         if ((path[i] < '0' || (path[i] > '9' && path[i] < 'A') || (path[i] > 'Z' && path[i] < 'a') || path[i] > 'z') && path[i] != '.')
-            printf("Line %d: Path may only contain letters, numbers, and dots.\n", line);
+            printf("Line %d: Import path may only contain letters, numbers, and dots.\n", line);
     }
 
     if (path[0] != '\"' || path[limit - 1] != '\"')
-        printf("Line %d: Path must be a string literal.\n", line);
+        printf("Line %d: Import path must be a string literal.\n", line);
 }
 
 // Makes node for PROGRAM.
@@ -134,15 +135,14 @@ static void make_protocoldecl(node *parent)
 
         else
             sprintf(child.data, "%s->%s", child.data, t.lexeme);
-    }
 
-    else
-        reverse_token(t);
+        t = read_token();
+    }
 
     add_child(parent, child);
 
-    if (read_token().token != LBRACE_T)
-        printf("Line %d: Missing left curly brace for protocol '%s'.\n", ++line, child.data);
+    if (t.token != LBRACE_T)
+        printf("Line %d: Missing left curly brace for protocol '%s'.\nLexeme: %s\nToken: %d\n\n", ++line, child.data, t.lexeme, t.token);
 
     make_statements(&child);
 
