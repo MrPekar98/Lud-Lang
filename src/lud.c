@@ -15,6 +15,7 @@ extern void type_check(node *root);
 // Internal prototypes.
 void gen_target();
 void print_tokens();
+void print_ast();
 
 // TODO: Make use of main parameters instead.
 // Main function.
@@ -32,6 +33,7 @@ int main()
 
     // Testing.
     print_tokens();
+    //print_ast();
 
     fclose(prog);
     return 0;
@@ -49,8 +51,9 @@ void gen_target()
 	type_check(&ast);
 }
 
-// Printf all tokens and lexemes.
-// For testing purposes only!
+extern void reverse_token(lex_t last_read);
+
+// Prints all tokens and lexemes.
 void print_tokens()
 {
     lex_t lex;
@@ -59,4 +62,10 @@ void print_tokens()
     {
         printf("Token: %d\nLexeme: %s\n\n", lex.token, lex.lexeme);
     }
+}
+
+// Prints AST from parser.
+void print_ast()
+{
+
 }
