@@ -17,22 +17,20 @@ void gen_target();
 void print_tokens();
 void print_ast();
 
-// TODO: Make use of main parameters instead.
 // Main function.
-int main()
+int main(int argc, char **argv)
 {
-    char input[200];
+    if (argc <= 1)
+        return 1;
 
-    printf(": ");
-    scanf("%[A_Za-z. 0-9´'\"/]", input);
-
-    prog = fopen(input, "r");
+    prog = fopen(argv[1], "r");
 
     // Compile here.
     //gen_target();
 
     // Testing.
     //print_tokens();
+
     print_ast(parse());
 
     fclose(prog);
@@ -67,15 +65,11 @@ void print_tokens()
 // Prints AST from parser.
 void print_ast(node root)
 {
-    /*unsigned i;
+    unsigned i;
 
     for (i = 0; i < root.children_count; i++)
     {
         printf("Type: %d\nData: %s\n\n", root.type, ((node *) root.children[i])->data);
         print_ast(*((node *) root.children[i]));
-    }*/
-
-    printf("Root children count: %d\n", root.children_count);
-    printf("\nImport type: %d\nImport data: %s\n", ((node *) root.children[0])->type, ((node *) root.children[0])->data);
-    printf("\nProtocol type: %d\nProtocol data: %s\n", ((node *) ((node *) root.children[1])->children[0])->type, ((node *) ((node *) root.children[1])->children[0])->data);
+    }
 }
