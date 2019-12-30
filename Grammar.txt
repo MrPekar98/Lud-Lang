@@ -54,7 +54,7 @@
 	   | 'char'
 	   | 'address'
 
-<Assignment> -> <Var>
+<Assignment> -> <Reference>
 	      | <Reference> = <Expression>
 	      | this.<Reference> = <Expression>
 	      | super.<Reference> = <Expression>
