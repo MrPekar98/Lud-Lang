@@ -164,10 +164,10 @@ static int recognise(const char *buffer, unsigned length)
         return CLASS_T;
 
     else if (strcmp("inherits", buffer) == 0)
-        return ARROW_T;
+        return INHERITS;
 
     else if (strcmp("implements", buffer) == 0)
-        return USING_T;
+        return IMPLEMENTS;
 
     else if (strcmp("system", buffer) == 0)
         return SYSTEM_T;
