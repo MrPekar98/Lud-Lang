@@ -136,10 +136,10 @@ static void make_protocoldecl(node *parent)
 
     t = read_token();
 
-    if (t.token == ARROW_T)
+    if (t.token == INHERITS)
     {
         if ((t = read_token()).token != ID_T)
-            printf("Line %d: Identifer must follow arrow operator for protocol '%s'.\n", line, child.data);
+            printf("Line %d: Identifer must follow 'inherits' operator for protocol '%s'.\n", line, child.data);
 
         else
             sprintf(child.data, "%s->%s", child.data, t.lexeme);
@@ -179,25 +179,25 @@ static void make_classdecl(node *parent)
 
     t = read_token();
 
-    if (t.token == ARROW_T)
+    if (t.token == INHERITS)
     {
         if ((t = read_token()).token != ID_T)
-            printf("Line %d: Identifer must follow arrow operator for class '%s'.\n", line, child.data);
+            printf("Line %d: Identifer must follow 'inherits' operator for class '%s'.\n", line, child.data);
 
         else
         {
-            sprintf(child.data, "%s->%s", child.data, t.lexeme);
+            sprintf(child.data, "%s inherits %s", child.data, t.lexeme);
             t = read_token();
         }
     }
 
-    if (t.token == USING_T)
+    if (t.token == IMPLEMENTS)
     {
         if ((t = read_token()).token != ID_T)
-            printf("Line %d: Identifer must follow 'using' operator for class '%s'.\n", line, child.data);
+            printf("Line %d: Identifer must follow 'implements' operator for class '%s'.\n", line, child.data);
 
         else
-            sprintf(child.data, "%s using %s", child.data, t.lexeme);
+            sprintf(child.data, "%s implements %s", child.data, t.lexeme);
         
         while ((t = read_token()).token == COMMA_T)
         {

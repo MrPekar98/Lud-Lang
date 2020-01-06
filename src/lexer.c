@@ -163,10 +163,10 @@ static int recognise(const char *buffer, unsigned length)
     else if (strcmp("class", buffer) == 0)
         return CLASS_T;
 
-    else if (strcmp("->", buffer) == 0)
+    else if (strcmp("inherits", buffer) == 0)
         return ARROW_T;
 
-    else if (strcmp("using", buffer) == 0)
+    else if (strcmp("implements", buffer) == 0)
         return USING_T;
 
     else if (strcmp("system", buffer) == 0)

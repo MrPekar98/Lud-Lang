@@ -1,0 +1,6 @@
+import "some.import"
+
+protocol test implements SomeProtocol
+{
+    num age = 10;
+}
