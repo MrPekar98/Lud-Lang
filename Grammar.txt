@@ -11,9 +11,9 @@
 	   | <ClassDecl> <Program>
 	   | 'lambda'
 	   
-<ProtocolDecl> -> protocol 'identifier' [inherits <Var>] { <Statements> } <Program>
+<ProtocolDecl> -> protocol 'identifier' [inherits <Var>] { <Statements> }
 
-<ClassDecl> -> class 'identifier' [inherits <Var>] [implements <Var> {, <Var>}] { <Statements> } <Program>
+<ClassDecl> -> class 'identifier' [inherits <Var>] [implements <Var> {, <Var>}] { <Statements> }
 
 <Statements> -> <Statement> <Statements>
 	      | 'lambda'
