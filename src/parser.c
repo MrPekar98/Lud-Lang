@@ -76,10 +76,13 @@ static void make_import(node *parent)
     
     t = read_token();
     reverse_token(t);
-    line += 2;
+    line++;
 
     if (!t.error && t.token == IMPORT_T)
         make_import(parent);
+
+    else
+        line++;
 }
 
 // Checks format of import path.
