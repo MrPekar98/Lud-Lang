@@ -161,7 +161,6 @@ static void make_protocoldecl(node *parent)
         printf("Line %d: Missing right curly brace for protocol '%s'.\n", line, child.data);
 
     line += 2;
-    make_program(parent);
 }
 
 // Makes node for CLASSDECL.
@@ -225,7 +224,6 @@ static void make_classdecl(node *parent)
         printf("Line %d: Missing right curly brace for class '%s'.\n", line, child.data);
 
     line += 2;
-    make_program(parent);
 }
 
 // Makes node for STATEMENTS.
