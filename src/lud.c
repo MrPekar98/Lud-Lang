@@ -67,8 +67,8 @@ void print_tokens()
 // TODO: Test parsing of protocols with inheritance and without. Do the same with classes with and without inheritance and polymorphism.
 // Prints AST from parser.
 void print_ast(node n)
-{
-    /*printf("Children: %d\nType: %d\nData: %s\n\n", n.children_count, n.type, n.data);
+{    
+    printf("Children: %d\nType: %d\nData: %s\n\n", n.children_count, n.type, n.data);
 
     if (n.children_count > 0)
     {
@@ -78,5 +78,5 @@ void print_ast(node n)
         {
             print_ast(*((node *) n.children[i]));
         }
-    }*/
+    }
 }
