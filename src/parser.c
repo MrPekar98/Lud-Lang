@@ -25,25 +25,24 @@ node parse()
     node start = {.type = START};
     
     make_import(&start);
+    // TODO: Everything is fine in add_child() and make_import(), but here it does not work.
+    printf("Count: %d\nChild type: %d\n", start.children_count, ((node *) start.children[0])->type);
     make_program(&start);
     line = 0;
 
     return start;
 }
 
-// Adds child to node.
+// Adds child to parent.
 static inline void add_child(node *parent, node child)
 {
     if (parent->children == 0)
-    {
         parent->children = (void **) malloc(sizeof(node));
-        parent->children_count++;
-    }
 
     else
         parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
     
-    parent->children[parent->children_count - 1] = &child;
+    parent->children[parent->children_count] = &child;
     parent->children_count++;
 }
 
@@ -76,10 +75,13 @@ static void make_import(node *parent)
     
     t = read_token();
     reverse_token(t);
-    line += 2;
+    line++;
 
     if (!t.error && t.token == IMPORT_T)
         make_import(parent);
+
+    else
+        line++;
 }
 
 // Checks format of import path.
@@ -158,7 +160,6 @@ static void make_protocoldecl(node *parent)
         printf("Line %d: Missing right curly brace for protocol '%s'.\n", line, child.data);
 
     line += 2;
-    make_program(parent);
 }
 
 // Makes node for CLASSDECL.
@@ -222,7 +223,6 @@ static void make_classdecl(node *parent)
         printf("Line %d: Missing right curly brace for class '%s'.\n", line, child.data);
 
     line += 2;
-    make_program(parent);
 }
 
 // Makes node for STATEMENTS.
