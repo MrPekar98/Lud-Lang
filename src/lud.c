@@ -21,7 +21,10 @@ void print_ast();
 int main(int argc, char **argv)
 {
     if (argc <= 1)
+    {
+        printf("Missing input file.\n");
         return 1;
+    }
 
     prog = fopen(argv[1], "r");
 
@@ -30,7 +33,6 @@ int main(int argc, char **argv)
 
     // Testing.
     //print_tokens();
-
     print_ast(parse());
 
     fclose(prog);
@@ -62,14 +64,19 @@ void print_tokens()
     }
 }
 
+// TODO: Test parsing of protocols with inheritance and without. Do the same with classes with and without inheritance and polymorphism.
 // Prints AST from parser.
-void print_ast(node root)
+void print_ast(node n)
 {
-    unsigned i;
+    /*printf("Children: %d\nType: %d\nData: %s\n\n", n.children_count, n.type, n.data);
 
-    for (i = 0; i < root.children_count; i++)
+    if (n.children_count > 0)
     {
-        printf("Type: %d\nData: %s\n\n", root.type, ((node *) root.children[i])->data);
-        print_ast(*((node *) root.children[i]));
-    }
+        unsigned i;
+
+        for (i = 0; i < n.children_count; i++)
+        {
+            print_ast(*((node *) n.children[i]));
+        }
+    }*/
 }
