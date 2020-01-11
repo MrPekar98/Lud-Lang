@@ -35,8 +35,10 @@ node parse()
 static inline void add_child(node *parent, node child)
 {
     if (parent->children == 0)
+    {
         parent->children = (void **) malloc(sizeof(node));
         parent->children_count++;
+    }
 
     else
         parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
@@ -74,12 +76,10 @@ static void make_import(node *parent)
     
     t = read_token();
     reverse_token(t);
+    line += 2;
 
     if (!t.error && t.token == IMPORT_T)
-    {
-        line++;
         make_import(parent);
-    }
 }
 
 // Checks format of import path.
@@ -147,15 +147,17 @@ static void make_protocoldecl(node *parent)
     }
 
     add_child(parent, child);
+    line += 2;
 
     if (t.token != LBRACE_T)
-        printf("Line %d: Missing left curly brace for protocol '%s'.\nLexeme: %s\nToken: %d\n\n", ++line, child.data, t.lexeme, t.token);
+        printf("Line %d: Missing left curly brace for protocol '%s'.\nLexeme: %s\nToken: %d\n\n", line - 1, child.data, t.lexeme, t.token);
 
     make_statements(&child);
 
     if (read_token().token != RBRACE_T)
-        printf("Line %d: Missing right curly brace for protocol '%s'.\n", line++, child.data);
+        printf("Line %d: Missing right curly brace for protocol '%s'.\n", line, child.data);
 
+    line += 2;
     make_program(parent);
 }
 
@@ -209,15 +211,17 @@ static void make_classdecl(node *parent)
     }
 
     add_child(parent, child);
+    line += 2;
     
     if (t.token != LBRACE_T)
-        printf("Line %d: Missing left curly brace for class '%s'.\n", ++line, child.data);
+        printf("Line %d: Missing left curly brace for class '%s'.\n", line - 1, child.data);
 
     make_statements(&child);
 
     if (read_token().token != RBRACE_T)
-        printf("Line %d: Missing right curly brace for class '%s'.\n", line++, child.data);
+        printf("Line %d: Missing right curly brace for class '%s'.\n", line, child.data);
 
+    line += 2;
     make_program(parent);
 }
 
@@ -229,4 +233,5 @@ static void make_statements(node *parent)
     read_token();
     read_token();
     read_token();
+    line++;
 }
