@@ -29,11 +29,16 @@ int main(int argc, char **argv)
     prog = fopen(argv[1], "r");
 
     // Compile here.
-    //gen_target();
+#if !defined (DEBUG1) && (DEBUG2)
+    gen_target();
+#endif
 
     // Testing.
-    //print_tokens();
+#if defined (DEBUG1)
+    print_tokens();
+#elif defined (DEBUG2)
     print_ast(parse());
+#endif
 
     fclose(prog);
     return 0;
