@@ -15,7 +15,7 @@ extern void type_check(node *root);
 // Internal prototypes.
 void gen_target();
 void print_tokens();
-void print_ast();
+void print_ast(node n);
 
 // Main function.
 int main(int argc, char **argv)
@@ -28,16 +28,16 @@ int main(int argc, char **argv)
 
     prog = fopen(argv[1], "r");
 
-    // Compile here.
-#if !defined (DEBUG1) && (DEBUG2)
-    gen_target();
-#endif
-
     // Testing.
 #if defined (DEBUG1)
     print_tokens();
-#elif defined (DEBUG2)
+
+#elif defined(DEBUG2)
     print_ast(parse());
+
+    // Otherwise, compile.
+#else
+    gen_target();
 #endif
 
     fclose(prog);
