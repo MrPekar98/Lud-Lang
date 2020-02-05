@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 // Communication package struct for sending file to compiler server.
-typedef struct 
+typedef struct
 {
     int url_specified;      // Tells whether input file has been specified.
     char *url;              // Name of input file.
@@ -14,7 +14,7 @@ typedef struct
     int is_offline;         // Tells whether compilation happens offline.
     int just_compile;       // Tells whether to return target code or executable.
     char *source;           // All text to be compiled.
-    int update;             // Request to get updated executable.
+    int update;             // Request to get updated compiler executable.
 } package;
 
 // Returns buffer of package.
