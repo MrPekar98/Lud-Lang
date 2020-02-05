@@ -24,12 +24,12 @@ void test_comp_name_change()
 
     void *buffer = tobuffer(start);
     package end = topackage(buffer);
-    
+
     assert(strcmp(start.source, end.source) == 0);
     assert(start.is_renamed == end.is_renamed);
     assert(start.update == end.update);
     assert(start.just_compile == end.just_compile);
-    
+
     free(start.source);
     free(end.source);
 }
@@ -49,7 +49,7 @@ void test_comp()
     assert(start.is_renamed == end.is_renamed);
     assert(start.update == end.update);
     assert(start.just_compile == end.just_compile);
-    
+
     free(start.source);
     free(end.source);
     free(start.name);
@@ -60,14 +60,14 @@ void test_comp()
 void test_update()
 {
     package start = {.url_specified = 1, .update = 1, .just_compile = 1, .name = (char *) malloc(1), .source = (char *) malloc(1)};
-    
+
     void *buffer = tobuffer(start);
     package end = topackage(buffer);
-    
+
     assert(start.is_renamed == end.is_renamed);
     assert(start.update == end.update);
     assert(start.just_compile == end.just_compile);
-    
+
     free(start.source);
     free(end.source);
 }
