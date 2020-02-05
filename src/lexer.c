@@ -34,7 +34,7 @@ lex_t read_token()
         else if (counter == 0 && c == '"')
         {
             buffer[counter++] = c;
-            
+
             while ((c = fgetc(prog)) != -1 && c != '"')
             {
                 buffer[counter++] = c;
