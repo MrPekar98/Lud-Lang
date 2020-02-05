@@ -1,3 +1,6 @@
+#ifndef TOKEN_H
+#define TOKEN_H
+
 #define LEX_LENGTH 50
 
 // Enum for all tokens.
@@ -27,3 +30,5 @@ typedef struct
     char data[200];
     char modification[200];     // Might not be necessary.
 } node;
+
+#endif
