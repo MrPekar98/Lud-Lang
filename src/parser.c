@@ -11,7 +11,6 @@ extern void reverse_token(lex_t last_read);
 extern unsigned long line;
 
 // Prototypes.
-static inline void add_child(node *parent, node child);
 static void make_import(node *parent);
 static void make_program(node *parent);
 static void check_import(const char *path);
