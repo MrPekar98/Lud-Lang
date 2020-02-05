@@ -23,7 +23,7 @@ static void make_statements(node *parent);
 node parse()
 {
     node start = {.type = START};
-    
+
     make_import(&start);
     // TODO: Everything is fine in add_child() and make_import(), but here it does not work.
     printf("Count: %d\nChild type: %d\n", start.children_count, ((node *) start.children[0])->type);
@@ -41,7 +41,7 @@ static inline void add_child(node *parent, node child)
 
     else
         parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
-    
+
     parent->children[parent->children_count] = &child;
     parent->children_count++;
 }
@@ -50,14 +50,14 @@ static inline void add_child(node *parent, node child)
 static void make_import(node *parent)
 {
     lex_t t = read_token();
-    
+
     if (t.error)
         printf("Line %d: Illegal use of '%s' at this point.\n", line, t.lexeme);
 
     else if (t.token == IMPORT_T)
     {
         lex_t path = read_token();
-        
+
         if (path.token != LITERAL_T)
             printf("Line %d: Following an import must come a string literal specifying path.\n", line);
 
@@ -72,7 +72,7 @@ static void make_import(node *parent)
         reverse_token(t);
         return;
     }
-    
+
     t = read_token();
     reverse_token(t);
     line++;
@@ -200,7 +200,7 @@ static void make_classdecl(node *parent)
 
         else
             sprintf(child.data, "%s implements %s", child.data, t.lexeme);
-        
+
         while ((t = read_token()).token == COMMA_T)
         {
             if ((t = read_token()).token != ID_T)
@@ -213,7 +213,7 @@ static void make_classdecl(node *parent)
 
     add_child(parent, child);
     line += 2;
-    
+
     if (t.token != LBRACE_T)
         printf("Line %d: Missing left curly brace for class '%s'.\n", line - 1, child.data);
 
