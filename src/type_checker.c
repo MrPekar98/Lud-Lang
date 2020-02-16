@@ -1,4 +1,5 @@
 #include "symbol_table.h"
+#include "parser.h"
 
 // Global symbol table.
 symbol_table table;
