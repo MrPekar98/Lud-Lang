@@ -3,10 +3,6 @@
 #include <string.h>
 #include "token.h"
 
-// External prototypes.
-extern lex_t read_token();
-extern void reverse_token(lex_t last_read);
-
 // External line number variable.
 extern unsigned long line;
 
