@@ -1,16 +1,12 @@
 #include <stdio.h>
-#include "token.h"
+#include "lexer.h"
+#include "parser.h"
 
 // Line number of compilation.
 unsigned long line = 1;
 
 // .lud program file.
 FILE *prog;
-
-// External prototypes.
-extern lex_t read_token();
-extern node parse();
-extern void type_check(node *root);
 
 // Internal prototypes.
 void gen_target();
