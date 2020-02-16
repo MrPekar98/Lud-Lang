@@ -49,7 +49,6 @@ void gen_target()
     // 4. Run code generation on AST.
 
     node ast = parse();
-	type_check(&ast);
 }
 
 extern void reverse_token(lex_t last_read);
