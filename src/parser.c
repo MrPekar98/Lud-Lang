@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "token.h"
+#include "lexer.h"
+#include "parser.h"
 
 // External line number variable.
 extern unsigned long line;
@@ -26,6 +27,19 @@ node parse()
     line = 0;
 
     return start;
+}
+
+// Adds child to parent node.
+void add_child(node *parent, node child)
+{
+    if (parent->children == 0)
+        parent->children = (void **) malloc(sizeof(node));
+
+    else
+        parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
+
+    parent->children[parent->children_count] = &child;
+    parent->children_count++;
 }
 
 // Makes node for IMPORT.
