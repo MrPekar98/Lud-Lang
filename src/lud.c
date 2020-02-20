@@ -51,8 +51,6 @@ void gen_target()
     node ast = parse();
 }
 
-extern void reverse_token(lex_t last_read);
-
 // Prints all tokens and lexemes.
 void print_tokens()
 {
@@ -67,7 +65,7 @@ void print_tokens()
 // TODO: Test parsing of protocols with inheritance and without. Do the same with classes with and without inheritance and polymorphism.
 // Prints AST from parser.
 void print_ast(node n)
-{    
+{
     printf("Children: %d\nType: %d\nData: %s\n\n", n.children_count, n.type, n.data);
 
     if (n.children_count > 0)
@@ -80,3 +78,4 @@ void print_ast(node n)
         }
     }
 }
+
