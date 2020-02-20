@@ -59,7 +59,7 @@ static void make_import(node *parent)
 
         check_import(path.lexeme);
         node n = {.type = IMPORTS};
-        sprintf(n.data, "%s", path.lexeme);
+        sprintf(n.data, "%s\0", path.lexeme);
         add_child(parent, n);
     }
 
@@ -129,7 +129,7 @@ static void make_protocoldecl(node *parent)
         printf("Line %d: Expected identifier to protocol.\n", line);
 
     else
-        sprintf(child.data, "%s", t.lexeme);
+        sprintf(child.data, "%s\0", t.lexeme);
 
     t = read_token();
 
@@ -139,7 +139,7 @@ static void make_protocoldecl(node *parent)
             printf("Line %d: Identifer must follow 'inherits' operator for protocol '%s'.\n", line, child.data);
 
         else
-            sprintf(child.data, "%s->%s", child.data, t.lexeme);
+            sprintf(child.data, "%s->%s\0", child.data, t.lexeme);
 
         t = read_token();
     }
@@ -173,7 +173,7 @@ static void make_classdecl(node *parent)
         printf("Line %d: Expected identifier to protocol.\n", line);
 
     else
-        sprintf(child.data, "%s", t.lexeme);
+        sprintf(child.data, "%s\0", t.lexeme);
 
     t = read_token();
 
@@ -184,7 +184,7 @@ static void make_classdecl(node *parent)
 
         else
         {
-            sprintf(child.data, "%s inherits %s", child.data, t.lexeme);
+            sprintf(child.data, "%s inherits %s\0", child.data, t.lexeme);
             t = read_token();
         }
     }
@@ -195,7 +195,7 @@ static void make_classdecl(node *parent)
             printf("Line %d: Identifer must follow 'implements' operator for class '%s'.\n", line, child.data);
 
         else
-            sprintf(child.data, "%s implements %s", child.data, t.lexeme);
+            sprintf(child.data, "%s implements %s\0", child.data, t.lexeme);
 
         while ((t = read_token()).token == COMMA_T)
         {
@@ -203,7 +203,7 @@ static void make_classdecl(node *parent)
                 printf("Line %d: Identifer must follow ',' for class '%s'.\n", line, child.data);
 
             else
-                sprintf(child.data, "%s, %s", child.data, t.lexeme);
+                sprintf(child.data, "%s, %s\0", child.data, t.lexeme);
         }
     }
 
