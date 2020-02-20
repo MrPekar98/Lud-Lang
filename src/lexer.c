@@ -62,7 +62,7 @@ lex_t read_token()
         buffer[counter++] = c;
     }
 
-    sprintf(t.lexeme, "%s", buffer);
+    sprintf(t.lexeme, "%s\0", buffer);
     t.lexeme[counter] = '\0';
     t.token = recognise(t.lexeme, counter);
 
