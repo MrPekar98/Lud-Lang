@@ -1,4 +1,9 @@
+#ifndef UTIL
+#define UTIL
+
 #include <stdio.h>
+
+extern unsigned long line;
 
 // Throws error.
 static inline void error(const char *msg)
@@ -12,3 +17,5 @@ static inline void warning(const char *msg)
 {
     printf("Warning on line %d: %s\n", line, msg);
 }
+
+#endif
