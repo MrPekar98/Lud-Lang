@@ -69,9 +69,7 @@ void print_tokens()
 
 // Prints AST from parser.
 void print_ast(node n)
-{    
-    printf("Children: %d\nType: %d\nData: %s\n\n", n.children_count, n.type, n.data);
-
+{
     if (n.children_count > 0)
     {
         unsigned i;
