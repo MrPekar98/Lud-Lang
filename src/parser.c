@@ -19,6 +19,8 @@ static void make_protocoldecl(node *parent);
 static void make_classdecl(node *parent);
 static void make_statements(node *parent);
 
+// TODO: Error messages must be on the form "Error/Warning on line x: msg", where x is a line number.
+
 // Main parsing function.
 node parse()
 {
@@ -42,8 +44,7 @@ static inline void add_child(node *parent, node child)
     else
         parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
     
-    parent->children[parent->children_count] = &child;
-    parent->children_count++;
+    parent->children[parent->children_count++] = &child;
 }
 
 // Makes node for IMPORT.
