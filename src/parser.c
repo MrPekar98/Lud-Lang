@@ -12,25 +12,20 @@ extern unsigned long line;
 
 // Prototypes.
 static inline void add_child(node *parent, node child);
+static inline void error(const char *msg);
+static inline void warning(const char *msg);
 static void make_import(node *parent);
-static void make_program(node *parent);
 static void check_import(const char *path);
-static void make_protocoldecl(node *parent);
-static void make_classdecl(node *parent);
-static void make_statements(node *parent);
 
-// TODO: Error messages must be on the form "Error/Warning on line x: msg", where x is a line number.
+// TODO: When parsing classes and protocols, write the signature into the data field of the node.
 
 // Main parsing function.
 node parse()
 {
-    node start = {.type = START};
+    node start = {.type = START, .children_count = 0};
+    line = 0;
     
     make_import(&start);
-    // TODO: Everything is fine in add_child() and make_import(), but here it does not work.
-    printf("Count: %d\nChild type: %d\n", start.children_count, ((node *) start.children[0])->type);
-    make_program(&start);
-    line = 0;
 
     return start;
 }
@@ -38,7 +33,7 @@ node parse()
 // Adds child to parent.
 static inline void add_child(node *parent, node child)
 {
-    if (parent->children == 0)
+    if (parent->children_count == 0)
         parent->children = (void **) malloc(sizeof(node));
 
     else
@@ -47,8 +42,53 @@ static inline void add_child(node *parent, node child)
     parent->children[parent->children_count++] = &child;
 }
 
+// Throws error.
+static inline void error(const char *msg)
+{
+    printf("Error on line %d: %s\n", line, msg);
+    exit(1);
+}
+
+// Throws warning.
+
+static inline void warning(const char *msg)
+{
+    printf("Warning on line %d: %s\n", line, msg);
+}
+
 // Makes node for IMPORT.
 static void make_import(node *parent)
 {
-       
+    lex_t token;
+    node child = {.type = IMPORTS, .children_count = 0};
+
+    while ((token = read_token()).token == IMPORT_T)
+    {
+        if (token.error)
+            error("Unrecognized token.");
+
+        if ((token = read_token()).token != LITERAL_T)
+            error("Following import statement comes string literal.");
+
+        line++;
+        sprintf(child.data, "%s\0", token.lexeme);
+        add_child(parent, child);
+    }
+
+    //reverse_token(token);
+}
+
+// Checks import literal for being valid.
+static void check_import(const char *path)
+{
+    unsigned i, limit = strlen(path);
+
+    for (i = 1; i < limit - 1; i++)
+    {
+        if ((path[i] < '0' || (path[i] > '9' && path[i] < 'A') || (path[i] > 'Z' && path[i] < 'a') || path[i] > 'z') && path[i] != '.')
+            printf("Line %d: Import path may only contain letters, numbers, and dots.\n", line);
+    }
+
+    if (path[0] != '\"' || path[limit - 1] != '\"')
+        printf("Line %d: Import path must be a string literal.\n", line);
 }
