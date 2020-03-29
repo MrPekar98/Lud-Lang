@@ -70,12 +70,15 @@ void print_tokens()
 // Prints AST from parser.
 void print_ast(node n)
 {
+    printf("Type: %d\nChilren: %d\nData: %s\n\n", n.type, n.children_count, n.data);
+
     if (n.children_count > 0)
     {
         unsigned i;
 
         for (i = 0; i < n.children_count; i++)
         {
+            printf("HERE\n");
             print_ast(*((node *) n.children[i]));
         }
     }
