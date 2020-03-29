@@ -78,7 +78,6 @@ void print_ast(node n)
 
         for (i = 0; i < n.children_count; i++)
         {
-            printf("HERE\n");
             print_ast(*((node *) n.children[i]));
         }
     }
