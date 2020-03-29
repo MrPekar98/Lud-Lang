@@ -56,8 +56,6 @@ void gen_target()
 	type_check(&ast);
 }
 
-extern void reverse_token(lex_t last_read);
-
 // Prints all tokens and lexemes.
 void print_tokens()
 {
