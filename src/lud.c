@@ -67,7 +67,6 @@ void print_tokens()
     }
 }
 
-// TODO: Test parsing of protocols with inheritance and without. Do the same with classes with and without inheritance and polymorphism.
 // Prints AST from parser.
 void print_ast(node n)
 {    
