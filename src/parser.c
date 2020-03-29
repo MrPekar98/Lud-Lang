@@ -42,20 +42,6 @@ static inline void add_child(node *parent, node child)
     parent->children[parent->children_count++] = &child;
 }
 
-// Throws error.
-static inline void error(const char *msg)
-{
-    printf("Error on line %d: %s\n", line, msg);
-    exit(1);
-}
-
-// Throws warning.
-
-static inline void warning(const char *msg)
-{
-    printf("Warning on line %d: %s\n", line, msg);
-}
-
 // Makes node for IMPORT.
 static void make_import(node *parent)
 {
@@ -75,7 +61,7 @@ static void make_import(node *parent)
         add_child(parent, child);
     }
 
-    //reverse_token(token);
+    reverse_token(token);
 }
 
 // Checks import literal for being valid.
