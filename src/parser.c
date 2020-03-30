@@ -23,7 +23,7 @@ static void check_import(const char *path);
 // Main parsing function.
 node parse()
 {
-    node start = {.type = START, .children_count = 0};
+    static node start = {.type = START, .children_count = 0};
     line = 0;
     
     make_import(&start);
@@ -43,6 +43,8 @@ static inline void add_child(node *parent, node *child)
     parent->children[parent->children_count++] = child;
 }
 
+// TODO: For some reason, the same data is written to all children.
+// TODO: Start immediately parsing import files.
 // Makes node for IMPORT.
 static void make_import(node *parent)
 {
@@ -50,7 +52,7 @@ static void make_import(node *parent)
 
     while ((token = read_token()).token == IMPORT_T)
     {
-        node child = {.type = IMPORTS, .children_count = 0};
+        static node child = {.type = IMPORTS, .children_count = 0};
 
         if (token.error)
             error("Unrecognized token.");
