@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "lexer.h"
-#include "parser.h"
+#include "token.h"
+#include "compiler.h"
 
 // Line number of compilation.
 unsigned long line = 1;
@@ -8,7 +8,7 @@ unsigned long line = 1;
 // .lud program file.
 FILE *prog;
 
-// Internal prototypes.
+// Prototypes.
 void gen_target();
 void print_tokens();
 void print_ast(node n);
@@ -49,6 +49,7 @@ void gen_target()
     // 4. Run code generation on AST.
 
     node ast = parse();
+	type_check(&ast);
 }
 
 // Prints all tokens and lexemes.
@@ -77,4 +78,3 @@ void print_ast(node n)
         }
     }
 }
-

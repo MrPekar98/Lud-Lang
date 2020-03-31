@@ -31,7 +31,4 @@ typedef struct
     char modification[200];     // Might not be necessary.
 } node;
 
-// Prototype for adding a child to a node.
-void add_child(node *parent, node child);
-
 #endif

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "lexer.h"
+#include "token.h"
 
 // Prototypes.
 static int is_single_character_token(char c);
@@ -34,7 +34,7 @@ lex_t read_token()
         else if (counter == 0 && c == '"')
         {
             buffer[counter++] = c;
-
+            
             while ((c = fgetc(prog)) != -1 && c != '"')
             {
                 buffer[counter++] = c;
@@ -62,7 +62,7 @@ lex_t read_token()
         buffer[counter++] = c;
     }
 
-    sprintf(t.lexeme, "%s\0", buffer);
+    sprintf(t.lexeme, "%s", buffer);
     t.lexeme[counter] = '\0';
     t.token = recognise(t.lexeme, counter);
 
