@@ -36,5 +36,6 @@ typedef struct
 
 // Constructor of node.
 node init_node(enum rule type, size_t data_len);
+void dispose_tree(node root);   // TODO: Implement function in code generation file.
 
 #endif
