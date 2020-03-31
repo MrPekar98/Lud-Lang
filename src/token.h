@@ -1,6 +1,9 @@
+// Must be compiled with parser.c.
+
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <stdlib.h>
 #define LEX_LENGTH 50
 
 // Enum for all tokens.
@@ -27,8 +30,11 @@ typedef struct
     enum rule type;
     void **children;
     unsigned children_count;
-    char data[200];
-    char modification[200];     // Might not be necessary.
+    char *data;
+    char *modification;     // Might not be necessary.
 } node;
+
+// Constructor of node.
+node init_node(enum rule type, size_t data_len);
 
 #endif
