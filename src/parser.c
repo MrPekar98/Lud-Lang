@@ -1,19 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "lexer.h"
-#include "parser.h"
+#include "token.h"
+#include "util.h"
+
+// External prototypes.
+extern lex_t read_token();
+extern void reverse_token(lex_t last_read);
 
 // External line number variable.
 extern unsigned long line;
 
 // Prototypes.
+static inline void add_child(node *parent, node *child);
 static void make_import(node *parent);
-static void make_program(node *parent);
 static void check_import(const char *path);
-static void make_protocoldecl(node *parent);
-static void make_classdecl(node *parent);
-static void make_statements(node *parent);
+
+// TODO: When parsing classes and protocols, write the signature into the data field of the node.
 
 // Main parsing function.
 node parse()
@@ -21,10 +24,6 @@ node parse()
     node start = {.type = START};
 
     make_import(&start);
-    // TODO: Everything is fine in add_child() and make_import(), but here it does not work.
-    printf("Count: %d\nChild type: %d\n", start.children_count, ((node *) start.children[0])->type);
-    make_program(&start);
-    line = 0;
 
     return start;
 }
@@ -32,16 +31,17 @@ node parse()
 // Adds child to parent node.
 void add_child(node *parent, node child)
 {
-    if (parent->children == 0)
+    if (parent->children_count == 0)
         parent->children = (void **) malloc(sizeof(node));
 
     else
         parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
 
-    parent->children[parent->children_count] = &child;
-    parent->children_count++;
+    parent->children[parent->children_count++] = &child;
 }
 
+// TODO: For some reason, the same data is written to all children.
+// TODO: Start immediately parsing import files.
 // Makes node for IMPORT.
 static void make_import(node *parent)
 {
@@ -50,7 +50,7 @@ static void make_import(node *parent)
     if (t.error)
         printf("Line %d: Illegal use of '%s' at this point.\n", line, t.lexeme);
 
-    else if (t.token == IMPORT_T)
+    while ((token = read_token()).token == IMPORT_T)
     {
         lex_t path = read_token();
 
@@ -73,14 +73,19 @@ static void make_import(node *parent)
     reverse_token(t);
     line++;
 
-    if (!t.error && t.token == IMPORT_T)
-        make_import(parent);
+        if ((token = read_token()).token != LITERAL_T)
+            error("Following import statement comes string literal.");
 
-    else
         line++;
+        check_import(token.lexeme);
+        strcpy(child.data, token.lexeme);
+        add_child(parent, &child);
+    }
+
+    reverse_token(token);
 }
 
-// Checks format of import path.
+// Checks import literal for being valid.
 static void check_import(const char *path)
 {
     unsigned i, limit = strlen(path);
@@ -88,146 +93,9 @@ static void check_import(const char *path)
     for (i = 1; i < limit - 1; i++)
     {
         if ((path[i] < '0' || (path[i] > '9' && path[i] < 'A') || (path[i] > 'Z' && path[i] < 'a') || path[i] > 'z') && path[i] != '.')
-            printf("Line %d: Import path may only contain letters, numbers, and dots.\n", line);
+            error("Import path may only contain letters, numbers, and dots.");
     }
 
     if (path[0] != '\"' || path[limit - 1] != '\"')
-        printf("Line %d: Import path must be a string literal.\n", line);
-}
-
-// Makes node for PROGRAM.
-static void make_program(node *parent)
-{
-    lex_t next = read_token();
-    reverse_token(next);
-
-    if (!next.error && next.token == PROTOCOL_T)
-        make_protocoldecl(parent);
-
-    else if (!next.error && next.token == CLASS_T)
-        make_classdecl(parent);
-
-    next = read_token();
-    reverse_token(next);
-
-    if (!next.error && (next.token == PROTOCOL_T || next.token == CLASS_T))
-        make_program(parent);
-}
-
-// Makes node for PROTOCOLDECL.
-static void make_protocoldecl(node *parent)
-{
-    lex_t t = read_token();
-    node child = {.type = PROTOCOLDECL};
-
-    if (t.token != PROTOCOL_T)
-        printf("Line %d: Expected protocol declaration here.\n", line);
-
-    t = read_token();
-
-    if (t.token != ID_T)
-        printf("Line %d: Expected identifier to protocol.\n", line);
-
-    else
-        sprintf(child.data, "%s\0", t.lexeme);
-
-    t = read_token();
-
-    if (t.token == INHERITS)
-    {
-        if ((t = read_token()).token != ID_T)
-            printf("Line %d: Identifer must follow 'inherits' operator for protocol '%s'.\n", line, child.data);
-
-        else
-            sprintf(child.data, "%s->%s\0", child.data, t.lexeme);
-
-        t = read_token();
-    }
-
-    add_child(parent, child);
-    line += 2;
-
-    if (t.token != LBRACE_T)
-        printf("Line %d: Missing left curly brace for protocol '%s'.\nLexeme: %s\nToken: %d\n\n", line - 1, child.data, t.lexeme, t.token);
-
-    make_statements(&child);
-
-    if (read_token().token != RBRACE_T)
-        printf("Line %d: Missing right curly brace for protocol '%s'.\n", line, child.data);
-
-    line += 2;
-}
-
-// Makes node for CLASSDECL.
-static void make_classdecl(node *parent)
-{
-    lex_t t = read_token();
-    node child = {.type = CLASSDECL};
-
-    if (t.token != CLASS_T)
-        printf("Line %d: Expected class declaration here.\n", line);
-
-    t = read_token();
-
-    if (t.token != ID_T)
-        printf("Line %d: Expected identifier to protocol.\n", line);
-
-    else
-        sprintf(child.data, "%s\0", t.lexeme);
-
-    t = read_token();
-
-    if (t.token == INHERITS)
-    {
-        if ((t = read_token()).token != ID_T)
-            printf("Line %d: Identifer must follow 'inherits' operator for class '%s'.\n", line, child.data);
-
-        else
-        {
-            sprintf(child.data, "%s inherits %s\0", child.data, t.lexeme);
-            t = read_token();
-        }
-    }
-
-    if (t.token == IMPLEMENTS)
-    {
-        if ((t = read_token()).token != ID_T)
-            printf("Line %d: Identifer must follow 'implements' operator for class '%s'.\n", line, child.data);
-
-        else
-            sprintf(child.data, "%s implements %s\0", child.data, t.lexeme);
-
-        while ((t = read_token()).token == COMMA_T)
-        {
-            if ((t = read_token()).token != ID_T)
-                printf("Line %d: Identifer must follow ',' for class '%s'.\n", line, child.data);
-
-            else
-                sprintf(child.data, "%s, %s\0", child.data, t.lexeme);
-        }
-    }
-
-    add_child(parent, child);
-    line += 2;
-
-    if (t.token != LBRACE_T)
-        printf("Line %d: Missing left curly brace for class '%s'.\n", line - 1, child.data);
-
-    make_statements(&child);
-
-    if (read_token().token != RBRACE_T)
-        printf("Line %d: Missing right curly brace for class '%s'.\n", line, child.data);
-
-    line += 2;
-}
-
-// Makes node for STATEMENTS.
-static void make_statements(node *parent)
-{
-    read_token();
-    read_token();
-    read_token();
-    read_token();
-    read_token();
-    line++;
+        error("Import path must be a string literal.");
 }
