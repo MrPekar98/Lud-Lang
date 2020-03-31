@@ -10,8 +10,6 @@ extern unsigned long line;
 
 // Prototypes.
 static inline void add_child(node *parent, node *child);
-static inline void error(const char *msg);
-static inline void warning(const char *msg);
 static void make_import(node *parent);
 static void check_import(const char *path);
 
