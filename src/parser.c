@@ -18,12 +18,22 @@ static void check_import(const char *path);
 // Main parsing function.
 node parse()
 {
-    static node start = {.type = START, .children_count = 0};
+    node start = init_node(START, 0);
     line = 0;
     
     make_import(&start);
 
     return start;
+}
+
+// Constructor of node.
+node init_node(enum rule type, size_t data_len)
+{
+    node n = {.type = type, .children_count = 0, .data = (char *) malloc(data_len), .modification = (char *) malloc(data_len)};
+    strcpy(n.data, "");
+    strcpy(n.modification, "");
+
+    return n;
 }
 
 // Adds child to parent.
@@ -35,10 +45,10 @@ static inline void add_child(node *parent, node *child)
     else
         parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
     
-    parent->children[parent->children_count++] = child;
+    parent->children[parent->children_count] = malloc(sizeof(node));
+    memcpy(parent->children[parent->children_count++], child, sizeof(node));
 }
 
-// TODO: For some reason, the same data is written to all children.
 // TODO: Start immediately parsing import files.
 // Makes node for IMPORT.
 static void make_import(node *parent)
@@ -47,14 +57,13 @@ static void make_import(node *parent)
 
     while ((token = read_token()).token == IMPORT_T)
     {
-        static node child = {.type = IMPORTS, .children_count = 0};
-
         if (token.error)
             error("Unrecognized token.");
 
         if ((token = read_token()).token != LITERAL_T)
             error("Following import statement comes string literal.");
 
+        node child = init_node(IMPORTS, strlen(token.lexeme));
         line++;
         check_import(token.lexeme);
         strcpy(child.data, token.lexeme);
