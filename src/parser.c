@@ -12,6 +12,9 @@ extern unsigned long line;
 static inline void add_child(node *parent, node *child);
 static void make_import(node *parent);
 static void check_import(const char *path);
+static void make_program(node *parent);
+static void make_classdecl(node *parent);
+static void make_protocoldecl(node *parent);
 
 // TODO: When parsing classes and protocols, write the signature into the data field of the node.
 
@@ -22,6 +25,7 @@ node parse()
     line = 0;
     
     make_import(&start);
+    make_program(&start);
 
     return start;
 }
@@ -86,4 +90,45 @@ static void check_import(const char *path)
 
     if (path[0] != '\"' || path[limit - 1] != '\"')
         error("Import path must be a string literal.");
+}
+
+// Makes node for PROGRAM.
+static void make_program(node *parent)
+{
+    node child = init_node(PROGRAM, 0);
+    lex_t token = read_token();
+
+    if (token.token != CLASS_T && token.token != PROTOCOL_T)
+        error("Expected class declaration or protocol declaration.");
+
+    while (token.token == PROTOCOL_T || token.token == CLASS_T)
+    {
+        line += 2;
+        reverse_token(token);
+        
+        if (token.token == CLASS_T)
+            make_classdecl(&child);
+
+        else if (token.token == PROTOCOL_T)
+            make_protocoldecl(&child);
+
+        token = read_token();
+    }
+
+    add_child(parent, &child);
+
+    if (read_token().error != -1)
+        warning("File should end here. Everything past this point will be ignored.");
+}
+
+// Makes node for CLASSDECL.
+static void make_classdecl(node *parent)
+{
+
+}
+
+//Makes node for PROTOCOLDECL.
+static void make_protocoldecl(node *parent)
+{
+
 }
