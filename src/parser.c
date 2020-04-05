@@ -115,9 +115,10 @@ static void make_program(node *parent)
         token = read_token();
     }
 
+    line += 2;
     add_child(parent, &child);
 
-    if (read_token().error != -1)
+    if (token.error != -1)
         warning("File should end here. Everything past this point will be ignored.");
 }
 
