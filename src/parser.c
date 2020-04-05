@@ -13,8 +13,9 @@ static inline void add_child(node *parent, node *child);
 static void make_import(node *parent);
 static void check_import(const char *path);
 static void make_program(node *parent);
-static void make_classdecl(node *parent);
 static void make_protocoldecl(node *parent);
+static void make_classdecl(node *parent);
+static void make_statements(node *parent);
 
 // TODO: When parsing classes and protocols, write the signature into the data field of the node.
 
@@ -118,8 +119,49 @@ static void make_program(node *parent)
     line += 2;
     add_child(parent, &child);
 
-    if (token.error != -1)
+    if (!token.error)
         warning("File should end here. Everything past this point will be ignored.");
+}
+
+// Makes node for PROTOCOLDECL.
+// Data is on form: x->y, where x is id of protocol and y is id of inherited protocol.
+static void make_protocoldecl(node *parent)
+{
+    node child = init_node(PROTOCOLDECL, 200);
+    lex_t token = read_token();
+
+    if (token.token != PROTOCOL_T)
+        error("Expected keyword 'protocol' here.");
+
+    if ((token = read_token()).token != ID_T)
+        error("Expected identifier after 'prototcol'.");
+
+    strcpy(child.data, token.lexeme);
+
+    if ((token = read_token()).token == INHERITS)
+    {
+        if ((token = read_token()).token != ID_T)
+            error("Expected protocol inheritance identifier.");
+
+        sprintf(child.data, "%s->%s", child.data, token.lexeme);
+    }
+
+    else
+        reverse_token(token);
+
+    line++;
+
+    if ((token = read_token()).token != LBRACE_T)
+        error("Expected left curly brace of protocol body.");
+
+    line++;
+    make_statements(&child);
+
+    if (read_token().token != RBRACE_T)
+        error("Expected right curly brace of protocol body.");
+
+    line += 2;
+    add_child(parent, &child);
 }
 
 // Makes node for CLASSDECL.
@@ -128,8 +170,8 @@ static void make_classdecl(node *parent)
 
 }
 
-//Makes node for PROTOCOLDECL.
-static void make_protocoldecl(node *parent)
+// Makes node for STATEMENTS.
+static void make_statements(node *parent)
 {
 
 }
