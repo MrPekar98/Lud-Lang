@@ -1,4 +1,4 @@
-#include "symbol_table.h"
+#include "../symbol_table.h"
 #include <assert.h>
 
 // Line number.
@@ -23,6 +23,9 @@ void test_get();
 void test_get_classes();
 void test_get_error();
 void test_get_class_error();
+void test_class_subclass();
+void test_class_implements_protocols();
+void test_class_implements_duplicates();
 
 // Main function.
 int main()
@@ -39,6 +42,8 @@ int main()
     test_get_scope();
     test_get();
     test_get_classes();
+    test_class_subclass();
+    test_class_implements_protocols();
 
     // System tests.
     //test_declared1();
@@ -47,6 +52,7 @@ int main()
     //test_error();
     //test_get_error();
     //test_get_class_error();
+    //test_class_implements_duplicates();
     
     return 0;
 }
@@ -61,7 +67,7 @@ void test_error()
 void test_getname()
 {
     struct function func = {.accessor = INTERNAL, .name = "testFunc", .return_type = NUM, .table = table_init()};
-    struct table_element element = {.type = FUNCTION, .element = &func};
+    struct table_element element = {.type = FUNC, .element = &func};
 
     assert(strcmp(getname(element), func.name) == 0);
 }
@@ -71,7 +77,7 @@ void test_name_existence()
 {
     struct variable var1 = {.name = (char *) malloc(11), .data_type = NUM}, var2 = {.name = (char *) malloc(11), .data_type = BOOL};
     struct function func = {.name = (char *) malloc(9), .return_type = NUM, .table = table_init()};
-    struct table_element element1 = {.type = VARIABLE, .element = &var1}, element2 = {.type = VARIABLE, .element = &var2}, element3 = {.type = FUNCTION, .element = &func};
+    struct table_element element1 = {.type = VAR, .element = &var1}, element2 = {.type = VAR, .element = &var2}, element3 = {.type = FUNC, .element = &func};
     struct table_element elements[3] = {element1, element2, element3};
 
     sprintf(var1.name, "%s", "variable 1");
@@ -145,8 +151,8 @@ void test_table_insertion()
     symbol_table table = table_init();
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL), 
         var3 = variable_init("Variable 3", STRING, 0, NULL);
-    struct table_element element1 = {.type = VARIABLE, .element = &var1}, element2 = {.type = VARIABLE, .element = &var2}, 
-        element3 = {.type = VARIABLE, .element = &var3};
+    struct table_element element1 = {.type = VAR, .element = &var1}, element2 = {.type = VAR, .element = &var2}, 
+        element3 = {.type = VAR, .element = &var3};
 
     table_insert(&table, element1, 0);
     table_insert(&table, element2, 0);
@@ -165,11 +171,11 @@ void test_declaration()
     struct function func = function_init("Function", NUM);
     struct class c = class_init("Some class");
 
-    table_insert(&func.table, (struct table_element) {.type = VARIABLE, .element = &var3}, 0);
+    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
     insert_field(&c, var2, 0);
     insert_method(&c, func, 0);
-    table_insert(&table, (struct table_element) {.type = VARIABLE, .element = &var1}, 0);
-    table_insert(&table, (struct table_element) {.type = CLASS, .element = &c}, 0);
+    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1}, 0);
+    table_insert(&table, (struct table_element) {.type = CL, .element = &c}, 0);
 
     assert(is_declared(table, var1.name));
     assert(is_declared(table, c.name));
@@ -185,8 +191,8 @@ void test_declared1()
     symbol_table table = table_init();
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL), 
         var3 = variable_init("Variable 1", STRING, 0, NULL);
-    struct table_element element1 = {.type = VARIABLE, .element = &var1}, element2 = {.type = VARIABLE, .element = &var2}, 
-        element3 = {.type = VARIABLE, .element = &var3};
+    struct table_element element1 = {.type = VAR, .element = &var1}, element2 = {.type = VAR, .element = &var2}, 
+        element3 = {.type = VAR, .element = &var3};
 
     table_insert(&table, element1, 0);
     table_insert(&table, element2, 0);
@@ -199,8 +205,8 @@ void test_declared2()
     symbol_table table = table_init();
     struct function func1 = function_init("Function", BOOL), func2 = function_init("Function", STRING);
     struct variable var = variable_init("Variable", NUM, 0, NULL);
-    struct table_element element1 = {.type = FUNCTION, .element = &func1}, element2 = {.type = FUNCTION, .element = &func2},
-        element3 = {.type = VARIABLE, .element = &var};
+    struct table_element element1 = {.type = FUNC, .element = &func1}, element2 = {.type = FUNC, .element = &func2},
+        element3 = {.type = VAR, .element = &var};
 
     table_insert(&table, element1, 0);
     table_insert(&func1.table, element3, 2);
@@ -216,11 +222,11 @@ void test_scopes()
     struct function func = function_init("Function", NUM);
     struct class c = class_init("Some class");
 
-    table_insert(&func.table, (struct table_element) {.type = VARIABLE, .element = &var3}, 0);
+    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
     insert_field(&c, var2, 0);
     insert_method(&c, func, 0);
-    table_insert(&table, (struct table_element) {.type = VARIABLE, .element = &var1}, 0);
-    table_insert(&table, (struct table_element) {.type = CLASS, .element = &c}, 0);
+    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1}, 0);
+    table_insert(&table, (struct table_element) {.type = CL, .element = &c}, 0);
 
     assert(innermost_scope_level(table) == 2);
     c.functions[0].table.open = 0;
@@ -235,11 +241,11 @@ void test_get_scope()
     struct function func = function_init("Function", NUM);
     struct class c = class_init("Some class");
 
-    table_insert(&func.table, (struct table_element) {.type = VARIABLE, .element = &var3}, 0);
+    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
     insert_field(&c, var2, 0);
     insert_method(&c, func, 0);
-    table_insert(&table, (struct table_element) {.type = VARIABLE, .element = &var1}, 0);
-    table_insert(&table, (struct table_element) {.type = CLASS, .element = &c}, 0);
+    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1}, 0);
+    table_insert(&table, (struct table_element) {.type = CL, .element = &c}, 0);
 
     assert(table_scope(table, 0).element_count == 2);
     assert(table_scope(table, 1).element_count == 2);
@@ -254,7 +260,7 @@ void test_get()
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
         var3 = variable_init("Function variable", BOOL, 0, NULL);
     struct function func = function_init("Function", BOOL);
-    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2}, element3 = {.type = VARIABLE, .element = &var3};
+    struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2}, element3 = {.type = VAR, .element = &var3};
 
     table_insert(&table, element1, 0);
     insert_field(&c1, var1, 3);
@@ -265,9 +271,9 @@ void test_get()
     insert_method(&c2, func, 11);
 
     assert(strcmp(getname(get(table, c1.name, 15)), c1.name) == 0);
-    assert(get(table, c1.name, 15).type == CLASS);
+    assert(get(table, c1.name, 15).type == CL);
     assert(strcmp(getname(get(table, c2.name, 15)), c2.name) == 0);
-    assert(get(table, c2.name, 15).type == CLASS);
+    assert(get(table, c2.name, 15).type == CL);
 
     struct variable found_var = ((struct class *) get(table, c1.name, 15).element)->variables[0];
     assert(strcmp(found_var.name, var1.name) == 0);
@@ -282,7 +288,7 @@ void test_get_classes()
     struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL);
     struct function func = function_init("Function", BOOL);
-    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2};
+    struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2};
 
     table_insert(&table, element1, 0);
     insert_field(&c1, var1, 3);
@@ -302,7 +308,7 @@ void test_get_error()
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
         var3 = variable_init("Function variable", BOOL, 0, NULL);
     struct function func = function_init("Function", BOOL);
-    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2}, element3 = {.type = VARIABLE, .element = &var3};
+    struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2}, element3 = {.type = VAR, .element = &var3};
 
     table_insert(&table, element1, 0);
     insert_field(&c1, var1, 3);
@@ -322,7 +328,7 @@ void test_get_class_error()
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
         var3 = variable_init("Function variable", BOOL, 0, NULL);
     struct function func = function_init("Function", BOOL);
-    struct table_element element1 = {.type = CLASS, .element = &c1}, element2 = {.type = CLASS, .element = &c2}, element3 = {.type = VARIABLE, .element = &var3};
+    struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2}, element3 = {.type = VAR, .element = &var3};
 
     table_insert(&table, element1, 0);
     insert_field(&c1, var1, 3);
@@ -332,4 +338,39 @@ void test_get_class_error()
     table_insert(&func.table, element3, 14);
 
     get_class(table, "Some class", 10);
+}
+
+// Tests that a class is a sub-class.
+void test_class_subclass()
+{
+    struct class c = class_init("Test class");
+    assert(!c.inherited);
+
+    add_inherited(&c, "super");
+    assert(c.inherited);
+    assert(strcmp(c.inherited, "super") == 0);
+}
+
+// Tests that a class implements several protocols.
+void test_class_implements_protocols()
+{
+    struct class c = class_init("Test class");
+    assert(c.polymorphism_count == 0);
+
+    add_implemented(&c, "protocol1", 1);
+    add_implemented(&c, "protocol2", 1);
+    add_implemented(&c, "protocol3", 1);
+    assert(c.polymorphism_count == 3);
+    assert(strcmp(c.polymorphism[0], "protocol1") == 0);
+    assert(strcmp(c.polymorphism[1], "protocol2") == 0);
+    assert(strcmp(c.polymorphism[2], "protocol3") == 0);
+}
+
+// Tests that an error is throws when implementing same protocol twice.
+void test_class_implements_duplicates()
+{
+    struct class c = class_init("Test class");
+    add_implemented(&c, "protocol1", 1);
+    add_implemented(&c, "protocol2", 1);
+    add_implemented(&c, "protocol1", 1);
 }

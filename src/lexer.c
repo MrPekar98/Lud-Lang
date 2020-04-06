@@ -214,6 +214,9 @@ static int recognise(const char *buffer, unsigned length)
     else if (strcmp("return", buffer) == 0)
         return RETURN_T;
 
+    else if (strcmp("abstract", buffer) == 0)
+        return ABSTRACT;
+
     else if (recognise_accessor(buffer) != -1)
         return ACCESSOR_T;
 
