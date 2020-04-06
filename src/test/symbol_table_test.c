@@ -23,6 +23,9 @@ void test_get();
 void test_get_classes();
 void test_get_error();
 void test_get_class_error();
+void test_class_subclass();
+void test_class_implements_protocols();
+void test_class_implements_duplicates();
 
 // Main function.
 int main()
@@ -39,6 +42,8 @@ int main()
     test_get_scope();
     test_get();
     test_get_classes();
+    test_class_subclass();
+    test_class_implements_protocols();
 
     // System tests.
     //test_declared1();
@@ -47,6 +52,7 @@ int main()
     //test_error();
     //test_get_error();
     //test_get_class_error();
+    //test_class_implements_duplicates();
     
     return 0;
 }
@@ -332,4 +338,39 @@ void test_get_class_error()
     table_insert(&func.table, element3, 14);
 
     get_class(table, "Some class", 10);
+}
+
+// Tests that a class is a sub-class.
+void test_class_subclass()
+{
+    struct class c = class_init("Test class");
+    assert(!c.inherited);
+
+    add_inherited(&c, "super");
+    assert(c.inherited);
+    assert(strcmp(c.inherited, "super") == 0);
+}
+
+// Tests that a class implements several protocols.
+void test_class_implements_protocols()
+{
+    struct class c = class_init("Test class");
+    assert(c.polymorphism_count == 0);
+
+    add_implemented(&c, "protocol1", 1);
+    add_implemented(&c, "protocol2", 1);
+    add_implemented(&c, "protocol3", 1);
+    assert(c.polymorphism_count == 3);
+    assert(strcmp(c.polymorphism[0], "protocol1") == 0);
+    assert(strcmp(c.polymorphism[1], "protocol2") == 0);
+    assert(strcmp(c.polymorphism[2], "protocol3") == 0);
+}
+
+// Tests that an error is throws when implementing same protocol twice.
+void test_class_implements_duplicates()
+{
+    struct class c = class_init("Test class");
+    add_implemented(&c, "protocol1", 1);
+    add_implemented(&c, "protocol2", 1);
+    add_implemented(&c, "protocol1", 1);
 }
