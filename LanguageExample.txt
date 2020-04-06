@@ -5,16 +5,16 @@ ____________________________________________PROTOCOL DECLARATION________________
 
 protocol DogBody -> AnimalBody:
     amountOfLegs() : num
-    sumOfAges(Dog dog1, Dog dog2) : num
+    sumOfAges(dog1 : Dog, dog2 : Dog) : num
 
     # Static method in protocol. #
-    public static sumOfLegs(num dogs) : num
+    public static sumOfLegs(dogs : num) : num
     {
         return dogs * 4
     }
 
     # Returns an instance of an animal #
-    public static createAnimal(string name, num age) : Animal
+    public static createAnimal(name : string, age : num) : Animal
     {
         return create Animal(name, age)
     }
@@ -27,7 +27,7 @@ class Animal
     internal animalName : string
     internal age : num
 
-    internal constructor(string name, num age)
+    internal constructor(name : string, age : string)
     {
         this.animalName = name
         this.age = age
@@ -51,6 +51,7 @@ class Dog -> Animal using DogBody, Movement
     private arrayOfNumbers : num[]
     private arrayOfStrings : string[]
     private helloWorld : string
+    private static const checksum = 1234 : string
     
     public constructor(string name, num age, bool isAdopted)
     {
