@@ -39,6 +39,7 @@ struct function
 {
     enum accessor_t accessor;
     int is_static;
+    int is_abstract;
     enum datatype return_type;
     char *name;
     struct variable *parameters;
@@ -52,8 +53,10 @@ struct class
     char *name;
     struct variable *variables;
     struct function *functions;
-    unsigned variable_amount, function_amount;
+    unsigned short variable_amount, function_amount, polymorphism_count;
     int open;
+    char *inherited;
+    char **polymorphism;
 };
 
 // Prototypes.
@@ -75,6 +78,8 @@ struct class get_class(symbol_table table, const char *name, unsigned line_numbe
 symbol_table table_scope(symbol_table table, unsigned scope);
 symbol_table class_to_table(struct class c);
 unsigned innermost_scope_level(symbol_table table);
+void add_inherited(struct class *c, const char *super_class);
+void add_implemented(struct class *c, const char *protocol, unsigned line_number);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -307,7 +312,7 @@ struct table_element get(symbol_table table, const char *name, unsigned line_num
         }
     }
 
-    // Dummy.
+    // Dummy when none has been found.
     return (struct table_element) {.type = VAR, .element = NULL};
 }
 
@@ -316,7 +321,7 @@ struct class get_class(symbol_table table, const char *name, unsigned line_numbe
 {
     if (!element_name_exists(table.elements, table.element_count, name))
     {
-        char msg[10];
+        char msg[50];
         sprintf(msg, "Line %d: '%s' has not been declared.\n", line_number, name);
         table_error(msg);
     }
@@ -330,6 +335,36 @@ struct class get_class(symbol_table table, const char *name, unsigned line_numbe
     }
 
     return class_init("Dummy class");
+}
+
+// Add class to inherited.
+void add_inherited(struct class *c, const char *super_class)
+{
+    if (c->inherited)
+        free(c->inherited);
+
+    c->inherited = (char *) malloc(strlen(super_class));
+    strcpy(c->inherited, super_class);
+}
+
+// Adds implemented protocol to class.
+void add_implemented(struct class *c, const char *protocol, unsigned line_number)
+{
+    unsigned i;
+
+    for (i = 0; i < c->polymorphism_count; i++)
+    {
+        if (strcmp(c->polymorphism[i], protocol) == 0)
+        {
+            char msg[100];
+            sprintf(msg, "Line %d: Class already implements protocol '%s'.\n", line_number, protocol);
+            table_error(msg);
+        }
+    }
+
+    c->polymorphism = (char **) realloc(c->polymorphism, sizeof(char *) * (c->polymorphism_count + 1));
+    c->polymorphism[c->polymorphism_count] = (char *) malloc(strlen(protocol));
+    strcpy(c->polymorphism[c->polymorphism_count++], protocol);
 }
 
 // Returns table in argument specified level.
