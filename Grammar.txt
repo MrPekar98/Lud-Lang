@@ -1,4 +1,6 @@
-<Start> -> <Imports> <Program>
+<Start> -> <Namespace> <Imports> <Program>
+
+<Namespace> -> [namespace 'path']
 	 
 <Var> -> 'identifier'
        | 'identifier'[]

@@ -215,7 +215,10 @@ static int recognise(const char *buffer, unsigned length)
         return RETURN_T;
 
     else if (strcmp("abstract", buffer) == 0)
-        return ABSTRACT;
+        return ABSTRACT_T;
+
+    else if (strcmp("namespace", buffer) == 0)
+        return NAMESPACE_T;
 
     else if (recognise_accessor(buffer) != -1)
         return ACCESSOR_T;
