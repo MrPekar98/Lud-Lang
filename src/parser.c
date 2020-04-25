@@ -10,8 +10,9 @@ extern unsigned long line;
 
 // Prototypes.
 static inline void add_child(node *parent, node *child);
+static void make_namespace(node *parent);
 static void make_import(node *parent);
-static void check_import(const char *path);
+static void check_path(const char *path);
 static void make_program(node *parent);
 static void make_protocoldecl(node *parent);
 static void make_classdecl(node *parent);
@@ -25,6 +26,7 @@ node parse()
     node start = init_node(START, 0);
     line = 0;
     
+    make_namespace(&start);
     make_import(&start);
     make_program(&start);
 
@@ -41,6 +43,12 @@ node init_node(enum rule type, size_t data_len)
     return n;
 }
 
+// Destructor of AST.
+void dispose_tree(node root)
+{
+
+}
+
 // Adds child to parent.
 static inline void add_child(node *parent, node *child)
 {
@@ -52,6 +60,26 @@ static inline void add_child(node *parent, node *child)
     
     parent->children[parent->children_count] = malloc(sizeof(node));
     memcpy(parent->children[parent->children_count++], child, sizeof(node));
+}
+
+// Makes node for namespace.
+static void make_namespace(node *parent)
+{
+    lex_t token = read_token();
+
+    if (token.token != NAMESPACE_T)
+    {
+        reverse_token(token);
+        return;
+    }
+
+    lex_t namespace = read_token();
+    check_path(namespace.lexeme);
+
+    node child = init_node(NAMESPACE, strlen(namespace.lexeme));
+    strcpy(child.data, namespace.lexeme);
+    add_child(parent, &child);
+    line += 2;
 }
 
 // TODO: Start immediately parsing import files.
@@ -70,7 +98,7 @@ static void make_import(node *parent)
 
         node child = init_node(IMPORTS, strlen(token.lexeme));
         line++;
-        check_import(token.lexeme);
+        check_path(token.lexeme);
         strcpy(child.data, token.lexeme);
         add_child(parent, &child);
     }
@@ -79,7 +107,7 @@ static void make_import(node *parent)
 }
 
 // Checks import literal for being valid.
-static void check_import(const char *path)
+static void check_path(const char *path)
 {
     unsigned i, limit = strlen(path);
 
