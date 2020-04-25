@@ -147,11 +147,16 @@ symbol_table table_init()
 // Param namespace must be NULL if no namespace is specified.
 struct class class_init(const char *name, const char *namespace)
 {
-    struct class c = {.open = 1, .name = (char *) malloc(strlen(name)), .namespace = (char *) malloc(strlen(namespace))};
+    struct class c = {.open = 1, .name = (char *) malloc(strlen(name)), .namespace = NULL};
     c.variables = (struct variable *) malloc(sizeof(struct variable));
     c.functions = (struct function *) malloc(sizeof(struct function));
     sprintf(c.name, "%s\0", name);
-    sprintf(c.namespace, "%s\0", namespace);
+
+    if (namespace != NULL)
+    {
+        c.namespace = (char *) malloc(strlen(namespace));
+        sprintf(c.namespace, "%s\0", namespace);
+    }
 
     return c;
 }
