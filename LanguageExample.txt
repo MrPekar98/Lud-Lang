@@ -3,88 +3,104 @@ ____________________________________________COMMENTS____________________________
 
 ____________________________________________PROTOCOL DECLARATION_______________________________________________
 
-protocol DogBody -> AnimalBody:
-    amountOfLegs() : num
-    sumOfAges(dog1 : Dog, dog2 : Dog) : num
-
+protocol DogBody inherits AnimalBody:
     # Static method in protocol. #
-    public static sumOfLegs(dogs : num) : num
+    public
     {
-        return dogs * 4
-    }
-
-    # Returns an instance of an animal #
-    public static createAnimal(name : string, age : num) : Animal
-    {
-        return create Animal(name, age)
+        amountOfLegs() : num
+        sumOfAges(dog1 : Dog, dog2 : Dog) : num
+    
+        static sumOfLegs(dogs : num) : num
+        {
+            return dogs * 4
+        }
+        
+        # Returns an instance of an animal #
+        static createAnimal(name : string, age : num) : Animal
+        {
+            return create Animal(name, age)
+        }
     }
 
 ____________________________________________CLASS DECLARATION_________________________________________________
 
 # Represent an animal #
 class Animal
-{
-    internal animalName : string
-    internal age : num
-
-    internal constructor(name : string, age : string)
+{    
+    protected
     {
-        this.animalName = name
-        this.age = age
+        internal animalName : string
+        internal age : num
+    
+        constructor(name : string, age : string)
+        {
+            this.animalName = name
+            this.age = age
+        }
     }
-
-    public getName() : string
+    
+    public
     {
-        return this.animalName
-    }
-
-    public getAge() : num
-    {
-        return this.age
+        getName() : string
+        {
+            return this.animalName
+        }
+        
+        getAge() : num
+        {
+            return this.age
+        }
     }
 }
 
 # Sub-class of Animal representing a dog. #
-class Dog -> Animal using DogBody, Movement
+class Dog inherits Animal implements DogBody, Movement
 {
-    private adopted = false : bool
-    private arrayOfNumbers : num[]
-    private arrayOfStrings : string[]
-    private helloWorld : string
-    private static const checksum = 1234 : string
+    private
+    {
+        private adopted = false : bool
+        private arrayOfNumbers : num[]
+        private arrayOfStrings : string[]
+        private helloWorld : string
+        private static const checksum = 1234 : string
+    }
     
-    public constructor(string name, num age, bool isAdopted)
+    public
     {
-        super.animalName = name
-        super.age = age
-        this.adopted = isAdopted
-        this.arrayOfNumbers = new int[5];
-        this.arrayOfString = {"Hello", "world"}
-        this.helloWord = arrayOfStrings[0] + " " + arrayOfStrings[1]
-    }
-
-    public setName(string name) : void
-    {
-        super.animalName = name
-    }
-
-    public setAge(num age) : void
-    {
-        super.age = age
-    }
-
-    public setIsAdopted(bool value) : void{
-        this.adopted = value
-    }
-
-    public isAdopted() : bool
-    {
-        return this.adopted
-    }
-
-    # Calculates the sum of years of two dogs. #
-    public static sumOfAges(Dog dog1, Dog dog2) : num
-    {
-        return dog1.getAge() + dog2.getAge()
+        constructor(string name, num age, bool isAdopted)
+        {
+            super.animalName = name
+            super.age = age
+            this.adopted = isAdopted
+            this.arrayOfNumbers = new int[5];
+            this.arrayOfString = {"Hello", "world"}
+            this.helloWord = arrayOfStrings[0] + " " + arrayOfStrings[1]
+        }
+        
+        setName(string name) : void
+        {
+            super.animalName = name
+        }
+        
+        setAge(num age) : void
+        {
+            super.age = age
+        }
+        
+        setIsAdopted(bool value) : void
+        {
+            this.adopted = value
+        }
+        
+        isAdopted() : bool
+        {
+            return this.adopted
+        }
+        
+        # Calculates the sum of years of two dogs. #
+        static sumOfAges(Dog dog1, Dog dog2) : num
+        {
+            return dog1.getAge() + dog2.getAge()
+        }
     }
 }
