@@ -29,8 +29,8 @@ class Animal
 {    
     protected
     {
-        internal animalName : string
-        internal age : num
+        animalName : string
+        age : num
     
         constructor(name : string, age : string)
         {
@@ -58,11 +58,11 @@ class Dog inherits Animal implements DogBody, Movement
 {
     private
     {
-        private adopted = false : bool
-        private arrayOfNumbers : num[]
-        private arrayOfStrings : string[]
-        private helloWorld : string
-        private static const checksum = 1234 : string
+        adopted = false : bool
+        arrayOfNumbers : num[]
+        arrayOfStrings : string[]
+        helloWorld : string
+        static const checksum = 1234 : string
     }
     
     public
