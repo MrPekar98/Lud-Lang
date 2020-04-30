@@ -50,7 +50,7 @@ struct function
 // Class element.
 struct class
 {
-    char *name;
+    char *name, *namespace;
     struct variable *variables;
     struct function *functions;
     unsigned short variable_amount, function_amount, polymorphism_count;
@@ -63,7 +63,7 @@ struct class
 int element_name_exists(struct table_element *elements, unsigned length, const char *name);
 static inline char *getname(struct table_element element);
 symbol_table table_init();
-struct class class_init(const char *name);
+struct class class_init(const char *name, const char *namespace);
 struct variable variable_init(const char *name, enum datatype type, int is_class_instance, const char *class_name);
 struct function function_init(const char *name, enum datatype return_type);
 void add_parameter(struct function *func, struct variable var, unsigned line_number);
@@ -144,12 +144,19 @@ symbol_table table_init()
 }
 
 // Gets instance of class.
-struct class class_init(const char *name)
+// Param namespace must be NULL if no namespace is specified.
+struct class class_init(const char *name, const char *namespace)
 {
-    struct class c = {.open = 1, .name = (char *) malloc(strlen(name))};
+    struct class c = {.open = 1, .name = (char *) malloc(strlen(name)), .namespace = NULL};
     c.variables = (struct variable *) malloc(sizeof(struct variable));
     c.functions = (struct function *) malloc(sizeof(struct function));
-    sprintf(c.name, "%s", name);
+    sprintf(c.name, "%s\0", name);
+
+    if (namespace != NULL)
+    {
+        c.namespace = (char *) malloc(strlen(namespace));
+        sprintf(c.namespace, "%s\0", namespace);
+    }
 
     return c;
 }
@@ -334,7 +341,7 @@ struct class get_class(symbol_table table, const char *name, unsigned line_numbe
             return *((struct class *) table.elements[i].element);
     }
 
-    return class_init("Dummy class");
+    return class_init("Dummy class", NULL);
 }
 
 // Add class to inherited.

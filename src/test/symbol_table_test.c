@@ -92,7 +92,7 @@ void test_name_existence()
 // Tests addition of class field.
 void test_field_add()
 {
-    struct class c = class_init("Test class");
+    struct class c = class_init("Test class", NULL);
     struct variable var1 = variable_init("Test variable 1", NUM, 0, NULL), var2 = variable_init("Test Variable 2", BOOL, 0, NULL);
 
     insert_field(&c, var1, 0);
@@ -105,7 +105,7 @@ void test_field_add()
 // Tests insertion of already existing field.
 void test_field_add_error()
 {
-    struct class c = class_init("Test class");
+    struct class c = class_init("Test class", NULL);
     struct variable var1 = variable_init("Test variable", NUM, 0, NULL), var2 = variable_init("Test variable", BOOL, 0, NULL);
 
     insert_field(&c, var1, 0);
@@ -115,7 +115,7 @@ void test_field_add_error()
 // Tests addition of class method.
 void test_method_add()
 {
-    struct class c = class_init("Test class");
+    struct class c = class_init("Test class", NULL);
     struct function func = function_init("Test function", BOOL);
 
     insert_method(&c, func, 0);
@@ -125,7 +125,7 @@ void test_method_add()
 // Tests insertion of already existing method.
 void test_method_add_error()
 {
-    struct class c = class_init("Test class");
+    struct class c = class_init("Test class", NULL);
     struct function func1 = function_init("Test function", BOOL), func2 = function_init("Test function", NUM);
 
     insert_method(&c, func1, 0);
@@ -169,7 +169,7 @@ void test_declaration()
     symbol_table table = table_init();
     struct variable var1 = variable_init("Variable 1", BOOL, 0, NULL), var2 = variable_init("Variable 2", NUM, 0, NULL), var3 = variable_init("Variable 3", BOOL, 0, NULL);
     struct function func = function_init("Function", NUM);
-    struct class c = class_init("Some class");
+    struct class c = class_init("Some class", NULL);
 
     table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
     insert_field(&c, var2, 0);
@@ -220,7 +220,7 @@ void test_scopes()
     symbol_table table = table_init();
     struct variable var1 = variable_init("Variable 1", BOOL, 0, NULL), var2 = variable_init("Variable 2", NUM, 0, NULL), var3 = variable_init("Variable 3", BOOL, 0, NULL);
     struct function func = function_init("Function", NUM);
-    struct class c = class_init("Some class");
+    struct class c = class_init("Some class", NULL);
 
     table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
     insert_field(&c, var2, 0);
@@ -239,7 +239,7 @@ void test_get_scope()
     symbol_table table = table_init();    
     struct variable var1 = variable_init("Variable 1", BOOL, 0, NULL), var2 = variable_init("Variable 2", NUM, 0, NULL), var3 = variable_init("Variable 3", BOOL, 0, NULL);
     struct function func = function_init("Function", NUM);
-    struct class c = class_init("Some class");
+    struct class c = class_init("Some class", NULL);
 
     table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
     insert_field(&c, var2, 0);
@@ -256,7 +256,7 @@ void test_get_scope()
 void test_get()
 {
     symbol_table table = table_init();
-    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct class c1 = class_init("Class 1", NULL), c2 = class_init("CLass 2", NULL);
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
         var3 = variable_init("Function variable", BOOL, 0, NULL);
     struct function func = function_init("Function", BOOL);
@@ -285,7 +285,7 @@ void test_get()
 void test_get_classes()
 {
     symbol_table table = table_init();
-    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct class c1 = class_init("Class 1", NULL), c2 = class_init("CLass 2", NULL);
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL);
     struct function func = function_init("Function", BOOL);
     struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2};
@@ -304,7 +304,7 @@ void test_get_classes()
 void test_get_error()
 {
     symbol_table table = table_init();
-    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct class c1 = class_init("Class 1", NULL), c2 = class_init("CLass 2", NULL);
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
         var3 = variable_init("Function variable", BOOL, 0, NULL);
     struct function func = function_init("Function", BOOL);
@@ -324,7 +324,7 @@ void test_get_error()
 void test_get_class_error()
 {
     symbol_table table = table_init();
-    struct class c1 = class_init("Class 1"), c2 = class_init("CLass 2");
+    struct class c1 = class_init("Class 1", NULL), c2 = class_init("CLass 2", NULL);
     struct variable var1 = variable_init("Variable 1", NUM, 0, NULL), var2 = variable_init("Variable 2", BOOL, 0, NULL),
         var3 = variable_init("Function variable", BOOL, 0, NULL);
     struct function func = function_init("Function", BOOL);
@@ -343,7 +343,7 @@ void test_get_class_error()
 // Tests that a class is a sub-class.
 void test_class_subclass()
 {
-    struct class c = class_init("Test class");
+    struct class c = class_init("Test class", NULL);
     assert(!c.inherited);
 
     add_inherited(&c, "super");
@@ -354,7 +354,7 @@ void test_class_subclass()
 // Tests that a class implements several protocols.
 void test_class_implements_protocols()
 {
-    struct class c = class_init("Test class");
+    struct class c = class_init("Test class", NULL);
     assert(c.polymorphism_count == 0);
 
     add_implemented(&c, "protocol1", 1);
@@ -369,7 +369,7 @@ void test_class_implements_protocols()
 // Tests that an error is throws when implementing same protocol twice.
 void test_class_implements_duplicates()
 {
-    struct class c = class_init("Test class");
+    struct class c = class_init("Test class", NULL);
     add_implemented(&c, "protocol1", 1);
     add_implemented(&c, "protocol2", 1);
     add_implemented(&c, "protocol1", 1);

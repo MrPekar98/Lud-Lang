@@ -4,6 +4,7 @@
 #include "token.h"
 
 // Prototypes.
+static void skip_comment();
 static int is_single_character_token(char c);
 static int recognise(const char *buffer, unsigned length);
 static int recognise_accessor(const char *buffer);
@@ -28,7 +29,13 @@ lex_t read_token()
 
     while ((c = fgetc(prog)) != -1)
     {
-        if (counter == 0 && (c == ' ' || c == '\n'))
+        if (counter == 0 && c == '#')
+        {
+            skip_comment();
+            continue;
+        }
+
+        else if (counter == 0 && (c == ' ' || c == '\n'))
             continue;
 
         else if (counter == 0 && c == '"')
@@ -44,7 +51,7 @@ lex_t read_token()
             break;
         }
 
-        else if (c == ' ' || c == '\n')
+        else if (c == ' ' || c == '\n' || c == '#')
             break;
 
         else if (is_single_character_token(c) && counter > 0)
@@ -76,6 +83,13 @@ lex_t read_token()
 void reverse_token(lex_t last_read)
 {
     fseek(prog, ftell(prog) - strlen(last_read.lexeme) - 1, SEEK_SET);
+}
+
+// Skips everything until end of comment is met.
+static void skip_comment()
+{
+    int c;
+    while ((c = fgetc(prog)) != '#' && c != -1);
 }
 
 // Determines whether a token can be next to another lexeme without a space.
