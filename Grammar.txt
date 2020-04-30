@@ -17,9 +17,7 @@
 
 <ClassDecl> -> class 'identifier' [inherits <Var>] [implements <Var> {, <Var>}] { <ClassProtAccessors> }
 
-<ClassProtAccessors> -> public { <Members> } <ClassProtAccessors>
-			| -> protected { <Members> } <ClassProtAccessors>
-			| -> private { <Members> } <ClassProtAccessors>
+<ClassProtAccessors> -> <Accessor> { <Members> } <ClassProtAccessors>
 			| -> 'lambda'
 
 <Members> -> <MethodDecl> <Members>
@@ -49,7 +47,7 @@
 
 <Accessor> -> public
 	    | private
-	    | internal
+	    | protected
 	    
 <DataType> -> num
 	    | string
