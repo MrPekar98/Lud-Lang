@@ -38,12 +38,18 @@
 	     | <ForLoop>
 	     | <Call>
 	     | <SystemCall>
+		 | <ExceptionHandler>
+		 | <Throw>
 	     | break
 	     | continue
 		 | destroy <Var>
 	     | 'lambda'
 
 <SystemCall> -> system(<Literal>)
+
+<ExceptionHandler> -> try { <Statements> } catch { <Statements> } [finally { <Statements> } ]
+
+<Throw> -> throw <Var>
 	     
 <VarDecl> -> [static] [const] <Assignemnt> : <DataType>
 
@@ -57,6 +63,7 @@
 	    | char
 	    | address
 		| thread
+		| <Var>
 		| <ArrayType>
 
 <ArrayType> -> [<ArrayType>]
