@@ -53,10 +53,10 @@ void dispose_tree(node root)
 static inline void add_child(node *parent, node *child)
 {
     if (parent->children_count == 0)
-        parent->children = (void **) malloc(sizeof(node));
+        parent->children = (void **) malloc(sizeof(void *));
 
     else
-        parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
+        parent->children = (void **) realloc(parent->children, sizeof(void *) * (parent->children_count + 1));
     
     parent->children[parent->children_count] = malloc(sizeof(node));
     memcpy(parent->children[parent->children_count++], child, sizeof(node));
