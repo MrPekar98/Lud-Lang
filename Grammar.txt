@@ -23,6 +23,7 @@
 <Members> -> <MethodDecl> <Members>
 		| -> <VarDecl> <Members>
 		| -> <Constructor> <Members>
+		| -> <Destructor> <Members>
 		| -> 'lambda'
 
 <Statements> -> <Statement> <Statements>
@@ -138,3 +139,5 @@
 	      | [abstact] [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
 
 <Constructor> -> constructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
+
+<Destructor> -> destructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
