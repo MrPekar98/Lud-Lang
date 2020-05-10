@@ -45,8 +45,18 @@ node init_node(enum rule type, size_t data_len)
 
 // Destructor of AST.
 void dispose_tree(node root)
-{
+{    
+    unsigned i;
 
+    for (i = 0; i < root.children_count; i++)
+    {
+        dispose_tree(*((node *) root.children[i]));
+        free(root.children[i]);
+    }
+
+    free(root.data);
+    free(root.modification);
+    free(root.children);
 }
 
 // Adds child to parent.
