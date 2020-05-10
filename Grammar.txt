@@ -36,7 +36,7 @@
 	     | <ForEach>
 	     | <WhileLoop>
 	     | <ForLoop>
-	     | <Call>
+	     | <Reference>
 	     | <SystemCall>
 		 | <ExceptionHandler>
 		 | <Throw>
