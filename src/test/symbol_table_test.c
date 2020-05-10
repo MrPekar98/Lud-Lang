@@ -1,11 +1,11 @@
 #include "../symbol_table.h"
 #include <assert.h>
+#include "../util.h"
 
 // Line number.
-unsigned line;
+unsigned long line;
 
 // Prototypes
-void test_error();
 void test_getname();
 void test_name_existence();
 void test_field_add();
@@ -49,18 +49,13 @@ int main()
     //test_declared1();
     //test_declared2();
     //test_method_add_error();
-    //test_error();
     //test_get_error();
     //test_get_class_error();
     //test_class_implements_duplicates();
+
+    printf("All tests passed!");
     
     return 0;
-}
-
-// Test of error messaging. 
-void test_error()
-{
-    table_error("Error test.");
 }
 
 // Test getting name of table_element.
@@ -95,8 +90,8 @@ void test_field_add()
     struct class c = class_init("Test class", NULL);
     struct variable var1 = variable_init("Test variable 1", NUM, 0, NULL), var2 = variable_init("Test Variable 2", BOOL, 0, NULL);
 
-    insert_field(&c, var1, 0);
-    insert_field(&c, var2, 0);
+    insert_field(&c, var1);
+    insert_field(&c, var2);
 
     assert(strcmp(c.variables[0].name, var1.name) == 0);
     assert(strcmp(c.variables[1].name, var2.name) == 0);
@@ -108,8 +103,8 @@ void test_field_add_error()
     struct class c = class_init("Test class", NULL);
     struct variable var1 = variable_init("Test variable", NUM, 0, NULL), var2 = variable_init("Test variable", BOOL, 0, NULL);
 
-    insert_field(&c, var1, 0);
-    insert_field(&c, var2, 0);
+    insert_field(&c, var1);
+    insert_field(&c, var2);
 }
 
 // Tests addition of class method.
@@ -118,7 +113,7 @@ void test_method_add()
     struct class c = class_init("Test class", NULL);
     struct function func = function_init("Test function", BOOL);
 
-    insert_method(&c, func, 0);
+    insert_method(&c, func);
     assert(strcmp(c.functions[0].name, func.name) == 0);
 }
 
@@ -128,8 +123,8 @@ void test_method_add_error()
     struct class c = class_init("Test class", NULL);
     struct function func1 = function_init("Test function", BOOL), func2 = function_init("Test function", NUM);
 
-    insert_method(&c, func1, 0);
-    insert_method(&c, func2, 0);
+    insert_method(&c, func1);
+    insert_method(&c, func2);
 }
 
 // Tests declaration of function parameters.
@@ -138,8 +133,8 @@ void test_parameter_declaration()
     struct function func = function_init("Test function", BOOL);
     struct variable var1 = variable_init("Test variable 1", STRING, 0, NULL), var2 = variable_init("Test variable 2", NUM, 0, NULL);
 
-    add_parameter(&func, var1, 0);
-    add_parameter(&func, var2, 0);
+    add_parameter(&func, var1);
+    add_parameter(&func, var2);
     
     assert(strcmp(var1.name, func.parameters[0].name) == 0);
     assert(strcmp(var2.name, func.parameters[1].name) == 0);
@@ -154,9 +149,9 @@ void test_table_insertion()
     struct table_element element1 = {.type = VAR, .element = &var1}, element2 = {.type = VAR, .element = &var2}, 
         element3 = {.type = VAR, .element = &var3};
 
-    table_insert(&table, element1, 0);
-    table_insert(&table, element2, 0);
-    table_insert(&table, element3, 0);
+    table_insert(&table, element1);
+    table_insert(&table, element2);
+    table_insert(&table, element3);
 
     assert(strcmp(getname(table.elements[0]), var1.name) == 0);
     assert(strcmp(getname(table.elements[1]), var2.name) == 0);
@@ -171,11 +166,11 @@ void test_declaration()
     struct function func = function_init("Function", NUM);
     struct class c = class_init("Some class", NULL);
 
-    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
-    insert_field(&c, var2, 0);
-    insert_method(&c, func, 0);
-    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1}, 0);
-    table_insert(&table, (struct table_element) {.type = CL, .element = &c}, 0);
+    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3});
+    insert_field(&c, var2);
+    insert_method(&c, func);
+    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1});
+    table_insert(&table, (struct table_element) {.type = CL, .element = &c});
 
     assert(is_declared(table, var1.name));
     assert(is_declared(table, c.name));
@@ -194,9 +189,9 @@ void test_declared1()
     struct table_element element1 = {.type = VAR, .element = &var1}, element2 = {.type = VAR, .element = &var2}, 
         element3 = {.type = VAR, .element = &var3};
 
-    table_insert(&table, element1, 0);
-    table_insert(&table, element2, 0);
-    table_insert(&table, element3, 0);
+    table_insert(&table, element1);
+    table_insert(&table, element2);
+    table_insert(&table, element3);
 }
 
 // Tests that a name is already declared in second scope of 3.
@@ -208,10 +203,10 @@ void test_declared2()
     struct table_element element1 = {.type = FUNC, .element = &func1}, element2 = {.type = FUNC, .element = &func2},
         element3 = {.type = VAR, .element = &var};
 
-    table_insert(&table, element1, 0);
-    table_insert(&func1.table, element3, 2);
+    table_insert(&table, element1);
+    table_insert(&func1.table, element3);
     func1.table.open = 0;
-    table_insert(&table, element2, 5);
+    table_insert(&table, element2);
 }
 
 // Tests amount of open scopes.
@@ -222,11 +217,11 @@ void test_scopes()
     struct function func = function_init("Function", NUM);
     struct class c = class_init("Some class", NULL);
 
-    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
-    insert_field(&c, var2, 0);
-    insert_method(&c, func, 0);
-    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1}, 0);
-    table_insert(&table, (struct table_element) {.type = CL, .element = &c}, 0);
+    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3});
+    insert_field(&c, var2);
+    insert_method(&c, func);
+    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1});
+    table_insert(&table, (struct table_element) {.type = CL, .element = &c});
 
     assert(innermost_scope_level(table) == 2);
     c.functions[0].table.open = 0;
@@ -241,11 +236,11 @@ void test_get_scope()
     struct function func = function_init("Function", NUM);
     struct class c = class_init("Some class", NULL);
 
-    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3}, 0);
-    insert_field(&c, var2, 0);
-    insert_method(&c, func, 0);
-    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1}, 0);
-    table_insert(&table, (struct table_element) {.type = CL, .element = &c}, 0);
+    table_insert(&func.table, (struct table_element) {.type = VAR, .element = &var3});
+    insert_field(&c, var2);
+    insert_method(&c, func);
+    table_insert(&table, (struct table_element) {.type = VAR, .element = &var1});
+    table_insert(&table, (struct table_element) {.type = CL, .element = &c});
 
     assert(table_scope(table, 0).element_count == 2);
     assert(table_scope(table, 1).element_count == 2);
@@ -262,23 +257,23 @@ void test_get()
     struct function func = function_init("Function", BOOL);
     struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2}, element3 = {.type = VAR, .element = &var3};
 
-    table_insert(&table, element1, 0);
-    insert_field(&c1, var1, 3);
+    table_insert(&table, element1);
+    insert_field(&c1, var1);
     c1.open = 0;
-    table_insert(&table, element2, 10);
-    insert_field(&c2, var2, 4);
-    table_insert(&func.table, element3, 14);
-    insert_method(&c2, func, 11);
+    table_insert(&table, element2);
+    insert_field(&c2, var2);
+    table_insert(&func.table, element3);
+    insert_method(&c2, func);
 
-    assert(strcmp(getname(get(table, c1.name, 15)), c1.name) == 0);
-    assert(get(table, c1.name, 15).type == CL);
-    assert(strcmp(getname(get(table, c2.name, 15)), c2.name) == 0);
-    assert(get(table, c2.name, 15).type == CL);
+    assert(strcmp(getname(get(table, c1.name)), c1.name) == 0);
+    assert(get(table, c1.name).type == CL);
+    assert(strcmp(getname(get(table, c2.name)), c2.name) == 0);
+    assert(get(table, c2.name).type == CL);
 
-    struct variable found_var = ((struct class *) get(table, c1.name, 15).element)->variables[0];
+    struct variable found_var = ((struct class *) get(table, c1.name).element)->variables[0];
     assert(strcmp(found_var.name, var1.name) == 0);
-    assert(strcmp(getname(get(table, var3.name, 18)), var3.name) == 0);
-    assert(strcmp(getname(get(table, var2.name, 23)), var2.name) == 0);
+    assert(strcmp(getname(get(table, var3.name)), var3.name) == 0);
+    assert(strcmp(getname(get(table, var2.name)), var2.name) == 0);
 }
 
 // ests getting inserted classes.
@@ -290,14 +285,14 @@ void test_get_classes()
     struct function func = function_init("Function", BOOL);
     struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2};
 
-    table_insert(&table, element1, 0);
-    insert_field(&c1, var1, 3);
+    table_insert(&table, element1);
+    insert_field(&c1, var1);
     c1.open = 0;
-    table_insert(&table, element2, 10);
-    insert_method(&c2, func, 11);
+    table_insert(&table, element2);
+    insert_method(&c2, func);
 
-    assert(strcmp(get_class(table, c1.name, 16).name, c1.name) == 0);
-    assert(strcmp(get_class(table, c2.name, 16).name, c2.name) == 0);
+    assert(strcmp(get_class(table, c1.name).name, c1.name) == 0);
+    assert(strcmp(get_class(table, c2.name).name, c2.name) == 0);
 }
 
 // Throws an error because nothing has been declared with given name.
@@ -310,14 +305,14 @@ void test_get_error()
     struct function func = function_init("Function", BOOL);
     struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2}, element3 = {.type = VAR, .element = &var3};
 
-    table_insert(&table, element1, 0);
-    insert_field(&c1, var1, 3);
+    table_insert(&table, element1);
+    insert_field(&c1, var1);
     c1.open = 0;
-    table_insert(&table, element2, 10);
-    insert_method(&c2, func, 11);
-    table_insert(&func.table, element3, 14);
+    table_insert(&table, element2);
+    insert_method(&c2, func);
+    table_insert(&func.table, element3);
 
-    get(table, "Test", 10);
+    get(table, "Test");
 }
 
 // Throws an error because no class hss been declared with given name.
@@ -330,14 +325,14 @@ void test_get_class_error()
     struct function func = function_init("Function", BOOL);
     struct table_element element1 = {.type = CL, .element = &c1}, element2 = {.type = CL, .element = &c2}, element3 = {.type = VAR, .element = &var3};
 
-    table_insert(&table, element1, 0);
-    insert_field(&c1, var1, 3);
+    table_insert(&table, element1);
+    insert_field(&c1, var1);
     c1.open = 0;
-    table_insert(&table, element2, 10);
-    insert_method(&c2, func, 11);
-    table_insert(&func.table, element3, 14);
+    table_insert(&table, element2);
+    insert_method(&c2, func);
+    table_insert(&func.table, element3);
 
-    get_class(table, "Some class", 10);
+    get_class(table, "Some class");
 }
 
 // Tests that a class is a sub-class.
@@ -357,9 +352,9 @@ void test_class_implements_protocols()
     struct class c = class_init("Test class", NULL);
     assert(c.polymorphism_count == 0);
 
-    add_implemented(&c, "protocol1", 1);
-    add_implemented(&c, "protocol2", 1);
-    add_implemented(&c, "protocol3", 1);
+    add_implemented(&c, "protocol1");
+    add_implemented(&c, "protocol2");
+    add_implemented(&c, "protocol3");
     assert(c.polymorphism_count == 3);
     assert(strcmp(c.polymorphism[0], "protocol1") == 0);
     assert(strcmp(c.polymorphism[1], "protocol2") == 0);
@@ -370,7 +365,7 @@ void test_class_implements_protocols()
 void test_class_implements_duplicates()
 {
     struct class c = class_init("Test class", NULL);
-    add_implemented(&c, "protocol1", 1);
-    add_implemented(&c, "protocol2", 1);
-    add_implemented(&c, "protocol1", 1);
+    add_implemented(&c, "protocol1");
+    add_implemented(&c, "protocol2");
+    add_implemented(&c, "protocol1");
 }
