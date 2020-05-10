@@ -15,6 +15,7 @@ static int is_char(const char *buffer, unsigned length);
 static int is_bool(const char *buffer);
 static int is_number(const char *buffer, unsigned length);
 static int is_address(const char *buffer, unsigned length);
+static inline short is_hexa_character(char h);
 
 // External .lud program file.
 extern FILE *prog;
@@ -328,9 +329,28 @@ static int is_address(const char *buffer, unsigned length)
 
 	for (i = 2; i < length; i++)
 	{
-		if (!isdigit(buffer[i]))
+		if (!is_hexa_character(buffer[i]))
 			return 0;
 	}
 
 	return buffer[0] == '0' && (buffer[1] == 'x' || buffer[1] == 'X');
+}
+
+// Checks that character is a hexadecimal character.
+static inline short is_hexa_character(char h)
+{
+    if (isdigit(h))
+        return 1;
+
+    switch (h)
+    {
+        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+            return 1;
+
+        case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+            return 1;
+
+        default:
+            return 0;
+    }
 }
