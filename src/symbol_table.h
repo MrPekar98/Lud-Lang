@@ -86,13 +86,6 @@ unsigned innermost_scope_level(symbol_table table);
 void add_inherited(struct class *c, const char *super_class);
 void add_implemented(struct class *c, const char *protocol);
 
-// Terminates program and prints error.
-void table_error(char *msg)
-{
-    printf("%s\n", msg);
-    exit(1);
-}
-
 // Checks that a name exists in array.
 int element_name_exists(struct table_element *elements, unsigned length, const char *name)
 {
