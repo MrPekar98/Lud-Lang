@@ -23,6 +23,7 @@
 <Members> -> <MethodDecl> <Members>
 		| -> <VarDecl> <Members>
 		| -> <Constructor> <Members>
+		| -> <Destructor> <Members>
 		| -> 'lambda'
 
 <Statements> -> <Statement> <Statements>
@@ -37,13 +38,20 @@
 	     | <ForLoop>
 	     | <Call>
 	     | <SystemCall>
+		 | <ExceptionHandler>
+		 | <Throw>
 	     | break
 	     | continue
+		 | destroy <Var>
 	     | 'lambda'
 
 <SystemCall> -> system(<Literal>)
+
+<ExceptionHandler> -> try { <Statements> } catch { <Statements> } [finally { <Statements> } ]
+
+<Throw> -> throw <Var>
 	     
-<VarDecl> -> [static] [const] <Assignemnt> : <DataType>
+<VarDecl> -> [volatile] [static] [const] <Assignemnt> : <DataType>
 
 <Accessor> -> public
 	    | private
@@ -54,6 +62,8 @@
 	    | bool
 	    | char
 	    | address
+		| thread
+		| <Var>
 		| <ArrayType>
 
 <ArrayType> -> [<ArrayType>]
@@ -138,3 +148,5 @@
 	      | [abstact] [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
 
 <Constructor> -> constructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
+
+<Destructor> -> destructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
