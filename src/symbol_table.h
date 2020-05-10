@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef with_util    // Promise that util.h is included.
+extern void error(const char *msg);
+extern void warning(const char *msg);
+#endif
+
 // Data types and symbol table element types.
 enum datatype {NUM, STRING, VOID, BOOL, ADDRESS, CHAR};
 enum element_type {FUNC, VAR, CL, PROT, SCOPE};
@@ -66,20 +71,20 @@ symbol_table table_init();
 struct class class_init(const char *name, const char *namespace);
 struct variable variable_init(const char *name, enum datatype type, int is_class_instance, const char *class_name);
 struct function function_init(const char *name, enum datatype return_type);
-void add_parameter(struct function *func, struct variable var, unsigned line_number);
-void table_insert(symbol_table *table, struct table_element element, unsigned line_number);
+void add_parameter(struct function *func, struct variable var);
+void table_insert(symbol_table *table, struct table_element element);
 int is_declared(symbol_table table, const char *name);
 int variable_exists(struct variable *variables, unsigned length, const char *name);
 int function_exists(struct function *functions, unsigned length, const char *name);
-void insert_field(struct class *c, struct variable var, unsigned line_number);
-void insert_method(struct class *c, struct function func, unsigned line_number);
-struct table_element get(symbol_table table, const char *name, unsigned line_number);
-struct class get_class(symbol_table table, const char *name, unsigned line_number);
+void insert_field(struct class *c, struct variable var);
+void insert_method(struct class *c, struct function func);
+struct table_element get(symbol_table table, const char *name);
+struct class get_class(symbol_table table, const char *name);
 symbol_table table_scope(symbol_table table, unsigned scope);
 symbol_table class_to_table(struct class c);
 unsigned innermost_scope_level(symbol_table table);
 void add_inherited(struct class *c, const char *super_class);
-void add_implemented(struct class *c, const char *protocol, unsigned line_number);
+void add_implemented(struct class *c, const char *protocol);
 
 // Terminates program and prints error.
 void table_error(char *msg)
@@ -188,7 +193,7 @@ struct function function_init(const char *name, enum datatype return_type)
 }
 
 // Adds parameter to function.
-void add_parameter(struct function *func, struct variable var, unsigned line_number)
+void add_parameter(struct function *func, struct variable var)
 {
     unsigned i;
 
@@ -197,8 +202,8 @@ void add_parameter(struct function *func, struct variable var, unsigned line_num
         if (strcmp(var.name, func->parameters[i].name) == 0)
         {
             char msg[100];
-            sprintf(msg, "Line %d: Parameter '%s' has already been declared.\n", line_number, var.name);
-            table_error(msg);
+            sprintf(msg, "Parameter '%s' has already been declared.\n", var.name);
+            error(msg);
         }
     }
 
@@ -207,13 +212,13 @@ void add_parameter(struct function *func, struct variable var, unsigned line_num
 }
 
 // Inserts element into table in given scope.
-void table_insert(symbol_table *table, struct table_element element, unsigned line_number)
+void table_insert(symbol_table *table, struct table_element element)
 {
     if (element_name_exists(table->elements, table->element_count, getname(element)))
     {
         char msg[100];
-        sprintf(msg, "Line %d: '%s' has already been declared.\n", line_number, getname(element));
-        table_error(msg);
+        sprintf(msg, "'%s' has already been declared.\n", getname(element));
+        error(msg);
     }
 
     table->elements = (struct table_element *) realloc(table->elements, sizeof(struct table_element) * (table->element_count + 1));
@@ -268,13 +273,13 @@ int function_exists(struct function *functions, unsigned length, const char *nam
 }
 
 // Inserts field into class.
-void insert_field(struct class *c, struct variable var, unsigned line_number)
+void insert_field(struct class *c, struct variable var)
 {
     if (variable_exists(c->variables, c->variable_amount, var.name))
     {
         char msg[100];
-        sprintf(msg, "Line %d: Field '%s' was already declared in '%s'\n", line_number, var.name, c->name);
-        table_error(msg);
+        sprintf(msg, "Field '%s' was already declared in '%s'\n", var.name, c->name);
+        error(msg);
     }
 
     c->variables = (struct variable *) realloc(c->variables, sizeof(struct variable) * c->variable_amount + sizeof(struct variable));
@@ -282,13 +287,13 @@ void insert_field(struct class *c, struct variable var, unsigned line_number)
 }
 
 // Inserts method into class.
-void insert_method(struct class *c, struct function func, unsigned line_number)
+void insert_method(struct class *c, struct function func)
 {
     if (function_exists(c->functions, c->function_amount, func.name))
     {
         char msg[100];
-        sprintf(msg, "Line %d: Method '%s' was already declared in '%s'\n", line_number, func.name, c->name);
-        table_error(msg);
+        sprintf(msg, "Method '%s' was already declared in '%s'\n", func.name, c->name);
+        error(msg);
     }
 
     c->functions = (struct function *) realloc(c->functions, sizeof(struct function) * c->function_amount + sizeof(struct function));
@@ -296,13 +301,13 @@ void insert_method(struct class *c, struct function func, unsigned line_number)
 }
 
 // Returns table_element of element.
-struct table_element get(symbol_table table, const char *name, unsigned line_number)
+struct table_element get(symbol_table table, const char *name)
 {
     if (!is_declared(table, name))
     {
         char msg[100];
-        sprintf(msg, "Line %d: '%s' has not been declared.\n", line_number, name);
-        table_error(msg);
+        sprintf(msg, "'%s' has not been declared.\n", name);
+        error(msg);
     }
 
     int level = (int) innermost_scope_level(table);
@@ -324,13 +329,13 @@ struct table_element get(symbol_table table, const char *name, unsigned line_num
 }
 
 // Returns class. Lowest level symbol_table must be given, since class declarations are at second lowest level.
-struct class get_class(symbol_table table, const char *name, unsigned line_number)
+struct class get_class(symbol_table table, const char *name)
 {
     if (!element_name_exists(table.elements, table.element_count, name))
     {
         char msg[50];
-        sprintf(msg, "Line %d: '%s' has not been declared.\n", line_number, name);
-        table_error(msg);
+        sprintf(msg, "'%s' has not been declared.\n", name);
+        error(msg);
     }
 
     unsigned i;
@@ -355,7 +360,7 @@ void add_inherited(struct class *c, const char *super_class)
 }
 
 // Adds implemented protocol to class.
-void add_implemented(struct class *c, const char *protocol, unsigned line_number)
+void add_implemented(struct class *c, const char *protocol)
 {
     unsigned i;
 
@@ -364,8 +369,8 @@ void add_implemented(struct class *c, const char *protocol, unsigned line_number
         if (strcmp(c->polymorphism[i], protocol) == 0)
         {
             char msg[100];
-            sprintf(msg, "Line %d: Class already implements protocol '%s'.\n", line_number, protocol);
-            table_error(msg);
+            sprintf(msg, "Class already implements protocol '%s'.\n", protocol);
+            error(msg);
         }
     }
 
@@ -445,12 +450,12 @@ symbol_table class_to_table(struct class c)
 
     for (i = 0; i < c.variable_amount; i++)
     {
-        table_insert(&table, (struct table_element) {.type = VAR, .element = &c.variables[i]}, 0);
+        table_insert(&table, (struct table_element) {.type = VAR, .element = &c.variables[i]});
     }
 
     for (i = 0; i < c.function_amount; i++)
     {
-        table_insert(&table, (struct table_element) {.type = FUNC, .element = &c.functions[i]}, 0);
+        table_insert(&table, (struct table_element) {.type = FUNC, .element = &c.functions[i]});
     }
 
     return table;
