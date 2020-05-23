@@ -33,6 +33,14 @@ node parse()
     return start;
 }
 
+// TODO: Finish this!
+// Links asts to master. This function must be used when all files have been parsed.
+// The master is the file with the main function.
+node ast_link(node *restrict master, node *subs, unsigned count)
+{
+
+}
+
 // Constructor of node.
 node init_node(enum rule type, size_t data_len)
 {
