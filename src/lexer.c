@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "token.h"
+#include "compiler.h"
 
 // Prototypes.
 static void skip_comment();
