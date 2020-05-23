@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "token.h"
 #include "util.h"
 #include "compiler.h"
 
@@ -13,6 +12,7 @@ static inline void add_child(node *parent, node *child);
 static void make_namespace(node *parent);
 static void make_import(node *parent);
 static void check_path(const char *path);
+static inline short file_exists(const char *file);
 static void make_program(node *parent);
 static void make_protocoldecl(node *parent);
 static void make_classdecl(node *parent);
@@ -43,6 +43,7 @@ node init_node(enum rule type, size_t data_len)
     return n;
 }
 
+// TODO: <Imports> nodes are exchanged with <Start> nodes. Iterate these too!
 // Destructor of AST.
 void dispose_tree(node root)
 {    
@@ -75,7 +76,7 @@ static inline void add_child(node *parent, node *child)
 // Makes node for namespace.
 static void make_namespace(node *parent)
 {
-    lex_t token = read_token();
+    lex_t namespace = read_token();
 
     if (token.token != NAMESPACE_T)
     {
@@ -83,8 +84,10 @@ static void make_namespace(node *parent)
         return;
     }
 
-    lex_t namespace = read_token();
-    check_path(namespace.lexeme);
+    namespace = read_token();
+
+    if (namespace.token != LITERAL_T)
+        error("Expected string literal after namespace keyword.");
 
     node child = init_node(NAMESPACE, strlen(namespace.lexeme));
     strcpy(child.data, namespace.lexeme);
@@ -107,16 +110,16 @@ static void make_import(node *parent)
             error("Following import statement comes string literal.");
 
         node child = init_node(IMPORTS, strlen(token.lexeme));
-        line++;
         check_path(token.lexeme);
         strcpy(child.data, token.lexeme);
         add_child(parent, &child);
+        line++;
     }
 
     reverse_token(token);
 }
 
-// Checks import literal for being valid.
+// Checks import literal for being valid. Checks also if file exists.
 static void check_path(const char *path)
 {
     unsigned i, limit = strlen(path);
@@ -129,6 +132,30 @@ static void check_path(const char *path)
 
     if (path[0] != '\"' || path[limit - 1] != '\"')
         error("Import path must be a string literal.");
+
+    char *file = (char *) malloc(strlen(path) - 2);
+    strncpy(file, path + 1, strlen(path) - 2);
+    
+    if (!file_exists(file))
+    {
+        char msg[50];
+        sprintf(msg, "File '%s' does not exist.\n", file);
+        free(file);
+        error(msg);
+    }
+
+    free(file);
+}
+
+// Checks that file exists.
+static inline short file_exists(const char *file)
+{
+    FILE *f = fopen(file, "r");
+    
+    if (f != NULL)
+        fclose(f);
+    
+    return f != NULL;
 }
 
 // Makes node for PROGRAM.
