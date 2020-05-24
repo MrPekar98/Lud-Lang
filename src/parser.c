@@ -12,6 +12,7 @@ static inline void add_child(node *parent, node *child);
 static void make_namespace(node *parent);
 static void make_import(node *parent);
 static void check_path(const char *path);
+static inline char *replace_char(const char *str, char which, char new);
 static inline short file_exists(const char *file);
 static void make_program(node *parent);
 static void make_protocoldecl(node *parent);
@@ -134,15 +135,15 @@ static void check_path(const char *path)
 
     for (i = 1; i < limit - 1; i++)
     {
-        if ((path[i] < '0' || (path[i] > '9' && path[i] < 'A') || (path[i] > 'Z' && path[i] < 'a') || path[i] > 'z') && path[i] != '.')
+        if ((path[i] < '0' || (path[i] > '9' && path[i] < 'A') || (path[i] > 'Z' && path[i] < 'a') || path[i] > 'z') && path[i] != '.' && path[i] != '_')
             error("Import path may only contain letters, numbers, and dots.");
     }
 
     if (path[0] != '\"' || path[limit - 1] != '\"')
         error("Import path must be a string literal.");
 
-    char *file = (char *) malloc(strlen(path) - 2);
-    strncpy(file, path + 1, strlen(path) - 2);
+    /*char *file = (char *) malloc(strlen(path) - 2);
+    strncpy(file, replace_char(path, '.', '/') + 1, strlen(path) - 2);
     
     if (!file_exists(file))
     {
@@ -152,7 +153,23 @@ static void check_path(const char *path)
         error(msg);
     }
 
-    free(file);
+    free(file);*/
+}
+
+// Replaces char in string with new char.
+static inline char *replace_char(const char *str, char which, char new)
+{
+    unsigned i, length = strlen(str);
+    char *new_str = (char *) malloc(strlen(str));
+    strcpy(new_str, str);
+
+    for (i = 0; i < length; i++)
+    {
+        if (str[i] == which)
+            new_str[i] = new;
+    }
+
+    return new_str;
 }
 
 // Checks that file exists.
