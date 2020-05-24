@@ -88,7 +88,7 @@ static void make_namespace(node *parent)
 
     if (namespace.token != NAMESPACE_T)
     {
-        reverse_token(token);
+        reverse_token(namespace);
         return;
     }
 
