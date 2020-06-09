@@ -17,14 +17,13 @@
 
 <ClassDecl> -> class 'identifier' [inherits <Var>] [implements <Var> {, <Var>}] { <ClassProtAccessors> }
 
-<ClassProtAccessors> -> <Accessor> { <Members> } <ClassProtAccessors>
+<ClassProtAccessors> -> <Accessor> <Members> <ClassProtAccessors>
 			| -> 'lambda'
 
-<Members> -> <MethodDecl> <Members>
-		| -> <VarDecl> <Members>
-		| -> <Constructor> <Members>
-		| -> <Destructor> <Members>
-		| -> 'lambda'
+<Members> -> <MethodDecl>
+		| -> <VarDecl>
+		| -> <Constructor>
+		| -> <Destructor>
 
 <Statements> -> <Statement> <Statements>
 	      | 'lambda'
@@ -63,7 +62,6 @@
 	    | char
 	    | address
 		| thread
-		| <Var>
 		| <ArrayType>
 
 <ArrayType> -> [<ArrayType>]
@@ -74,6 +72,7 @@
 	   | 'boolean'
 	   | 'char'
 	   | 'address'
+	   | <ArrayLiteral>
 
 <Assignment> -> <Reference>
 	      | <Reference> = <Expression>
@@ -117,19 +116,16 @@
 
 <ArithPow> -> <ArithParan>^^<ArithExpression>
 
-<ArithParan> -> (<ArithExpression>)
+<ArithParan> -> (<Expression>)
 	      | <Literal>
 	      | this.<Reference>
 	      | super.<Reference>
 	      | <Reference>
-	      | <ArrayLiteral>
 
 <ArrayLiteral> -> '{'[<Expression> {, <Expression>}]'}'
 
-<Reference> -> <Var>.<Reference>
-	     | <Var>([<Expression> {, <Expression>}]).<Reference>
-	     | <Var>
-	     | <Var>([<Expression> {, <Expression>}])
+<Reference> -> <Var>[.<Reference>]
+	     | <Var>([<Expression> {, <Expression>}])[.<Reference>]
 
 <IfStatement> -> if (<BoolExpression>) { <Statements> } <Else>
 
@@ -144,8 +140,8 @@
 <ForLoop> -> for (<Var> = <Expression>; <BoolExpression>; <Expression>) { <Statements> }
 	   | for (<Var> = <Expression> : <DataType>; <BoolExpression>; <Expression>) { <Statements> }
 
-<MethodDecl> -> [abstract] [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : void { <Statements> }
-	      | [abstact] [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
+<MethodDecl> -> [abstract] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : void { <Statements> }
+	      | [abstact] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
 
 <Constructor> -> constructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
 
