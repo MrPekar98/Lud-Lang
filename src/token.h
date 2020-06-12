@@ -31,7 +31,6 @@ typedef struct
     void **children;
     unsigned children_count;
     char *data;
-    char *modification;     // Might not be necessary.
 } node;
 
 // Constructor of node.
