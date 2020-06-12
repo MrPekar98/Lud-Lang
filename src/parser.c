@@ -46,9 +46,8 @@ node ast_link(node *restrict master, node *subs, unsigned count)
 // Constructor of node.
 node init_node(enum rule type, size_t data_len)
 {
-    node n = {.type = type, .children_count = 0, .data = (char *) malloc(data_len), .modification = (char *) malloc(data_len)};
+    node n = {.type = type, .children_count = 0, .data = (char *) malloc(data_len)};
     strcpy(n.data, "");
-    strcpy(n.modification, "");
 
     return n;
 }
@@ -66,7 +65,6 @@ void dispose_tree(node root)
     }
 
     free(root.data);
-    free(root.modification);
     free(root.children);
 }
 
@@ -105,7 +103,6 @@ static void make_namespace(node *parent)
     line += 2;
 }
 
-// TODO: Start immediately parsing import files.
 // Makes node for IMPORT.
 static void make_import(node *parent)
 {
@@ -119,8 +116,9 @@ static void make_import(node *parent)
         if ((token = read_token()).token != LITERAL_T)
             error("Following import statement comes string literal.");
 
-        node child = init_node(IMPORTS, strlen(token.lexeme));
         check_path(token.lexeme);
+
+        node child = init_node(IMPORTS, strlen(token.lexeme));
         strcpy(child.data, token.lexeme);
         add_child(parent, &child);
         line++;
