@@ -34,8 +34,9 @@ node parse()
     return start;
 }
 
-// TODO: Finish this!
-// Links asts to master. This function must be used when all files have been parsed.
+// TODO: Exchange the <Imports> nodes in master with <Start> nodes from subs.
+// Links ASTs to master. This function must be used when all files have been parsed.
+// The master AST is the last child, namely <Program>.
 // The master is the file with the main function.
 node ast_link(node *restrict master, node *subs, unsigned count)
 {
