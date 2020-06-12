@@ -30,7 +30,6 @@ node parse()
     make_namespace(&start);
     make_import(&start);
     make_program(&start);
-    printf("Here.\n");
 
     return start;
 }
