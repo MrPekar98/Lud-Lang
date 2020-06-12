@@ -141,6 +141,7 @@ static void check_path(const char *path)
     if (path[0] != '\"' || path[limit - 1] != '\"')
         error("Import path must be a string literal.");
 
+    // TODO: Check file exists.
     /*char *file = (char *) malloc(strlen(path) - 2);
     strncpy(file, replace_char(path, '.', '/') + 1, strlen(path) - 2);
     
