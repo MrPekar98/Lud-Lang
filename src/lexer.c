@@ -109,7 +109,7 @@ static int is_single_character_token(char c)
 // Determines token recognised.
 static int recognise(const char *buffer, unsigned length)
 {
-    if (is_string(buffer, length) || is_char(buffer, length) || is_bool(buffer) || is_number(buffer, length) || is_address(buffer, length))
+    if (is_string(buffer, length) || is_char(buffer, length) || is_bool(buffer) || is_number(buffer, length) || is_address(buffer, length) || strcmp(buffer, "null") == 0)
         return LITERAL_T;
 
     else if (length == 1)
