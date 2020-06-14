@@ -17,7 +17,7 @@ static inline short file_exists(const char *file);
 static void make_program(node *parent);
 static void make_protocoldecl(node *parent);
 static void make_classdecl(node *parent);
-static void make_statements(node *parent);
+static void make_classprotaccessors(node *parent);
 
 // TODO: When parsing classes and protocols, write the signature into the data field of the node.
 
@@ -204,7 +204,7 @@ static void make_program(node *parent)
         else if (token.token == PROTOCOL_T)
             make_protocoldecl(&child);
 
-        token = read_token();
+        token = read_token();   // Crashes here due to EOF.
     }
 
     line += 2;
@@ -246,7 +246,7 @@ static void make_protocoldecl(node *parent)
         error("Expected left curly brace of protocol body.");
 
     line++;
-    make_statements(&child);
+    make_classprotaccessors(&child);
 
     if (read_token().token != RBRACE_T)
         error("Expected right curly brace of protocol body.");
@@ -256,13 +256,66 @@ static void make_protocoldecl(node *parent)
 }
 
 // Makes node for CLASSDECL.
+// Data is on form: x->y:i,j,k, where x is id of class, y is id of inherited class, and i, j, and k are protocols.
 static void make_classdecl(node *parent)
 {
+    node child = init_node(CLASSDECL, 200);
+    lex_t token = read_token();
 
+    if (token.token != CLASS_T)
+        error("Expected keyword 'class' here.");
+
+    if ((token = read_token()).token != ID_T)
+        error("Expected identifier after 'prototcol'.");
+    
+    strcpy(child.data, token.lexeme);
+
+    if ((token = read_token()).token == INHERITS)
+    {
+        if ((token = read_token()).token != ID_T)
+            error("Expected class inheritance identifier.");
+
+        sprintf(child.data, "%s->%s", child.data, token.lexeme);
+    }
+
+    else
+        reverse_token(token);
+
+    if ((token = read_token()).token == IMPLEMENTS)
+    {
+        if ((token = read_token()).token != ID_T)
+            error("Expected class polymorphism identifier.");
+
+        sprintf(child.data, "%s:%s", child.data, token.lexeme);
+
+        while ((token = read_token()).token == COMMA_T)
+        {
+            if ((token = read_token()).token != ID_T)
+                error("Expected class polymorphism identifier.");
+
+            sprintf(child.data, "%s,%s", child.data, token.lexeme);
+        }
+
+        reverse_token(token);
+    }
+
+    line++;
+
+    if ((token = read_token()).token != LBRACE_T)
+        error("Expected left curly brace of class body.");
+    
+    line++;
+    make_classprotaccessors(&child);
+
+    if (read_token().token != RBRACE_T)
+        error("Expected right curly brace of class body.");
+
+    line += 2;
+    add_child(parent, child);
 }
 
 // Makes node for STATEMENTS.
-static void make_statements(node *parent)
+static void make_classprotaccessors(node *parent)
 {
 
 }
