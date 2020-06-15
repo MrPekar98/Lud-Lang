@@ -18,6 +18,7 @@ static void make_program(node *parent);
 static void make_protocoldecl(node *parent);
 static void make_classdecl(node *parent);
 static void make_classprotaccessors(node *parent);
+static void make_members(node *parent);
 
 // TODO: When parsing classes and protocols, write the signature into the data field of the node.
 
@@ -314,8 +315,23 @@ static void make_classdecl(node *parent)
     add_child(parent, child);
 }
 
-// Makes node for STATEMENTS.
+// Makes node for CLASSPROTACCESSORS.
 static void make_classprotaccessors(node *parent)
+{
+    node child = init_node(CLASSPROTSTATEMENTS, 0);
+    lex_t token;
+
+    while ((token = read_token()).token == ACCESSOR_T)
+    {
+        make_members(&child);
+    }
+
+    reverse_token(token);
+    add_child(parent, child);
+}
+
+// Makes node for MEMBERS.
+static void make_members(node *parent)
 {
 
 }
