@@ -226,6 +226,9 @@ static int recognise(const char *buffer, unsigned length)
     else if (strcmp("constructor", buffer) == 0)
         return CONSTRUCTOR_T;
 
+    else if (strcmp("destructor", buffer) == 0)
+        return DESTRUCTOR_T;
+
     else if (strcmp("return", buffer) == 0)
         return RETURN_T;
 
