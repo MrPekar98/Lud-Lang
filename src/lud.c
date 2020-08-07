@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include "token.h"
 #include "compiler.h"
 
@@ -16,6 +17,8 @@ void print_ast(node n);
 // Main function.
 int main(int argc, char **argv)
 {
+    clock_t start = clock();
+    
     if (argc <= 1)
     {
         printf("Missing input file.\n");
@@ -30,10 +33,9 @@ int main(int argc, char **argv)
 
 #elif defined(DEBUG2)
     print_ast(parse());
-
-    // Otherwise, compile.
-#else
+#else   // Otherwise, compile.
     gen_target();
+    printf("Compiled in %.3f seconds.\n", (double) (clock() - start) / CLOCKS_PER_SEC);
 #endif
 
     fclose(prog);
