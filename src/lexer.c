@@ -190,6 +190,9 @@ static int recognise(const char *buffer, unsigned length)
     else if (strcmp("const", buffer) == 0)
         return CONST_T;
 
+    else if (strcmp("volatile", buffer) == 0)
+        return VOLATILE_T;
+
     else if (strcmp("this", buffer) == 0)
         return THIS_T;
 
