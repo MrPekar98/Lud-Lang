@@ -166,9 +166,6 @@ static int recognise(const char *buffer, unsigned length)
         }
     }
 
-    else if (strcmp("method", buffer) == 0)
-        return METHOD_T;
-
     else if (strcmp("import", buffer) == 0)
         return IMPORT_T;
 
