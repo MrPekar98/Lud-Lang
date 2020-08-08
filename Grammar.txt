@@ -141,8 +141,8 @@
 <ForLoop> -> for (<Var> = <Expression>; <BoolExpression>; <Expression>) { <Statements> }
 	   | for (<Var> = <Expression> : <DataType>; <BoolExpression>; <Expression>) { <Statements> }
 
-<MethodDecl> -> [abstract] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : void { <Statements> }
-	      | [abstact] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
+<MethodDecl> -> [abstract] [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : void { <Statements> }
+	      | [abstact] [static] <Var>([<Var> : <DataType> {, <Var> : <DataType>}]) : <DataType> { <Statements> return <Expression> }
 
 <Constructor> -> constructor([<Var> : <DataType> {, <Var> : <DataType>}]) { <Statements> }
 
