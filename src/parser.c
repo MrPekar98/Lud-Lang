@@ -19,6 +19,10 @@ static void make_protocoldecl(node *parent);
 static void make_classdecl(node *parent);
 static void make_classprotaccessors(node *parent);
 static void make_members(node *parent);
+static void make_constructor(node *parent);
+static void make_destructor(node *parent);
+static void make_methoddecl(node *parent);
+static void make_vardecl(node *parent);
 
 // TODO: When parsing classes and protocols, write the signature into the data field of the node.
 
@@ -324,6 +328,7 @@ static void make_classprotaccessors(node *parent)
     while ((token = read_token()).token == ACCESSOR_T)
     {
         make_members(&child);
+        line++;
     }
 
     reverse_token(token);
@@ -332,6 +337,62 @@ static void make_classprotaccessors(node *parent)
 
 // Makes node for MEMBERS.
 static void make_members(node *parent)
+{
+    lex_t token = read_token();
+    node child = init_node(MEMBERS, 0);
+
+    switch (token.token)
+    {
+        case CONSTRUCTOR_T:
+            reverse_token(token);
+            make_constructor(&child);
+            break;
+
+        case DESTRUCTOR_T:
+        reverse_token(token);
+            make_destructor(&child);
+            break;
+
+        case ABSTRACT_T:
+            reverse_token(token);
+            make_methoddecl(&child);
+            break;
+
+        case CONST_T: case VOLATILE_T:
+            reverse_token(token);
+            make_vardecl(&child);
+            break;
+
+        default:
+            // TODO: Parse method and variable declarations.
+            // Make a boolean function to check if now comes a variable declaration. Do the same for function declarations.
+            // This is because, apart from the abstract, const, and volatile keywords, variable and function declarations can only be recognized by the following paranthesis following function id.
+            error("Expected variable declaration, method declaration, constructor or destructor.");
+    }
+
+    add_child(parent, child);
+}
+
+// Makes node for CONSTRUCTOR.
+static void make_constructor(node *parent)
+{
+
+}
+
+// Makes node for DESTRUCTOR.
+static void make_destructor(node *parent)
+{
+
+}
+
+// Makes node for METHODDECL.
+static void make_methoddecl(node *parent)
+{
+
+}
+
+// Makes node for VARDECL.
+static void make_vardecl(node *parent)
 {
 
 }
