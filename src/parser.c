@@ -8,7 +8,7 @@
 extern unsigned long line;
 
 // Prototypes.
-static inline void add_child(node *parent, node child);
+static inline void add_child(node *parent, node *child);
 static void make_namespace(node *parent);
 static void make_import(node *parent);
 static void check_path(const char *path);
@@ -51,10 +51,7 @@ node ast_link(node *restrict master, node *subs, unsigned count)
 // Constructor of node.
 node init_node(enum rule type, size_t data_len)
 {
-    node n = {.type = type, .children_count = 0, .data = (char *) malloc(data_len)};
-    strcpy(n.data, "");
-
-    return n;
+    return (node) {.type = type, .children_count = 0, .data = (char *) malloc(data_len)};
 }
 
 // TODO: <Imports> nodes are exchanged with <Start> nodes. Iterate these too!
@@ -73,18 +70,18 @@ void dispose_tree(node root)
     free(root.children);
 }
 
-// TODO: Try to not use pointer for child.
+// TODO: node should be a pointer.
 // Adds child to parent.
-static inline void add_child(node *parent, node child)
+static inline void add_child(node *parent, node *child)
 {
     if (parent->children_count == 0)
-        parent->children = (void **) malloc(sizeof(void *));
+        parent->children = (void **) malloc(sizeof(node));
 
     else
-        parent->children = (void **) realloc(parent->children, sizeof(void *) * (parent->children_count + 1));
-    
+        parent->children = (void **) realloc(parent->children, sizeof(node) * (parent->children_count + 1));
+
     parent->children[parent->children_count] = malloc(sizeof(node));
-    memcpy(parent->children[parent->children_count++], &child, sizeof(node));
+    memcpy(parent->children[parent->children_count++], child, sizeof(node));
 }
 
 // Makes node for namespace.
@@ -105,7 +102,7 @@ static void make_namespace(node *parent)
 
     node child = init_node(NAMESPACE, strlen(namespace.lexeme));
     strcpy(child.data, namespace.lexeme);
-    add_child(parent, child);
+    add_child(parent, &child);
     line += 2;
 }
 
@@ -126,7 +123,7 @@ static void make_import(node *parent)
 
         node child = init_node(IMPORTS, strlen(token.lexeme));
         strcpy(child.data, token.lexeme);
-        add_child(parent, child);
+        add_child(parent, &child);
         line++;
     }
 
@@ -213,7 +210,7 @@ static void make_program(node *parent)
     }
 
     line += 2;
-    add_child(parent, child);
+    add_child(parent, &child);
 
     if (!token.error)
         warning("File should end here. Everything past this point will be ignored.");
@@ -257,7 +254,7 @@ static void make_protocoldecl(node *parent)
         error("Expected right curly brace of protocol body.");
 
     line += 2;
-    add_child(parent, child);
+    add_child(parent, &child);
 }
 
 // Makes node for CLASSDECL.
@@ -316,7 +313,7 @@ static void make_classdecl(node *parent)
         error("Expected right curly brace of class body.");
 
     line += 2;
-    add_child(parent, child);
+    add_child(parent, &child);
 }
 
 // Makes node for CLASSPROTACCESSORS.
@@ -332,7 +329,7 @@ static void make_classprotaccessors(node *parent)
     }
 
     reverse_token(token);
-    add_child(parent, child);
+    add_child(parent, &child);
 }
 
 // Makes node for MEMBERS.
@@ -370,7 +367,7 @@ static void make_members(node *parent)
             error("Expected variable declaration, method declaration, constructor or destructor.");
     }
 
-    add_child(parent, child);
+    add_child(parent, &child);
 }
 
 // Makes node for CONSTRUCTOR.
