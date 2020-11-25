@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     prog = fopen(argv[1], "r");
 
     // Testing.
-#ifdef DEBUG1)
+#ifdef DEBUG1
     print_tokens();
 
 #elif defined(DEBUG2)
