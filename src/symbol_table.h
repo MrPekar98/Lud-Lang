@@ -1,11 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#ifdef with_util    // Promise that util.h is included.
-extern void error(const char *msg);
-extern void warning(const char *msg);
-#endif
+#include "util.h"
 
 // Data types and symbol table element types.
 enum datatype {NUM, STRING, VOID, BOOL, ADDRESS, CHAR};
