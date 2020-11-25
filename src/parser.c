@@ -22,9 +22,11 @@ static void make_members(node *parent);
 static void make_constructor(node *parent);
 static void make_destructor(node *parent);
 static void make_methoddecl(node *parent);
+static void parse_parameters(node *method);
 static void make_vardecl(node *parent);
-
-// TODO: When parsing classes and protocols, write the signature into the data field of the node.
+static void make_var(node *parent);
+static void make_datatype(node *parent);
+static void make_statements(node *parent);
 
 // Main parsing function.
 node parse()
@@ -206,7 +208,7 @@ static void make_program(node *parent)
         else if (token.token == PROTOCOL_T)
             make_protocoldecl(&child);
 
-        token = read_token();   // Crashes here due to EOF.
+        token = read_token();
     }
 
     line += 2;
@@ -373,7 +375,71 @@ static void make_members(node *parent)
 // Makes node for CONSTRUCTOR.
 static void make_constructor(node *parent)
 {
+    node child = init_node(CONSTRUCTOR, 0);
+    lex_t token;
 
+    if (read_token().token != CONSTRUCTOR_T)
+        error("Expected 'constructor'.");
+
+    else if (read_token().token != LPARAN_T)
+        error("Expected left parenthesis following 'constructor' keyword.");
+
+    parse_parameters(&child);
+
+    if (read_token().token != RPARAN_T)
+    {
+        error("Expected right parenthesis as end of constructor parameter list.");
+    }
+
+    line++;
+
+    if (read_token().token != LBRACE_T)
+        error("Expected left curly brace for constructor body.");
+
+    line++;
+    make_statements(&child);
+    line++;
+
+    if (read_token().token != RBRACE_T)
+        error("Expected right curly brace for contructor body.");
+
+    line++;
+    add_child(parent, &child);
+}
+
+// Parses parameters in constructor, destructor, and methods.
+static void parse_parameters(node *method)
+{
+    lex_t token;
+
+    if ((token = read_token()).token == ID_T)
+    {
+        reverse_token(token);
+        make_var(method);
+
+        if (read_token().token != COLON_T)
+            error("Expected ':' to annotate datatype to parameter.");
+
+        make_datatype(method);
+    }
+
+    else
+    {
+        reverse_token(token);
+        return;
+    }
+
+    while ((token = read_token()).token == COMMA_T)
+    {
+        make_var(method);
+
+        if (read_token().token != COLON_T)
+            error("Expected ':' to annotate datatype to parameter.");
+
+        make_datatype(method);
+    }
+
+    reverse_token(token);
 }
 
 // Makes node for DESTRUCTOR.
@@ -388,8 +454,41 @@ static void make_methoddecl(node *parent)
 
 }
 
+// TODO: Maybe add identifier and datatype in data field.
 // Makes node for VARDECL.
 static void make_vardecl(node *parent)
+{
+
+}
+
+// Makes node for VARIABLE.
+static void make_var(node *parent)
+{
+    lex_t token = read_token();
+    node child = init_node(VARABLE, strlen(token.lexeme));
+
+    if (token.token != ID_T)
+        error("Expected variable identifier.");
+
+    strcpy(child.data, token.lexeme);
+    add_child(parent, &child);
+}
+
+// Makes node for DATATYPES.
+static void make_datatype(node *parent)
+{
+    lex_t token = read_token();
+    node child = init_node(DATATYPES, strlen(token.lexeme));
+
+    if (token.token != DATATYPE_T)
+        error("Expected datatype.");
+    
+    strcpy(child.data, token.lexeme);
+    add_child(parent, &child);
+}
+
+// Makes node for STATEMENTS.
+static void make_statements(node *parent)
 {
 
 }
