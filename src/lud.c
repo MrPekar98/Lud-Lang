@@ -2,6 +2,7 @@
 #include <time.h>
 #include "token.h"
 #include "compiler.h"
+#include "config.h"
 
 // Line number of compilation.
 unsigned long line = 1;
@@ -28,7 +29,7 @@ int main(int argc, char **argv)
     prog = fopen(argv[1], "r");
 
     // Testing.
-#if defined (DEBUG1)
+#ifdef DEBUG1)
     print_tokens();
 
 #elif defined(DEBUG2)
