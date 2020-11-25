@@ -2,5 +2,18 @@ import "some.import"
 
 protocol test inherits SomeProtocol
 {
-    num age = 10;
+    public constructor(var1 : string, var2 : bool, var3 : num )
+    {
+
+    }
+
+    public constructor(test_var : string )
+    {
+
+    }
+
+    public constructor( )
+    {
+
+    }
 }
