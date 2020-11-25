@@ -16,4 +16,19 @@ protocol test inherits SomeProtocol
     {
 
     }
+
+    public destructor(var1 : string, var2 : bool, var3 : num )
+    {
+
+    }
+
+    public destructor(test_var : string )
+    {
+
+    }
+
+    public destructor( )
+    {
+
+    }
 }
