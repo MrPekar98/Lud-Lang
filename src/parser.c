@@ -445,7 +445,36 @@ static void parse_parameters(node *method)
 // Makes node for DESTRUCTOR.
 static void make_destructor(node *parent)
 {
+    node child = init_node(DESTRUCTOR, 0);
+    lex_t token;
 
+    if (read_token().token != DESTRUCTOR_T)
+        error("Expected 'destructor'.");
+
+    else if (read_token().token != LPARAN_T)
+        error("Expected left parenthesis following 'destructor' keyword.");
+
+    parse_parameters(&child);
+
+    if (read_token().token != RPARAN_T)
+    {
+        error("Expected right parenthesis as end of destructor parameter list.");
+    }
+
+    line++;
+
+    if (read_token().token != LBRACE_T)
+        error("Expected left curly brace for destructor body.");
+
+    line++;
+    make_statements(&child);
+    line++;
+
+    if (read_token().token != RBRACE_T)
+        error("Expected right curly brace for destructor body.");
+
+    line++;
+    add_child(parent, &child);
 }
 
 // Makes node for METHODDECL.
