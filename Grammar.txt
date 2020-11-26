@@ -50,7 +50,7 @@
 
 <Throw> -> throw <Var>
 	     
-<VarDecl> -> [volatile] [static] [const] <Assignemnt> : <DataType>
+<VarDecl> -> [static] [volatile] [const] <Assignemnt> : <DataType>
 
 <Accessor> -> public
 	    | private
