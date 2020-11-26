@@ -27,6 +27,7 @@ static void make_vardecl(node *parent);
 static void make_var(node *parent);
 static void make_datatype(node *parent);
 static void make_statements(node *parent);
+static void make_expression(node *parent);
 
 // Main parsing function.
 node parse()
@@ -362,11 +363,13 @@ static void make_members(node *parent)
             make_vardecl(&child);
             break;
 
+        // TODO: Figure out whether we reached a <VarDecl> or <MethodDecl>.
+        case STATIC_T:
+            reverse_token(token);
+            break;
+
         default:
-            // TODO: Parse method and variable declarations.
-            // Make a boolean function to check if now comes a variable declaration. Do the same for function declarations.
-            // This is because, apart from the abstract, const, and volatile keywords, variable and function declarations can only be recognized by the following paranthesis following function id.
-            error("Expected variable declaration, method declaration, constructor or destructor.");
+            error("Expected variable, method, constructor or destructor declaration.");
     }
 
     add_child(parent, &child);
@@ -478,9 +481,77 @@ static void make_destructor(node *parent)
 }
 
 // Makes node for METHODDECL.
+// Data field contains modifiers on the form 'x,y'.
 static void make_methoddecl(node *parent)
 {
+    lex_t token = read_token();
+    node child = init_node(METHODDECL, 200);
+    short is_void = 0;
 
+    if (token.token == ABSTRACT_T)
+    {
+        strcpy(child.data, token.lexeme);
+        token = read_token();
+    }
+
+    if (token.token == STATIC_T)
+    {
+        sprintf(child.data, "%s,%s", child.data, token.lexeme);
+        token = read_token();
+    }
+
+    if (token.token != ID_T)
+        error("Expected method identifier.");
+
+    reverse_token(token);
+    make_var(&child);
+
+    if (read_token().token != LPARAN_T)
+        error("Expected left parenthesis following method identifier.");
+
+    parse_parameters(&child);
+
+    if (read_token().token != RPARAN_T)
+        error("Expected right parenthesis following method parameter list.");
+
+    else if (read_token().token != COLON_T)
+        error("Expected colon following method parameter list.");
+
+    if ((token = read_token()).token == DATATYPE_T && strcmp(token.lexeme, "void") == 0)
+    {
+        node datatype = init_node(DATATYPES, strlen(token.lexeme));
+        strcpy(datatype.data, token.lexeme);
+        add_child(&child, &datatype);
+        is_void = 1;
+    }
+
+    else if (token.token != DATATYPE_T)
+        error("Expected datatype following ':' for method.");
+
+    reverse_token(token);
+    make_datatype(&child);
+    line++;
+
+    if (read_token().token != LBRACE_T)
+        error("Expected left curly brace for method body.");
+
+    line++;
+    make_statements(&child);
+    line++;
+
+    if (!is_void)
+    {
+        if (read_token().token != RETURN_T)
+            error("Expected return statement.");
+
+        make_expression(&child);
+    }
+
+    if (read_token().token != RBRACE_T)
+        error("Expected right curly brace for method body.");
+
+    add_child(parent, &child);
+    line += 2;
 }
 
 // TODO: Maybe add identifier and datatype in data field.
@@ -490,6 +561,7 @@ static void make_vardecl(node *parent)
 
 }
 
+// TODO: Error when indexing array.
 // Makes node for VARIABLE.
 static void make_var(node *parent)
 {
@@ -518,6 +590,13 @@ static void make_datatype(node *parent)
 
 // Makes node for STATEMENTS.
 static void make_statements(node *parent)
+{
+
+}
+
+// TODO: Must make children for every rule (because of type checker). This can be optimized in a latter stage.
+// Makes node for EXPRESSION.
+static void make_expression(node *parent)
 {
 
 }
