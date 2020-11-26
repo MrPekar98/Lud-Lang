@@ -31,4 +31,14 @@ protocol test inherits SomeProtocol
     {
 
     }
+
+    public abstract someMethod(var1 : string ) : void
+    {
+
+    }
+
+    public abstract someOtherMethod( ) : num
+    {
+        return #10#
+    }
 }
