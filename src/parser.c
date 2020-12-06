@@ -8,7 +8,7 @@
 extern unsigned long line;
 
 // Prototypes.
-static inline void add_child(node *parent, node *child);
+static inline void add_child(node *parent, const node *child);
 static void make_namespace(node *parent);
 static void make_import(node *parent);
 static void check_path(const char *path);
@@ -75,7 +75,7 @@ void dispose_tree(node root)
 
 // TODO: node should be a pointer.
 // Adds child to parent.
-static inline void add_child(node *parent, node *child)
+static inline void add_child(node *parent, const node *child)
 {
     if (parent->children_count == 0)
         parent->children = (void **) malloc(sizeof(node));
