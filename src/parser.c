@@ -8,6 +8,7 @@
 extern unsigned long line;
 
 // Prototypes.
+static inline void parse_check(lex_t read, enum token_t token, const char *msg, enum error_t err_war);
 static inline void add_child(node *parent, const node *child);
 static void make_namespace(node *parent);
 static void make_import(node *parent);
@@ -40,6 +41,19 @@ node parse()
     make_program(&start);
 
     return start;
+}
+
+// Check function for lexed token matching argument token.
+static inline void parse_check(lex_t read, enum token_t token, const char *msg, enum error_t err_war)
+{
+    if (read.token != token)
+    {
+        if (err_war == ERROR)
+            error(msg);
+
+        else
+            warning(msg);
+    }
 }
 
 // TODO: Exchange the <Imports> nodes in master with <Start> nodes from subs.
@@ -99,9 +113,7 @@ static void make_namespace(node *parent)
     }
 
     namespace = read_token();
-
-    if (namespace.token != LITERAL_T)
-        error("Expected string literal after namespace keyword.");
+    parse_check(namespace, LITERAL_T, "Expected string literal after namespace keyword.", ERROR);
 
     node child = init_node(NAMESPACE, strlen(namespace.lexeme));
     strcpy(child.data, namespace.lexeme);
@@ -119,9 +131,7 @@ static void make_import(node *parent)
         if (token.error)
             error("Unrecognized token.");
 
-        if ((token = read_token()).token != LITERAL_T)
-            error("Following import statement comes string literal.");
-
+        parse_check(token = read_token(), LITERAL_T, "Following import statement comes string literal.", ERROR);
         check_path(token.lexeme);
 
         node child = init_node(IMPORTS, strlen(token.lexeme));
@@ -226,19 +236,13 @@ static void make_protocoldecl(node *parent)
     node child = init_node(PROTOCOLDECL, 200);
     lex_t token = read_token();
 
-    if (token.token != PROTOCOL_T)
-        error("Expected keyword 'protocol' here.");
-
-    if ((token = read_token()).token != ID_T)
-        error("Expected identifier after 'prototcol'.");
-
+    parse_check(token, PROTOCOL_T, "Expected keyword 'protocol' here.", ERROR);
+    parse_check(token = read_token(), ID_T, "Expected identifier after 'prototcol'.", ERROR);
     strcpy(child.data, token.lexeme);
 
     if ((token = read_token()).token == INHERITS)
     {
-        if ((token = read_token()).token != ID_T)
-            error("Expected protocol inheritance identifier.");
-
+        parse_check(token = read_token(), ID_T, "Expected protocol inheritance identifier.", ERROR);
         sprintf(child.data, "%s->%s", child.data, token.lexeme);
     }
 
@@ -246,15 +250,11 @@ static void make_protocoldecl(node *parent)
         reverse_token(token);
 
     line++;
-
-    if ((token = read_token()).token != LBRACE_T)
-        error("Expected left curly brace of protocol body.");
-
+    parse_check(token = read_token(), LBRACE_T, "Expected left curly brace of protocol body.", ERROR);
     line++;
-    make_classprotaccessors(&child);
 
-    if (read_token().token != RBRACE_T)
-        error("Expected right curly brace of protocol body.");
+    make_classprotaccessors(&child);
+    parse_check(read_token(), RBRACE_T, "Expected right curly brace of protocol body.", ERROR);
 
     line += 2;
     add_child(parent, &child);
@@ -267,37 +267,24 @@ static void make_classdecl(node *parent)
     node child = init_node(CLASSDECL, 200);
     lex_t token = read_token();
 
-    if (token.token != CLASS_T)
-        error("Expected keyword 'class' here.");
-
-    if ((token = read_token()).token != ID_T)
-        error("Expected identifier after 'prototcol'.");
-    
+    parse_check(token, CLASS_T, "Expected keyword 'class' here.", ERROR);
+    parse_check(token = read_token(), ID_T, "Expected identifier after 'class'.", ERROR);
     strcpy(child.data, token.lexeme);
 
     if ((token = read_token()).token == INHERITS)
     {
-        if ((token = read_token()).token != ID_T)
-            error("Expected class inheritance identifier.");
-
+        parse_check(token = read_token(), ID_T, "Expected class inheritance identifier.", ERROR);
         sprintf(child.data, "%s->%s", child.data, token.lexeme);
     }
 
-    else
-        reverse_token(token);
-
-    if ((token = read_token()).token == IMPLEMENTS)
+    if (token.token == IMPLEMENTS)
     {
-        if ((token = read_token()).token != ID_T)
-            error("Expected class polymorphism identifier.");
-
+        parse_check(token = read_token(), ID_T, "Expected class polymorphism identifier.", ERROR);
         sprintf(child.data, "%s:%s", child.data, token.lexeme);
 
         while ((token = read_token()).token == COMMA_T)
         {
-            if ((token = read_token()).token != ID_T)
-                error("Expected class polymorphism identifier.");
-
+            parse_check(token = read_token(), ID_T, "Expected class polymorphism identifier.", ERROR);
             sprintf(child.data, "%s,%s", child.data, token.lexeme);
         }
 
@@ -305,15 +292,11 @@ static void make_classdecl(node *parent)
     }
 
     line++;
-
-    if ((token = read_token()).token != LBRACE_T)
-        error("Expected left curly brace of class body.");
-    
+    parse_check(token = read_token(), LBRACE_T, "Expected left curly brace of class body.", ERROR);
     line++;
-    make_classprotaccessors(&child);
 
-    if (read_token().token != RBRACE_T)
-        error("Expected right curly brace of class body.");
+    make_classprotaccessors(&child);
+    parse_check(read_token(), RBRACE_T, "Expected right curly brace of class body.", ERROR);
 
     line += 2;
     add_child(parent, &child);
@@ -363,9 +346,9 @@ static void make_members(node *parent)
             make_vardecl(&child);
             break;
 
-        // TODO: Figure out whether we reached a <VarDecl> or <MethodDecl>.
         case STATIC_T:
             reverse_token(token);
+            // TODO: Figure out whether we reached a <VarDecl> or <MethodDecl>.
             break;
 
         default:
@@ -381,30 +364,17 @@ static void make_constructor(node *parent)
     node child = init_node(CONSTRUCTOR, 0);
     lex_t token;
 
-    if (read_token().token != CONSTRUCTOR_T)
-        error("Expected 'constructor'.");
-
-    else if (read_token().token != LPARAN_T)
-        error("Expected left parenthesis following 'constructor' keyword.");
-
+    parse_check(read_token(), CONSTRUCTOR_T, "Expected 'constructor'.", ERROR);
+    parse_check(read_token(), LPARAN_T, "Expected left parenthesis following 'constructor' keyword.", ERROR);
     parse_parameters(&child);
-
-    if (read_token().token != RPARAN_T)
-    {
-        error("Expected right parenthesis as end of constructor parameter list.");
-    }
-
+    parse_check(read_token(), RPARAN_T,"Expected right parenthesis as end of constructor parameter list.", ERROR);
     line++;
 
-    if (read_token().token != LBRACE_T)
-        error("Expected left curly brace for constructor body.");
-
+    parse_check(read_token(), LBRACE_T, "Expected left curly brace for constructor body.", ERROR);
     line++;
     make_statements(&child);
     line++;
-
-    if (read_token().token != RBRACE_T)
-        error("Expected right curly brace for contructor body.");
+    parse_check(read_token(), RBRACE_T, "Expected right curly brace for contructor body.", ERROR);
 
     line++;
     add_child(parent, &child);
@@ -419,10 +389,7 @@ static void parse_parameters(node *method)
     {
         reverse_token(token);
         make_var(method);
-
-        if (read_token().token != COLON_T)
-            error("Expected ':' to annotate datatype to parameter.");
-
+        parse_check(read_token(), COLON_T, "Expected ':' to annotate datatype to parameter.", ERROR);
         make_datatype(method);
     }
 
@@ -435,10 +402,7 @@ static void parse_parameters(node *method)
     while ((token = read_token()).token == COMMA_T)
     {
         make_var(method);
-
-        if (read_token().token != COLON_T)
-            error("Expected ':' to annotate datatype to parameter.");
-
+        parse_check(read_token(), COLON_T, "Expected ':' to annotate datatype to parameter.", ERROR);
         make_datatype(method);
     }
 
@@ -449,32 +413,18 @@ static void parse_parameters(node *method)
 static void make_destructor(node *parent)
 {
     node child = init_node(DESTRUCTOR, 0);
-    lex_t token;
-
-    if (read_token().token != DESTRUCTOR_T)
-        error("Expected 'destructor'.");
-
-    else if (read_token().token != LPARAN_T)
-        error("Expected left parenthesis following 'destructor' keyword.");
-
+    
+    parse_check(read_token(), DESTRUCTOR_T, "Expected 'destructor'.", ERROR);
+    parse_check(read_token(), LPARAN_T, "Expected left parenthesis following 'destructor' keyword.", ERROR);
     parse_parameters(&child);
-
-    if (read_token().token != RPARAN_T)
-    {
-        error("Expected right parenthesis as end of destructor parameter list.");
-    }
+    parse_check(read_token(), RPARAN_T, "Expected right parenthesis as end of destructor parameter list.", ERROR);
 
     line++;
-
-    if (read_token().token != LBRACE_T)
-        error("Expected left curly brace for destructor body.");
-
+    parse_check(read_token(), LBRACE_T, "Expected left curly brace for destructor body.", ERROR);
     line++;
     make_statements(&child);
     line++;
-
-    if (read_token().token != RBRACE_T)
-        error("Expected right curly brace for destructor body.");
+    parse_check(read_token(), RBRACE_T, "Expected right curly brace for destructor body.", ERROR);
 
     line++;
     add_child(parent, &child);
@@ -500,22 +450,13 @@ static void make_methoddecl(node *parent)
         token = read_token();
     }
 
-    if (token.token != ID_T)
-        error("Expected method identifier.");
-
+    parse_check(token, ID_T, "Expected method identifier.", ERROR);
     reverse_token(token);
     make_var(&child);
-
-    if (read_token().token != LPARAN_T)
-        error("Expected left parenthesis following method identifier.");
-
+    parse_check(read_token(), LPARAN_T, "Expected left parenthesis following method identifier.", ERROR);
     parse_parameters(&child);
-
-    if (read_token().token != RPARAN_T)
-        error("Expected right parenthesis following method parameter list.");
-
-    else if (read_token().token != COLON_T)
-        error("Expected colon following method parameter list.");
+    parse_check(read_token(), RPARAN_T, "Expected right parenthesis following method parameter list.", ERROR);
+    parse_check(read_token(), COLON_T, "Expected colon following method parameter list.", ERROR);
 
     if ((token = read_token()).token == DATATYPE_T && strcmp(token.lexeme, "void") == 0)
     {
@@ -525,31 +466,24 @@ static void make_methoddecl(node *parent)
         is_void = 1;
     }
 
-    else if (token.token != DATATYPE_T)
-        error("Expected datatype following ':' for method.");
-
+    parse_check(token, DATATYPE_T, "Expected datatype following ':' for method.", ERROR);
     reverse_token(token);
     make_datatype(&child);
     line++;
 
-    if (read_token().token != LBRACE_T)
-        error("Expected left curly brace for method body.");
-
+    parse_check(read_token(), LBRACE_T, "Expected left curly brace for method body.", ERROR);
     line++;
     make_statements(&child);
     line++;
 
+    // TODO: Remember to add child here.
     if (!is_void)
     {
-        if (read_token().token != RETURN_T)
-            error("Expected return statement.");
-
+        parse_check(read_token(), RETURN_T, "Expected return statement.", ERROR);
         make_expression(&child);
     }
 
-    if (read_token().token != RBRACE_T)
-        error("Expected right curly brace for method body.");
-
+    parse_check(read_token(), RBRACE_T, "Expected right curly brace for method body.", ERROR);
     add_child(parent, &child);
     line += 2;
 }
@@ -568,9 +502,7 @@ static void make_var(node *parent)
     lex_t token = read_token();
     node child = init_node(VARABLE, strlen(token.lexeme));
 
-    if (token.token != ID_T)
-        error("Expected variable identifier.");
-
+    parse_check(token, ID_T, "Expected variable identifier.", ERROR);
     strcpy(child.data, token.lexeme);
     add_child(parent, &child);
 }
@@ -581,13 +513,12 @@ static void make_datatype(node *parent)
     lex_t token = read_token();
     node child = init_node(DATATYPES, strlen(token.lexeme));
 
-    if (token.token != DATATYPE_T)
-        error("Expected datatype.");
-    
+    parse_check(token, DATATYPE_T, "Expected datatype.", ERROR);
     strcpy(child.data, token.lexeme);
     add_child(parent, &child);
 }
 
+// TODO: Add statements in tree for type checker to check upon.
 // Makes node for STATEMENTS.
 static void make_statements(node *parent)
 {
