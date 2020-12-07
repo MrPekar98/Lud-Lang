@@ -42,3 +42,4 @@ protocol test inherits SomeProtocol
         return #10#
     }
 }
+\0
